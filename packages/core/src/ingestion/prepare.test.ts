@@ -21,15 +21,15 @@ function get(path: string): PreparedDocument {
   return document;
 }
 
-describe('the sample collection', () => {
+describe('the collection', () => {
   it('reads all of it', () => {
-    expect(result.documents).toHaveLength(142);
+    expect(result.documents).toHaveLength(131);
   });
 
   it('comes out as one chunk per document', () => {
     const summary = summarize(result);
 
-    expect(summary.chunks).toBe(142);
+    expect(summary.chunks).toBe(131);
     expect(summary.multiChunkDocuments).toBe(0);
   });
 
@@ -38,7 +38,7 @@ describe('the sample collection', () => {
     // fail for a reason that has nothing to do with a bug.
     const largest = Math.max(...result.documents.flatMap((d) => d.chunks.map((c) => c.tokenCount)));
 
-    expect(largest).toBeLessThan(400);
+    expect(largest).toBeLessThan(600);
   });
 
   it('needs no normalisation, which was worth measuring rather than assuming', () => {
@@ -52,8 +52,8 @@ describe('the sample collection', () => {
   it('gives every document a type from its directory', () => {
     expect(summarize(result).docTypes).toEqual([
       'changelog',
-      'client_brief',
-      'delivery_report',
+      'customer',
+      'deployment_report',
       'guide',
       'meeting_note',
       'postmortem',
@@ -66,82 +66,93 @@ describe('dates across the collection', () => {
   it('dates the documents that carry one and leaves the rest alone', () => {
     const summary = summarize(result);
 
-    expect(summary.withDate).toBe(117);
-    expect(summary.dayPrecision).toBe(36);
-    expect(summary.monthPrecision).toBe(81);
+    expect(summary.withDate).toBe(102);
+    expect(summary.dayPrecision).toBe(40);
+    expect(summary.monthPrecision).toBe(62);
   });
 
   it('dates every release note from its title line', () => {
     const changelogs = result.documents.filter((document) => document.docType === 'changelog');
 
-    expect(changelogs).toHaveLength(6);
+    expect(changelogs).toHaveLength(11);
     for (const changelog of changelogs) {
       expect(changelog.temporalSource).toBe('heading');
       expect(changelog.temporalPrecision).toBe('day');
     }
   });
 
-  it('dates every meeting note to the day and every delivery report to the month', () => {
+  it('dates every meeting note to the day and every deployment report to the month', () => {
     for (const document of result.documents) {
       if (document.docType === 'meeting_note') expect(document.temporalPrecision).toBe('day');
-      if (document.docType === 'delivery_report') expect(document.temporalPrecision).toBe('month');
+      if (document.docType === 'deployment_report')
+        expect(document.temporalPrecision).toBe('month');
     }
   });
 
   it('finds the date in the incident postmortem, whose name puts it at the end', () => {
-    const incident = get('incident-postmortem-2026-03.md');
+    const incident = get('incident-postmortem-2026-04.md');
 
-    expect(incident.temporalDate).toBe('2026-03-01');
+    expect(incident.temporalDate).toBe('2026-04-01');
     expect(incident.temporalPrecision).toBe('month');
     expect(incident.versionSeries).toBeNull();
   });
 });
 
-describe('the two SDK guides', () => {
+describe('the two agent guides', () => {
   it('marks the retired one and not the current one', () => {
-    expect(get('sdk-notes-v2.md').isDeprecated).toBe(true);
-    expect(get('sdk-notes-v3.md').isDeprecated).toBe(false);
+    // The current guide says "It supersedes v2" three lines in. A rule that scanned for
+    // words about deprecation would match on that and mark the wrong document.
+    expect(get('drift-agent-v2.md').isDeprecated).toBe(true);
+    expect(get('drift-agent-v3.md').isDeprecated).toBe(false);
   });
 
   it('marks nothing else in the collection as retired', () => {
     const deprecated = result.documents.filter((document) => document.isDeprecated);
 
-    expect(deprecated.map((document) => document.relativePath)).toEqual(['sdk-notes-v2.md']);
+    expect(deprecated.map((document) => document.relativePath)).toEqual(['drift-agent-v2.md']);
   });
 });
 
 describe('the release note series', () => {
   it('links each note to the next one and leaves the newest unlinked', () => {
-    expect(get('changelogs/lumen-build-4.1.md').supersededByPath).toBe(
-      'changelogs/lumen-build-4.2.md',
+    expect(get('changelogs/halcyon-runner-5.2.md').supersededByPath).toBe(
+      'changelogs/halcyon-runner-5.3.md',
     );
-    expect(get('changelogs/lumen-build-4.2.md').supersededByPath).toBe(
-      'changelogs/lumen-build-4.3.md',
+    expect(get('changelogs/halcyon-runner-5.3.md').supersededByPath).toBe(
+      'changelogs/halcyon-runner-5.4.md',
     );
-    expect(get('changelogs/lumen-build-4.3.md').supersededByPath).toBeNull();
+    expect(get('changelogs/halcyon-runner-5.10.md').supersededByPath).toBeNull();
   });
 
   it('finds one series and only the release notes in it', () => {
     const versioned = result.documents.filter((document) => document.versionSeries !== null);
 
-    expect(versioned).toHaveLength(6);
+    expect(versioned).toHaveLength(11);
     expect(new Set(versioned.map((document) => document.versionSeries))).toEqual(
-      new Set(['lumen-build']),
+      new Set(['halcyon-runner']),
+    );
+  });
+
+  it('orders 5.10 after 5.9 rather than before it', () => {
+    // A string comparison puts 5.10 before 5.9. The ordering is numeric per part, and
+    // this series exists at these two numbers so the rule has something to be wrong about.
+    expect(get('changelogs/halcyon-runner-5.9.md').supersededByPath).toBe(
+      'changelogs/halcyon-runner-5.10.md',
     );
   });
 });
 
 describe('projects', () => {
-  it('labels the delivery reports with the project they are about', () => {
-    expect(get('delivery-reports/2026-01-tidal-tycoon.md').project).toBe('tidal-tycoon');
-    expect(get('client-briefs/tidal-tycoon.md').project).toBe('tidal-tycoon');
+  it('labels the deployment reports with the customer they are about', () => {
+    expect(get('deployment-reports/2025-11-kestrel-freight.md').project).toBe('kestrel-freight');
+    expect(get('customers/kestrel-freight.md').project).toBe('kestrel-freight');
   });
 
   it('does not invent a project for documents that are not about one', () => {
     // An earlier rule took whatever was left of the file name after the date, which
     // produced projects called `incident-postmortem` and `production-sync`.
-    expect(get('incident-postmortem-2026-03.md').project).toBeNull();
-    expect(get('qa-checklist.md').project).toBeNull();
+    expect(get('incident-postmortem-2026-04.md').project).toBeNull();
+    expect(get('release-checklist.md').project).toBeNull();
 
     const meetingNotes = result.documents.filter((d) => d.docType === 'meeting_note');
     for (const note of meetingNotes) expect(note.project).toBeNull();
@@ -150,7 +161,7 @@ describe('projects', () => {
   it('only uses project names that have a brief of their own', () => {
     const briefs = new Set(
       result.documents
-        .filter((document) => document.docType === 'client_brief')
+        .filter((document) => document.docType === 'customer')
         .map((document) => document.relativePath.split('/').at(-1)?.replace('.md', '')),
     );
 
@@ -163,7 +174,7 @@ describe('projects', () => {
 describe('resolveProjects', () => {
   it('gives no labels when the corpus has no briefs to read them from', () => {
     const assignments = resolveProjects([
-      { path: 'delivery-reports/2026-01-something.md', docType: 'delivery_report' },
+      { path: 'deployment-reports/2026-01-something.md', docType: 'deployment_report' },
     ]);
 
     expect(assignments.size).toBe(0);
@@ -171,12 +182,12 @@ describe('resolveProjects', () => {
 
   it('prefers the longer name when one project name contains another', () => {
     const assignments = resolveProjects([
-      { path: 'client-briefs/marina.md', docType: 'client_brief' },
-      { path: 'client-briefs/merge-marina.md', docType: 'client_brief' },
-      { path: 'delivery-reports/2026-01-merge-marina.md', docType: 'delivery_report' },
+      { path: 'customers/ledger.md', docType: 'customer' },
+      { path: 'customers/alpine-ledger.md', docType: 'customer' },
+      { path: 'deployment-reports/2026-01-alpine-ledger.md', docType: 'deployment_report' },
     ]);
 
-    expect(assignments.get('delivery-reports/2026-01-merge-marina.md')).toBe('merge-marina');
+    expect(assignments.get('deployment-reports/2026-01-alpine-ledger.md')).toBe('alpine-ledger');
   });
 });
 
