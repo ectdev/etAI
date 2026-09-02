@@ -48,6 +48,19 @@ export interface SearchOptions {
    * uses this, to show what the ranking is worth.
    */
   skipRanking?: boolean;
+  /**
+   * A vector for this question that the caller already has.
+   *
+   * Only the sweep passes it. The sweep runs the same questions at a dozen ranking
+   * settings, none of which change what the question means, so embedding each one once
+   * per setting buys nothing and costs twelve times the calls. On a free key that is the
+   * difference between a sweep that runs and a sweep that stops halfway through on a
+   * daily quota.
+   *
+   * Nothing else should supply this. A vector that does not belong to the question is
+   * undetectable here and produces results that look ordinary and are meaningless.
+   */
+  embedding?: number[];
 }
 
 const DEFAULT_LIMIT = 8;
@@ -148,13 +161,15 @@ export async function searchChunks(
    * Only an upstream failure is caught. A bug in this code should still be a 500.
    */
   const embedStarted = Date.now();
-  let embedding: number[] | null = null;
+  let embedding: number[] | null = options.embedding ?? null;
 
-  try {
-    embedding = await embedQuery(normalized.text);
-  } catch (error) {
-    if (!(error instanceof UpstreamServiceError)) throw error;
-    console.warn(`Embedding unavailable, searching by keyword only: ${error.message}`);
+  if (embedding === null) {
+    try {
+      embedding = await embedQuery(normalized.text);
+    } catch (error) {
+      if (!(error instanceof UpstreamServiceError)) throw error;
+      console.warn(`Embedding unavailable, searching by keyword only: ${error.message}`);
+    }
   }
 
   const embedMs = Date.now() - embedStarted;

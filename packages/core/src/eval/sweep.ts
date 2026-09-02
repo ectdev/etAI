@@ -1,4 +1,7 @@
+import { embedQuery } from '../embedding/embed.js';
+import { normalizeQuestion } from '../retrieval/question.js';
 import { searchChunks } from '../retrieval/search.js';
+import { evalQueries } from './queries.js';
 import { measureQueries, scoreRetrieval, TOP_K, type RetrievalScore } from './measure.js';
 
 /**
@@ -10,7 +13,13 @@ import { measureQueries, scoreRetrieval, TOP_K, type RetrievalScore } from './me
  * rather than the one that sounded right.
  *
  * It is a command rather than a test. The result is a judgement about what to set, and it
- * costs an embedding call per question per setting.
+ * costs one embedding call per question for the whole run.
+ *
+ * Once per question rather than once per question per setting, which it used to be. None
+ * of the settings below changes what a question means, so the twelve vectors it produced
+ * for each one were twelve copies. Twelve settings times the question set is more calls
+ * than a free key gets in a day, and the run died partway through the table with the rows
+ * it had already printed looking perfectly reasonable.
  */
 
 export interface SweepSetting {
@@ -47,10 +56,12 @@ const pause = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export async function sweep(settings: SweepSetting[]): Promise<SweepResult[]> {
   const results: SweepResult[] = [];
+  const vectors = await embedOnce(evalQueries.map((query) => query.question));
 
   for (const setting of settings) {
     const measured = await measureQueries(async (question) => {
       const result = await searchUntilNotDegraded(question, {
+        ...(vectors.get(question) === undefined ? {} : { embedding: vectors.get(question) }),
         limit: TOP_K,
         ...(setting.perTypeLimit === undefined ? {} : { perTypeLimit: setting.perTypeLimit }),
         ...(setting.crowdedTypes === undefined ? {} : { crowdedTypes: setting.crowdedTypes }),
@@ -73,6 +84,32 @@ export async function sweep(settings: SweepSetting[]): Promise<SweepResult[]> {
   }
 
   return results;
+}
+
+/**
+ * Every question turned into a vector once, before any setting runs.
+ *
+ * Done here rather than inside the loop so that a quota failure stops the run before it
+ * has printed half a table, and so the twelve rows are compared on identical input rather
+ * than on twelve separate embeddings of the same words.
+ *
+ * It embeds `normalizeQuestion(question).text` rather than the question, because that is
+ * what `searchChunks` embeds. Passing a vector for the raw text would measure a pipeline
+ * slightly different from the one that ships, and the difference would be invisible in
+ * the table. A question the normaliser rejects gets no entry and falls through to the
+ * ordinary path, which returns nothing for it either way.
+ */
+async function embedOnce(questions: string[]): Promise<Map<string, number[]>> {
+  const vectors = new Map<string, number[]>();
+
+  for (const question of new Set(questions)) {
+    const normalized = normalizeQuestion(question);
+    if (!normalized.usable) continue;
+
+    vectors.set(question, await embedQuery(normalized.text));
+  }
+
+  return vectors;
 }
 
 async function searchUntilNotDegraded(
