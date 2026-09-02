@@ -20,8 +20,8 @@ const inter = Inter({
 /**
  * Without this a phone lays the page out at about 980 CSS pixels and scales the result
  * down, so every breakpoint below that never fires and the interface renders as a
- * shrunken desktop. The three widths the brief asks for are only three widths if the
- * browser is told to use the device's own.
+ * shrunken desktop. The three widths this interface is drawn at are only three widths
+ * if the browser is told to use the device's own.
  */
 export const viewport: Viewport = {
   width: 'device-width',

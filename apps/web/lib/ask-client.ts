@@ -10,8 +10,9 @@ import type { ChatAnswer, ChatSource, DocumentDetail } from './chat-types';
  * genuinely not been written yet.
  *
  * The cost of the split is one extra embedding call per question, a fraction of a cent.
- * Streaming would remove that and add a protocol; the brief lists streaming as a bonus
- * and passages before the answer as a requirement, so this is the trade that matches it.
+ * Streaming would remove that and add a protocol, and it would also remove the citation
+ * check, which cannot run halfway through the first token. Showing the passages early is
+ * the part of streaming that can be done honestly here.
  */
 
 export interface ApiFailure {

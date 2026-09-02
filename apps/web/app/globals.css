@@ -1,19 +1,18 @@
 @import 'tailwindcss';
 
 /*
- * Nocturne, the design system this interface was designed in.
+ * The design tokens, and the component classes built on them.
  *
- * The tokens and component classes below are taken from the handoff bundle at
- * the nocturne folder under design/handoff/project/_ds rather than retyped, so the values
- * here are the ones the design was drawn against. The design file references only this
- * system; the bundle also ships Industry, which nothing imports.
+ * Colour, spacing, radius and elevation are variables rather than literals, and every
+ * rule below reads them. That is the rule this file keeps: never hard-code a value a
+ * token already carries, because a palette that lives in one place can be changed in one
+ * place and a palette scattered through 2000 lines cannot.
  *
  * Inter is loaded through next/font in the root layout instead of the stylesheet's
  * Google Fonts @import, so the app has no network dependency at runtime.
  *
- * Tailwind stays for layout utilities. Colour, spacing, radius and elevation come from
- * these variables, which is what the system asks for: never hard-code a value a token
- * already carries.
+ * Tailwind stays for layout utilities: flow, flex and grid are better expressed as
+ * classes on the element than as another named rule here.
  */
 
 :root {

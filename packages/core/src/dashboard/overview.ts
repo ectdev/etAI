@@ -24,8 +24,8 @@ import { desc, eq, isNull, sql } from 'drizzle-orm';
  * is why there is no route behind the "Run ingestion" button the design draws. Ingestion
  * is a command that takes a minute and a half on a cold corpus, and putting it behind a
  * web request means either holding the request open for that long or building a job
- * runner to avoid it. Neither is needed to show what the brief asks the dashboard to
- * show, so the empty state names the command instead.
+ * runner to avoid it. Neither is needed for a dashboard that reports, so the empty
+ * state names the command instead.
  */
 
 export interface IndexHealth {

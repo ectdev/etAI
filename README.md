@@ -453,7 +453,7 @@ disclosed. The reasoning, along with how citation marks are checked rather than 
 is in [Decisions in the interface](docs/architecture.md#decisions-in-the-interface).
 
 The document list at `/dashboard/documents` was built from the vocabulary the dashboard
-already used, because the design handoff had no screen for it. Reusing the words a reader
+already used, because there was no screen drawn for it. Reusing the words a reader
 had already learned seemed better than inventing a second set for the same ideas.
 
 ## Future work

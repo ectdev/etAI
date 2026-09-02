@@ -12,8 +12,7 @@ export const dynamic = 'force-dynamic';
 /**
  * The indexed corpus, which is the other half of what the dashboard is for.
  *
- * The brief asks for a view that can see indexed documents as well as observe ingestion.
- * The two are different questions: a run says what happened at a moment, and this says
+ * Seeing what is indexed and watching ingestion happen are two different questions: a run says what happened at a moment, and this says
  * what is in the index now, including a document that was written by a run three weeks ago
  * and has since lost its embedding.
  */

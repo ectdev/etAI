@@ -20,9 +20,9 @@ import { SourcePanel } from './source-panel';
 /**
  * The chat surface.
  *
- * A question runs in two stages, which is what the design shows and what the brief asks
- * for: retrieval returns the passages, they are rendered, and only then is the answer
- * requested. The gap between the two is a real wait rather than a rendering order.
+ * A question runs in two stages: retrieval returns the passages, they are rendered, and
+ * only then is the answer requested. The gap between the two is a real wait rather than a
+ * rendering order.
  *
  * State lives here rather than in a store because there is one screen and it owns all of
  * it. The panel is part of that state: which document is open, and which paragraph to

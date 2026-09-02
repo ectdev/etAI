@@ -144,7 +144,7 @@ check "dashboard renders" 200 "$(status -b "$JAR_DIR/admin.jar" "$BASE/dashboard
 
 dashboard="$(curl -s -b "$JAR_DIR/admin.jar" "$BASE/dashboard")"
 
-# The three things the brief names, plus index health, asserted on what the server
+# The three panels, plus index health, asserted on what the server
 # actually sent rather than on the queries behind it. A panel that failed renders its own
 # error and the page still returns 200, so a status check alone proves nothing here.
 contains "dashboard shows index health" "Index health" "$dashboard"
