@@ -8,65 +8,55 @@
  * token already carries, because a palette that lives in one place can be changed in one
  * place and a palette scattered through 2000 lines cannot.
  *
- * Inter is loaded through next/font in the root layout instead of the stylesheet's
- * Google Fonts @import, so the app has no network dependency at runtime.
+ * The scales are numbered 100 to 900, lightest to darkest, and only the steps something
+ * actually uses are defined. A full scale reads as more considered and means nine values
+ * nobody has ever looked at on a screen, so a step is added when a rule needs it.
+ *
+ * The pairs matter more than the individual values. A chip is an 800 background with 100
+ * text on it, a panel is 900, and a ring is 700, so those three are chosen together and
+ * changing one alone is how contrast quietly goes.
+ *
+ * Manrope is loaded through next/font in the root layout instead of a stylesheet
+ * @import, so the app has no network dependency at runtime.
  *
  * Tailwind stays for layout utilities: flow, flex and grid are better expressed as
  * classes on the element than as another named rule here.
  */
 
 :root {
-  --color-bg: #161826;
-  --color-surface: #232532;
-  --color-text: #e9e9ed;
-  --color-accent: #9184d9;
-  --color-accent-2: #a7a1db;
-  --color-divider: color-mix(in srgb, #e9e9ed 16%, transparent);
-  --color-neutral-100: #f3f5fe;
-  --color-neutral-200: #e4e7f5;
-  --color-neutral-300: #cfd3e5;
-  --color-neutral-400: #b2b6ca;
-  --color-neutral-500: #9397ab;
-  --color-neutral-600: #75798c;
-  --color-neutral-700: #595d6c;
-  --color-neutral-800: #3f424d;
-  --color-neutral-900: #292b31;
-  --color-accent-100: #f5f4ff;
-  --color-accent-200: #e7e5fe;
-  --color-accent-300: #d2cefd;
-  --color-accent-400: #b5abfc;
-  --color-accent-500: #968ae0;
-  --color-accent-600: #796cbf;
-  --color-accent-700: #5d5294;
-  --color-accent-800: #423a6a;
-  --color-accent-900: #2b2741;
-  --color-accent-2-100: #f5f4ff;
-  --color-accent-2-200: #e7e5fe;
-  --color-accent-2-300: #d2cefd;
-  --color-accent-2-400: #b5afe8;
-  --color-accent-2-500: #9690c9;
-  --color-accent-2-600: #7972a9;
-  --color-accent-2-700: #5c5783;
-  --color-accent-2-800: #423e5d;
-  --color-accent-2-900: #2b293a;
-  --color-section: #262a60;
-  --color-section-glow: #353b80;
-  --color-section-ghost: #4c5397;
-  --font-heading: var(--font-inter), 'Inter', system-ui, sans-serif;
-  --font-heading-weight: 500;
-  --font-body: var(--font-inter), 'Inter', system-ui, sans-serif;
-  --space-1: 2.8px;
-  --space-2: 5.6px;
-  --space-3: 8.4px;
-  --space-4: 11.2px;
-  --space-6: 16.8px;
-  --space-8: 22.4px;
-  --radius-sm: 4px;
-  --radius-md: 8px;
-  --radius-lg: 14px;
-  --shadow-sm: 0 0 0 1px #3f424d;
-  --shadow-md: 0 0 0 1px #595d6c, 0 6px 18px rgba(0, 0, 0, 0.55);
-  --shadow-lg: 0 0 0 1px #9397ab, 0 16px 40px rgba(0, 0, 0, 0.65);
+  --color-bg: #0f1418;
+  --color-surface: #192026;
+  --color-text: #e8eef0;
+  --color-accent: #45c0ab;
+  --color-divider: color-mix(in srgb, #e8eef0 14%, transparent);
+  --color-neutral-100: #eef3f5;
+  --color-neutral-700: #4e5a62;
+  --color-neutral-800: #333d44;
+  --color-accent-100: #e9f7f4;
+  --color-accent-200: #c6ebe4;
+  --color-accent-300: #98dbd0;
+  --color-accent-500: #3fb8a4;
+  --color-accent-700: #2a7a69;
+  --color-accent-800: #194b41;
+  --color-accent-900: #11322c;
+  --color-accent-2-100: #e7f2fa;
+  --color-accent-2-300: #9fc9e6;
+  --color-accent-2-800: #1d3c52;
+  --font-heading: var(--font-manrope), 'Manrope', system-ui, sans-serif;
+  --font-heading-weight: 600;
+  --font-body: var(--font-manrope), 'Manrope', system-ui, sans-serif;
+  --space-1: 3px;
+  --space-2: 6px;
+  --space-3: 9px;
+  --space-4: 12px;
+  --space-6: 18px;
+  --space-8: 24px;
+  --radius-sm: 3px;
+  --radius-md: 9px;
+  --radius-lg: 18px;
+  --shadow-sm: 0 0 0 1px #333d44;
+  --shadow-md: 0 0 0 1px #4e5a62, 0 8px 24px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 0 0 1px #84939c, 0 20px 48px rgba(0, 0, 0, 0.62);
 }
 
 .text-muted {
@@ -340,7 +330,7 @@ textarea::placeholder {
 
 /* ──────────────────────────────────────────────────────────────────────────
    The shell: rail, header, and the three widths the design is drawn at.
-   Breakpoints are the design's own, 1120 and 700, expressed in CSS so the
+   The two breakpoints, 1180 and 720, expressed in CSS so the
    first paint is correct and no resize listener is needed.
    ────────────────────────────────────────────────────────────────────── */
 
@@ -543,7 +533,7 @@ textarea::placeholder {
   }
 }
 
-@media (min-width: 700px) {
+@media (min-width: 720px) {
   .et-header-email {
     display: inline;
   }
@@ -696,7 +686,7 @@ textarea::placeholder {
 /* ---------------------------------------------------------------------------
    The conversation drawer
 
-   Below 1120 the rail is icons only and below 700 there is no rail, so the list
+   Below 1180 the rail is icons only and below 720 there is no rail, so the list
    slides in from the left instead. A native popover again, so light dismiss and
    Escape come from the platform rather than from a listener.
    --------------------------------------------------------------------------- */
@@ -773,7 +763,7 @@ textarea::placeholder {
 }
 
 /* The drawer is never used above 1119, where the rail holds the list. */
-@media (min-width: 1120px) {
+@media (min-width: 1180px) {
   .et-drawer {
     display: none;
   }
@@ -1415,7 +1405,7 @@ textarea::placeholder {
   }
 }
 
-@media (min-width: 1120px) {
+@media (min-width: 1180px) {
   /* On desktop the folded list inside a turn is redundant: the same sources are in the
      column beside it, carrying the same numbers. */
   .et-inline-sources {
@@ -1441,7 +1431,7 @@ textarea::placeholder {
 /* ---------------------------------------------------------------------------
    Dashboard overview
 
-   The breakpoints are the design's own, 1120 and 700, the same two the shell
+   The breakpoints are 1180 and 720, the same two the shell
    uses. Four metric cards on desktop, two on a tablet, one on a phone; the run
    and query tables drop their least useful columns rather than scrolling
    sideways, because a table that scrolls hides the column a reader is looking
@@ -1652,7 +1642,7 @@ textarea::placeholder {
   padding: var(--space-4);
   border-radius: var(--radius-md);
   background: var(--color-surface);
-  animation: pfIn 0.2s ease both;
+  animation: et-in 0.2s ease both;
 }
 .et-row-facts {
   display: flex;
@@ -1695,7 +1685,7 @@ textarea::placeholder {
   margin-left: auto;
 }
 
-@media (max-width: 1120px) {
+@media (max-width: 1180px) {
   .et-metrics {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -1714,7 +1704,7 @@ textarea::placeholder {
   }
 }
 
-@media (max-width: 700px) {
+@media (max-width: 720px) {
   .et-dash {
     padding: var(--space-4) var(--space-4) var(--space-8);
   }
@@ -1792,7 +1782,7 @@ textarea::placeholder {
   text-decoration: underline;
 }
 
-@media (max-width: 1120px) {
+@media (max-width: 1180px) {
   .et-docs .et-row-head,
   .et-docs .et-row {
     grid-template-columns: minmax(0, 1fr) 110px 170px;
@@ -1802,7 +1792,7 @@ textarea::placeholder {
   }
 }
 
-@media (max-width: 700px) {
+@media (max-width: 720px) {
   .et-docs .et-row-head,
   .et-docs .et-row {
     grid-template-columns: minmax(0, 1fr) 150px;
@@ -2058,7 +2048,7 @@ textarea::placeholder {
   opacity: 0.6;
 }
 
-@media (max-width: 700px) {
+@media (max-width: 720px) {
   /* The email is the widest thing in the header on a phone, and the role beneath
      it is already in the menu. */
   .et-account-trigger-text {
@@ -2147,9 +2137,12 @@ textarea::placeholder {
      when the confirmation appears. */
   min-height: 1.5em;
 }
-/* The second accent, which is what this design system uses for a settled state.
-   There is no green in the palette and introducing one for a single message would
-   put a colour on screen that belongs to nothing else. */
+/* The second accent, which is what marks a settled state.
+   Not green, and not the primary accent either. Green would be a colour that appears
+   nowhere else in the interface, and the primary accent is what actions are drawn in,
+   so a passive "saved" line wearing it would read as something to click. The second
+   accent is a neighbour of the first: clearly a different colour, obviously from the
+   same palette. */
 .et-dialog-status[data-saved] {
   color: var(--color-accent-2-300);
 }
@@ -2186,7 +2179,7 @@ textarea::placeholder {
    The landing screen
 
    Left aligned rather than centred in a box, so it reads as an application
-   rather than as a dialog. Two columns on desktop, stacked below 1120, and the
+   rather than as a dialog. Two columns on desktop, stacked below 1180, and the
    same two breakpoints the shell uses so this screen has no private idea of
    what a tablet is.
    --------------------------------------------------------------------------- */
@@ -2201,7 +2194,7 @@ textarea::placeholder {
 }
 .et-landing-inner {
   width: 100%;
-  max-width: 1120px;
+  max-width: 1180px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
@@ -2370,7 +2363,7 @@ textarea::placeholder {
    --------------------------------------------------------------------------- */
 
 .et-rise {
-  animation: pfRise 0.34s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+  animation: et-rise 0.34s cubic-bezier(0.22, 0.61, 0.36, 1) both;
 }
 .et-rise-0 {
   animation-delay: 0s;
@@ -2388,7 +2381,7 @@ textarea::placeholder {
   animation-delay: 0.13s;
 }
 
-@keyframes pfRise {
+@keyframes et-rise {
   from {
     opacity: 0;
     transform: translateY(7px);
@@ -2399,7 +2392,7 @@ textarea::placeholder {
   }
 }
 
-@media (max-width: 1120px) {
+@media (max-width: 1180px) {
   .et-landing-columns {
     grid-template-columns: minmax(0, 1fr);
     gap: var(--space-6);
@@ -2412,7 +2405,7 @@ textarea::placeholder {
   }
 }
 
-@media (max-width: 700px) {
+@media (max-width: 720px) {
   .et-landing {
     align-items: flex-start;
     padding: var(--space-6) var(--space-4);

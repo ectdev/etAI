@@ -1,19 +1,20 @@
 import type { Metadata, Viewport } from 'next';
-import { Inter } from 'next/font/google';
+import { Manrope } from 'next/font/google';
 import type { ReactNode } from 'react';
 import './globals.css';
 
 /**
- * Inter through next/font rather than the design system's Google Fonts import.
+ * Manrope through next/font rather than a stylesheet @import.
  *
- * Same typeface at the same weights. The difference is that this one is served from the
- * application, so a fresh clone renders correctly with no network beyond the database and
- * the model provider, and there is no third party watching page loads.
+ * Serving it from the application means a fresh clone renders correctly with no network
+ * beyond the database and the model provider, and no third party sees a request on every
+ * page load. The weights are the four the interface actually sets; asking for the whole
+ * variable range would ship weights nothing uses.
  */
-const inter = Inter({
+const manrope = Manrope({
   subsets: ['latin'],
   weight: ['400', '500', '600', '700'],
-  variable: '--font-inter',
+  variable: '--font-manrope',
   display: 'swap',
 });
 
@@ -35,7 +36,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" className={inter.variable}>
+    <html lang="en" className={manrope.variable}>
       <body className="antialiased">{children}</body>
     </html>
   );

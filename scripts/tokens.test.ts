@@ -33,7 +33,7 @@ const CSS = RAW.replace(/\/\*[\s\S]*?\*\//g, ' ');
  * this file. It is the only name that legitimately comes from outside the stylesheet, and
  * listing it by hand is the point: a second entry here should have to be argued for.
  */
-const DEFINED_ELSEWHERE = new Set(['--font-inter']);
+const DEFINED_ELSEWHERE = new Set(['--font-manrope']);
 
 describe('design tokens', () => {
   it('defines every custom property it uses', () => {

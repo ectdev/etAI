@@ -37,7 +37,7 @@ describe('motion', () => {
     const keyframes = CSS.match(/@keyframes\s+[\w-]+/g) ?? [];
 
     expect(keyframes.length).toBeGreaterThan(2);
-    expect(CSS).toContain('@keyframes pfRise');
+    expect(CSS).toContain('@keyframes et-rise');
   });
 
   it('reaches the disclosure transition, because the selector is universal', () => {

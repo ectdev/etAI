@@ -10,7 +10,7 @@ import { AccountMenu } from '@/components/account/account-menu';
  *
  * Three widths, matching the design: a labelled rail on desktop, an icon rail on tablet,
  * and no rail at all on a phone, where the navigation moves into the header. The
- * breakpoints are the design's own, 1120 and 700, and they are CSS rather than a
+ * breakpoints are 1180 and 720, and they are CSS rather than a
  * measured window width so the first paint is right and there is no resize listener.
  */
 
