@@ -408,7 +408,7 @@ export function classifySmallTalk(text: string): SmallTalk | null {
 const REPLIES: Record<SmallTalk, readonly string[]> = {
   greeting: [
     'Hello. Ask me anything about the indexed documents and I will answer from them, with a link to the source for every claim. If the collection does not cover something, I will say so rather than guess.',
-    'Hi. I answer from an indexed set of documents and cite the ones I used. Ask about the SDK, the build pipeline, the ad network specifications, or the project reports.',
+    'Hi. I answer from an indexed set of documents and cite the ones I used. Ask about the build agent, the cache, the per provider runner specifications, or the customer migration reports.',
     'Hello. Every answer here comes from the indexed documents, with the source attached. Ask a question and I will show you where the answer came from.',
     'Hi there. Ask about anything in the collection and I will quote the document it came from. If it is not in there, I will tell you that instead of guessing.',
   ],

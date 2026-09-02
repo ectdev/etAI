@@ -45,7 +45,7 @@ describe('the markers a model writes into an answer', () => {
 
   it('marks two documents separately when it uses the retired guide beside the current one', async () => {
     /**
-     * The hardest case in the collection for this. Two versions of one SDK guide are in
+     * The hardest case in the collection for this. Two versions of one agent guide are in
      * front of the model, it has to answer from the current one and warn about the other,
      * and the two claims have to carry different numbers. A single number covering both
      * would look right in the interface and point the reader at the wrong guide for half

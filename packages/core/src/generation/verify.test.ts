@@ -362,7 +362,7 @@ describe('outOfScopeAnswer', () => {
 /**
  * The quote a citation carries, checked against the text the model was shown.
  *
- * This rule exists because of a live failure rather than an idea. Asked about the SDK,
+ * This rule exists because of a live failure rather than an idea. Asked about the agent,
  * the model cited the retired guide and quoted "status: RETIRED, do not present as
  * current". That sentence is not in the file. It was in the metadata block this project
  * writes above each document, so the model quoted my scaffolding as evidence, and the

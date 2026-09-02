@@ -56,7 +56,7 @@ describe('answering from the documents', () => {
     expect(result.answer).toMatch(/4\.2/);
   });
 
-  it('says the old SDK call no longer works when asked about it', async () => {
+  it('says the old agent call no longer works when asked about it', async () => {
     const result = await answerQuestion(
       'How do I start the current drift agent, and what happened to report()?',
     );

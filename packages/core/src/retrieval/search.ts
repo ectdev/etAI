@@ -238,17 +238,19 @@ export async function searchChunks(
    * The widening that only happens when keyword search is carrying the whole query.
    *
    * `websearch_to_tsquery` joins terms with AND, which is right when the vector half is
-   * there to catch what wording misses. Alone it is brittle: "What happened to
-   * report()?" parses to `'happen' & 'report()'`, and no document in this
-   * collection contains both, so a question the corpus plainly answers returned nothing
-   * and the system called it out of scope. Measured, not guessed: AND matched 0 chunks
-   * and OR matched 14.
+   * there to catch what wording misses. Alone it is brittle: "Why is the build cache kept
+   * separate from the artifact store?" parses to
+   * `'build' & 'cach' & 'kept' & 'separ' & 'artifact' & 'store'`, and no chunk in this
+   * collection carries all six, so a question the corpus answers in a document named
+   * after it returned nothing and the system called it out of scope. Measured, not
+   * guessed: AND matched 0 chunks and OR matched 109.
    *
-   * So the terms are re-joined with OR and the search runs again. Precision drops
-   * noticeably, and the ranking shows it: the same question puts three meeting notes
-   * above the SDK guide, because "happen" is a common word and it is now enough on its
-   * own. That is why this is a fallback rather than the default. Something imprecise to
-   * rank beats an empty result that gets reported as a fact about the collection.
+   * So the terms are re-joined with OR and the search runs again. What that costs is
+   * visible in the same numbers: 109 of the 131 chunks now match, which is most of the
+   * collection, and the ranking has to do all the work of telling them apart. It happens
+   * to put the right document first here. It will not always, which is why this is a
+   * fallback rather than the default. Something imprecise to rank beats an empty result
+   * that gets reported as a fact about the collection.
    *
    * Still `websearch_to_tsquery`, which understands "or" as a keyword and never raises on
    * strange input. Building a `to_tsquery` string by hand would put user text into query
