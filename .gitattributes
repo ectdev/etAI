@@ -1,0 +1,13 @@
+# Line endings are normalised to LF in the repository and on checkout, on every platform.
+#
+# This is not a style preference. Ingestion decides what to re-embed by hashing each file's
+# contents, so a checkout that turned 142 corpus files into CRLF would change all 142
+# hashes. The first ingest on that machine would re-embed the whole corpus, and the
+# incremental path, which is the interesting part, would have nothing to demonstrate.
+# Git's default on Windows is core.autocrlf=true, so that is the machine most likely to
+# clone this next.
+#
+# No binary rules below. Every one of the 322 tracked files is text, *.pdf is gitignored
+# on purpose so the case document is never committed, and `text=auto` leaves anything git
+# detects as binary alone. Rules for file types that are not here would be guesses.
+* text=auto eol=lf

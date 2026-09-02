@@ -1,0 +1,30 @@
+services:
+  postgres:
+    # The pgvector image is plain PostgreSQL 17 with the vector extension already
+    # compiled in, which saves installing it by hand inside the container.
+    image: pgvector/pgvector:pg17
+    container_name: etai-postgres
+    restart: unless-stopped
+    # These three are the other half of DATABASE_URL in .env. They are written in two
+    # places and nothing checks that they agree, so changing one without the other
+    # surfaces as a connection refusal that says nothing about where it came from. If you
+    # change a value here, change DATABASE_URL to match.
+    environment:
+      POSTGRES_USER: etai
+      POSTGRES_PASSWORD: etai
+      POSTGRES_DB: etai
+    ports:
+      - '5432:5432'
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      # Runs once on an empty data directory and enables the extension, so a
+      # fresh clone does not need a manual CREATE EXTENSION step.
+      - ./packages/db/docker/init-extensions.sql:/docker-entrypoint-initdb.d/init-extensions.sql:ro
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U etai -d etai']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  pgdata:

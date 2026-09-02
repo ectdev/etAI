@@ -1,0 +1,1 @@
+ALTER TABLE "conversation_turn" ALTER COLUMN "coverage" DROP NOT NULL;

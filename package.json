@@ -1,0 +1,49 @@
+{
+  "name": "etai",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@11.21.0+sha512.521705bce689924eac72f5a3587122f362689ef6571e55ba80076fd637c11132ecffada26fad4ea79c485bfddbfd3d5a2a5b05805a77e893de71ec8a6cca3bb1",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build:packages": "tsc --build",
+    "watch:packages": "tsc --build --watch",
+    "predev": "pnpm build:packages",
+    "dev": "pnpm --filter web dev",
+    "build": "pnpm build:packages && pnpm --filter web build",
+    "start": "pnpm --filter web start",
+    "typecheck": "tsc --build && pnpm --filter web typecheck",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "pretest": "pnpm build:packages",
+    "test": "vitest run",
+    "pretest:live": "pnpm build:packages",
+    "test:live": "vitest run --config vitest.live.config.ts",
+    "precheck:env": "pnpm build:packages",
+    "check:env": "tsx scripts/check-env.ts",
+    "db:generate": "pnpm --filter @etai/db generate",
+    "db:migrate": "pnpm --filter @etai/db migrate",
+    "db:seed": "pnpm --filter web seed",
+    "ingest": "pnpm --filter @etai/core ingest",
+    "eval": "pnpm --filter @etai/core eval",
+    "mcp:stdio": "pnpm --filter @etai/mcp-server start",
+    "verify:http": "bash scripts/verify-http.sh",
+    "answers": "pnpm --filter @etai/core answers",
+    "compare:providers": "pnpm --filter @etai/core compare:providers",
+    "mcp:token": "pnpm --filter web mcp:token"
+  },
+  "devDependencies": {
+    "@etai/shared": "workspace:*",
+    "@types/node": "26.2.0",
+    "dotenv": "17.4.2",
+    "eslint": "10.8.1",
+    "prettier": "3.9.6",
+    "tsx": "4.23.12",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.67.0",
+    "vitest": "4.1.10"
+  }
+}

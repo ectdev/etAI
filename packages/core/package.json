@@ -1,0 +1,48 @@
+{
+  "name": "@etai/core",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./eval": {
+      "types": "./dist/eval/index.d.ts",
+      "default": "./dist/eval/index.js"
+    },
+    "./mcp": {
+      "types": "./dist/mcp/index.d.ts",
+      "default": "./dist/mcp/index.js"
+    },
+    "./dashboard": {
+      "types": "./dist/dashboard/index.d.ts",
+      "default": "./dist/dashboard/index.js"
+    },
+    "./analytics": {
+      "types": "./dist/analytics/index.d.ts",
+      "default": "./dist/analytics/index.js"
+    }
+  },
+  "scripts": {
+    "ingest": "tsx src/ingestion/cli.ts",
+    "eval": "tsx src/eval/cli.ts",
+    "answers": "tsx src/eval/answers.ts",
+    "compare:providers": "tsx src/eval/providers-cli.ts"
+  },
+  "dependencies": {
+    "@ai-sdk/anthropic": "4.0.38",
+    "@ai-sdk/google": "4.0.42",
+    "@modelcontextprotocol/server": "2.0.0",
+    "@etai/db": "workspace:*",
+    "@etai/shared": "workspace:*",
+    "ai": "7.0.62",
+    "dotenv": "17.4.2",
+    "drizzle-orm": "0.45.2",
+    "zod": "4.4.3"
+  },
+  "devDependencies": {
+    "@types/node": "26.2.0"
+  }
+}

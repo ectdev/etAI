@@ -1,0 +1,47 @@
+# dependencies
+node_modules/
+.pnpm-store/
+
+# build output
+dist/
+build/
+.next/
+out/
+*.tsbuildinfo
+
+# env / secrets
+.env
+.env.*
+!.env.example
+
+# database
+pgdata/
+*.sqlite
+*.sqlite3
+
+# logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# archives, which is how a folder full of node_modules gets committed by accident
+*.zip
+*.tar.gz
+
+# PDFs are never part of this repository, and the rule is here so one cannot arrive
+# by accident along with a folder of documents.
+*.pdf
+
+# os / editor
+.DS_Store
+.idea/
+*.swp
+
+# internal working notes (not part of the deliverable)
+PLAN.md
+notes.md
+scratch/
+
+# Design working files. Reference material while building the interface, not part of
+# what ships.
+design/

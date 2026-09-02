@@ -1,0 +1,10 @@
+{
+  "//": "Solution file. Holds no sources of its own, it only orders the builds. `tsc --build` walks these references and rebuilds only what changed.",
+  "files": [],
+  "references": [
+    { "path": "./packages/shared" },
+    { "path": "./packages/db" },
+    { "path": "./packages/core" },
+    { "path": "./apps/mcp-server" }
+  ]
+}

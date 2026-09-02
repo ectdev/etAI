@@ -1,0 +1,2455 @@
+@import 'tailwindcss';
+
+/*
+ * Nocturne, the design system this interface was designed in.
+ *
+ * The tokens and component classes below are taken from the handoff bundle at
+ * the nocturne folder under design/handoff/project/_ds rather than retyped, so the values
+ * here are the ones the design was drawn against. The design file references only this
+ * system; the bundle also ships Industry, which nothing imports.
+ *
+ * Inter is loaded through next/font in the root layout instead of the stylesheet's
+ * Google Fonts @import, so the app has no network dependency at runtime.
+ *
+ * Tailwind stays for layout utilities. Colour, spacing, radius and elevation come from
+ * these variables, which is what the system asks for: never hard-code a value a token
+ * already carries.
+ */
+
+:root {
+  --color-bg: #161826;
+  --color-surface: #232532;
+  --color-text: #e9e9ed;
+  --color-accent: #9184d9;
+  --color-accent-2: #a7a1db;
+  --color-divider: color-mix(in srgb, #e9e9ed 16%, transparent);
+  --color-neutral-100: #f3f5fe;
+  --color-neutral-200: #e4e7f5;
+  --color-neutral-300: #cfd3e5;
+  --color-neutral-400: #b2b6ca;
+  --color-neutral-500: #9397ab;
+  --color-neutral-600: #75798c;
+  --color-neutral-700: #595d6c;
+  --color-neutral-800: #3f424d;
+  --color-neutral-900: #292b31;
+  --color-accent-100: #f5f4ff;
+  --color-accent-200: #e7e5fe;
+  --color-accent-300: #d2cefd;
+  --color-accent-400: #b5abfc;
+  --color-accent-500: #968ae0;
+  --color-accent-600: #796cbf;
+  --color-accent-700: #5d5294;
+  --color-accent-800: #423a6a;
+  --color-accent-900: #2b2741;
+  --color-accent-2-100: #f5f4ff;
+  --color-accent-2-200: #e7e5fe;
+  --color-accent-2-300: #d2cefd;
+  --color-accent-2-400: #b5afe8;
+  --color-accent-2-500: #9690c9;
+  --color-accent-2-600: #7972a9;
+  --color-accent-2-700: #5c5783;
+  --color-accent-2-800: #423e5d;
+  --color-accent-2-900: #2b293a;
+  --color-section: #262a60;
+  --color-section-glow: #353b80;
+  --color-section-ghost: #4c5397;
+  --font-heading: var(--font-inter), 'Inter', system-ui, sans-serif;
+  --font-heading-weight: 500;
+  --font-body: var(--font-inter), 'Inter', system-ui, sans-serif;
+  --space-1: 2.8px;
+  --space-2: 5.6px;
+  --space-3: 8.4px;
+  --space-4: 11.2px;
+  --space-6: 16.8px;
+  --space-8: 22.4px;
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 14px;
+  --shadow-sm: 0 0 0 1px #3f424d;
+  --shadow-md: 0 0 0 1px #595d6c, 0 6px 18px rgba(0, 0, 0, 0.55);
+  --shadow-lg: 0 0 0 1px #9397ab, 0 16px 40px rgba(0, 0, 0, 0.65);
+}
+
+.text-muted {
+  color: color-mix(in srgb, var(--color-text) 55%, transparent);
+}
+:focus {
+  outline: none;
+}
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+::selection {
+  background: color-mix(in srgb, var(--color-accent) 30%, transparent);
+}
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  cursor: pointer;
+  text-decoration: none;
+  font-family: var(--font-heading);
+  font-weight: var(--font-heading-weight);
+  font-size: 14px;
+  line-height: 1.2;
+  color: var(
+    --color-text
+  ); /* matches the .input's 14px ,
+     the pair sits side by side in sign-up rows */
+  background: transparent;
+  border: 1px solid transparent;
+  padding: var(--space-2) calc(var(--space-3) * 1.2);
+  border-radius: var(--radius-md);
+}
+.btn svg {
+  display: block;
+}
+.btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.btn-primary {
+  color: var(--color-accent);
+  border-color: var(--color-accent);
+}
+.btn-primary:hover {
+  background: color-mix(in srgb, var(--color-accent) 12%, transparent);
+}
+.btn-primary:active {
+  background: color-mix(in srgb, var(--color-accent) 22%, transparent);
+}
+.btn-secondary {
+  border-color: var(--color-divider);
+}
+.btn-secondary:hover {
+  background: color-mix(in srgb, var(--color-text) 7%, transparent);
+}
+.btn-secondary:active {
+  background: color-mix(in srgb, var(--color-text) 14%, transparent);
+}
+/* Destructive, and deliberately not red. There is no red in this palette, and adding
+   one for a single button would put a colour on screen that belongs to nothing else.
+   The accent is what the sign-in form already uses to mean "read this carefully". */
+.btn-danger {
+  border-color: color-mix(in srgb, var(--color-accent-300) 45%, transparent);
+  color: var(--color-accent-300);
+}
+.btn-danger:hover:not(:disabled) {
+  border-color: var(--color-accent-300);
+  background: color-mix(in srgb, var(--color-accent-300) 12%, transparent);
+}
+.btn-ghost {
+  color: var(--color-accent);
+  padding-inline: var(--space-1);
+}
+.btn-ghost:hover {
+  background: color-mix(in srgb, var(--color-accent) 10%, transparent);
+}
+.btn-ghost:active {
+  background: color-mix(in srgb, var(--color-accent) 18%, transparent);
+}
+.btn-icon {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+}
+.btn-block {
+  width: 100%;
+  margin-top: var(--space-2);
+}
+.input {
+  width: 100%;
+  min-height: 36px;
+  padding: 6px 10px;
+  font: inherit;
+  font-size: 14px;
+  color: var(--color-text);
+  caret-color: var(--color-accent);
+  background: var(--color-surface);
+  border: 1px solid var(--color-divider);
+  border-radius: var(--radius-md);
+}
+.input:hover {
+  border-color: color-mix(in srgb, var(--color-text) 45%, transparent);
+}
+.input:focus-visible {
+  border-color: var(--color-accent);
+  outline-offset: 0;
+}
+.seg {
+  display: inline-flex;
+  overflow: hidden;
+  border: 1px solid var(--color-divider);
+  border-radius: var(--radius-md);
+}
+.seg-opt {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 12px;
+  font-size: 13px;
+  cursor: pointer;
+}
+.seg-opt + .seg-opt {
+  border-left: 1px solid var(--color-divider);
+}
+.seg-opt:has(input:checked) {
+  color: var(--color-accent);
+  box-shadow: inset 0 0 0 1px var(--color-accent);
+}
+.seg-opt:not(:has(input:checked)):hover {
+  background: color-mix(in srgb, var(--color-text) 7%, transparent);
+}
+.seg-opt:has(input:focus-visible) {
+  outline: 2px solid var(--color-accent);
+  outline-offset: -2px;
+}
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+}
+.card-kicker {
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+}
+.card-title {
+  font-family: var(--font-heading);
+  font-weight: var(--font-heading-weight);
+  font-size: 17px;
+  line-height: 1.2;
+}
+.card-body {
+  margin: 0;
+  font-size: 13px;
+  opacity: 0.8;
+  flex: 1;
+}
+.card-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: color-mix(in srgb, var(--color-text) 50%, transparent);
+}
+.elev-sm {
+  box-shadow: var(--shadow-sm);
+}
+.elev-md {
+  box-shadow: var(--shadow-md);
+}
+.tag {
+  display: inline-flex;
+  align-items: center;
+  font-size: 11px;
+  letter-spacing: 0.02em;
+  padding: 3px 10px;
+  border-radius: calc(var(--radius-md) * 0.75);
+}
+.tag-accent {
+  background: var(--color-accent-800);
+  color: var(--color-accent-100);
+}
+.tag-accent-2 {
+  background: var(--color-accent-2-800);
+  color: var(--color-accent-2-100);
+}
+.tag-neutral {
+  background: var(--color-neutral-800);
+  color: var(--color-neutral-100);
+}
+.tag-outline {
+  border: 1px solid var(--color-accent);
+  color: var(--color-accent);
+}
+
+/* The design fills the viewport and scrolls inside its own regions. */
+html,
+body {
+  height: 100%;
+  margin: 0;
+  /**
+   * The background belongs here, not only on the shell inside.
+   *
+   * Every screen paints its own dark background, so the page looked right and nothing
+   * pointed at this. During a route change the old screen unmounts before the new one
+   * paints, and for that moment the only thing left is the document, which had no
+   * background and showed the browser's white. On a dark interface that reads as a flash
+   * rather than as a transition.
+   */
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+
+/* Motion used by the chat surface: the spinner while retrieval runs, the fade a new turn
+   arrives with, the pulse on skeleton rows, and the caret while an answer streams. */
+@keyframes et-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes et-in {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes et-pulse {
+  0%,
+  100% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 0.65;
+  }
+}
+@keyframes et-caret {
+  0%,
+  45% {
+    opacity: 1;
+  }
+  55%,
+  100% {
+    opacity: 0;
+  }
+}
+
+textarea::placeholder {
+  color: color-mix(in srgb, var(--color-text) 42%, transparent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+   The shell: rail, header, and the three widths the design is drawn at.
+   Breakpoints are the design's own, 1120 and 700, expressed in CSS so the
+   first paint is correct and no resize listener is needed.
+   ────────────────────────────────────────────────────────────────────── */
+
+.et-frame {
+  height: 100dvh;
+  display: flex;
+  overflow: hidden;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-body);
+}
+
+.et-rail {
+  flex: none;
+  width: 224px;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  padding: var(--space-4) var(--space-3);
+  border-right: 1px solid var(--color-divider);
+}
+
+.et-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 var(--space-2);
+}
+.et-brand-mark {
+  width: 22px;
+  height: 22px;
+  flex: none;
+  border-radius: 6px;
+  border: 1px solid var(--color-accent);
+  display: grid;
+  place-items: center;
+  color: var(--color-accent);
+  font-size: 11px;
+  font-weight: 600;
+}
+.et-brand-name {
+  font-family: var(--font-heading);
+  font-weight: 500;
+  font-size: 16px;
+}
+
+.et-rail-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.et-rail-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px var(--space-2);
+  border-radius: var(--radius-sm);
+  color: var(--color-text);
+  font-size: 14px;
+  text-decoration: none;
+}
+.et-rail-link:hover {
+  background: color-mix(in srgb, var(--color-text) 7%, transparent);
+  text-decoration: none;
+}
+.et-rail-link[data-current] {
+  color: var(--color-accent);
+  background: color-mix(in srgb, var(--color-accent) 12%, transparent);
+}
+
+.et-rail-user {
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: var(--space-2);
+  border-top: 1px solid var(--color-divider);
+}
+.et-rail-identity {
+  min-width: 0;
+}
+.et-rail-email {
+  display: block;
+  font-size: 12px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.et-rail-role {
+  display: block;
+  font-size: 11px;
+}
+
+.et-avatar {
+  width: 24px;
+  height: 24px;
+  flex: none;
+  border-radius: 50%;
+  background: var(--color-accent-800);
+  color: var(--color-accent-100);
+  display: grid;
+  place-items: center;
+  font-size: 11px;
+  font-weight: 600;
+}
+.et-avatar-sm {
+  width: 22px;
+  height: 22px;
+  font-size: 10px;
+}
+
+.et-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.et-header {
+  flex: none;
+  min-height: 50px;
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: 0 var(--space-6);
+  border-bottom: 1px solid var(--color-divider);
+}
+.et-header-title {
+  margin: 0;
+  color: color-mix(in srgb, var(--color-text) 70%, transparent);
+}
+.et-header-nav {
+  display: none;
+  gap: 2px;
+}
+.et-header-link {
+  padding: 5px 10px;
+  border: 1px solid var(--color-divider);
+  border-radius: var(--radius-sm);
+  color: inherit;
+  font-size: 12px;
+  text-decoration: none;
+}
+.et-header-link[data-current] {
+  color: var(--color-accent);
+  border-color: var(--color-accent);
+}
+.et-header-user {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.et-header-identity {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  font-size: 12px;
+  min-width: 0;
+}
+.et-header-email {
+  display: none;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 22ch;
+}
+.et-signout {
+  font-size: 12px;
+  padding: 4px 10px;
+}
+
+/* Tablet: the rail keeps its icons and loses its labels. */
+@media (max-width: 1119px) {
+  .et-rail {
+    width: 60px;
+    align-items: stretch;
+  }
+  .et-rail-label {
+    display: none;
+  }
+  .et-rail-link {
+    justify-content: center;
+  }
+  .et-rail-user {
+    justify-content: center;
+  }
+}
+
+/* Phone: no rail at all, navigation moves into the header. */
+@media (max-width: 699px) {
+  .et-rail {
+    display: none;
+  }
+  .et-header-nav {
+    display: flex;
+  }
+  .et-header-title {
+    display: none;
+  }
+}
+
+@media (min-width: 700px) {
+  .et-header-email {
+    display: inline;
+  }
+  .et-header-role {
+    display: none;
+  }
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+   Chat
+   ────────────────────────────────────────────────────────────────────── */
+
+.et-chat {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  position: relative;
+}
+/* ---------------------------------------------------------------------------
+   The conversation list
+
+   Inside the navigation rail, under Chat and Dashboard, rather than in a column
+   of its own. Two vertical strips side by side read as two different ideas of
+   what a sidebar is.
+   --------------------------------------------------------------------------- */
+/* The rail copy: takes the height the navigation above it does not, and scrolls
+   inside that rather than growing the rail. */
+.et-history[data-placement='rail'] {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  flex: 1;
+  min-height: 0;
+}
+/* The drawer copy fills the panel it is slid in on. */
+.et-history[data-placement='drawer'] {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  flex: 1;
+  min-height: 0;
+}
+.et-history-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2);
+  padding: 0 var(--space-2);
+}
+.et-history-new {
+  font-size: 12.5px;
+  color: var(--color-accent-300);
+  text-decoration: none;
+}
+.et-history-new:hover {
+  text-decoration: underline;
+}
+/* The disclosure button belongs to the narrow layout only. Rendered at every
+   width so the markup does not depend on a measured window, hidden here. */
+.et-history-toggle {
+  display: none;
+}
+.et-history-panel {
+  min-height: 0;
+  display: flex;
+}
+.et-history-list {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.et-history-row {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  border-radius: var(--radius-sm);
+}
+.et-history-row:hover {
+  background: var(--color-surface);
+}
+/* Shown on hover and on focus. Keyboard users never hover, so focus-within is what
+   keeps the control reachable rather than merely present. */
+.et-history-delete {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  margin-right: 2px;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: none;
+  color: color-mix(in srgb, var(--color-text) 45%, transparent);
+  cursor: pointer;
+  opacity: 0;
+}
+.et-history-row:hover .et-history-delete,
+.et-history-row:focus-within .et-history-delete {
+  opacity: 1;
+}
+.et-history-delete:hover {
+  color: var(--color-accent-300);
+  background: color-mix(in srgb, var(--color-text) 8%, transparent);
+}
+.et-history-item {
+  flex: 1;
+  min-width: 0;
+  /* The padding sits on the row, not here. A -webkit-box clips at its content edge, so
+     padding on the clamped element cut the descenders off the second line: the tails of
+     g, y and ş were sliced and the ellipsis sat on the cut. */
+  padding: var(--space-2) 0 var(--space-2) var(--space-2);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  color: color-mix(in srgb, var(--color-text) 78%, transparent);
+  text-decoration: none;
+  overflow-wrap: anywhere;
+}
+/* Two lines at most, so one long question cannot push the rest off the screen. The clamp
+   is on an element of its own with the line box as its only content, and the height is
+   stated so the box cannot end mid-descender. */
+.et-history-item span {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  line-height: 1.45;
+  max-height: 2.9em;
+}
+.et-history-item:hover {
+  color: var(--color-text);
+}
+.et-history-item[data-current] {
+  color: var(--color-text);
+}
+.et-history-row:has(.et-history-item[data-current]) {
+  background: var(--color-surface);
+}
+.et-history-empty {
+  margin: 0;
+  padding: var(--space-2);
+  font-size: 12.5px;
+  line-height: 1.55;
+}
+
+/* ---------------------------------------------------------------------------
+   The conversation drawer
+
+   Below 1120 the rail is icons only and below 700 there is no rail, so the list
+   slides in from the left instead. A native popover again, so light dismiss and
+   Escape come from the platform rather than from a listener.
+   --------------------------------------------------------------------------- */
+.et-drawer-open {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  margin-right: var(--space-1);
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  background: none;
+  color: var(--color-text);
+  cursor: pointer;
+}
+.et-drawer-open:hover {
+  border-color: var(--color-divider);
+  background: var(--color-surface);
+}
+.et-drawer {
+  /* Anchored to the left edge and the full height, which is what makes it read as
+     a drawer rather than as a menu that happens to be tall. */
+  position: fixed;
+  inset: 0 auto 0 0;
+  width: min(300px, 84vw);
+  /* The user agent gives a popover `height: fit-content`, so the inset alone left it
+     as tall as its contents and it read as a menu rather than as a drawer. dvh
+     rather than vh, because a phone's address bar changes the viewport height. */
+  height: 100dvh;
+  max-height: none;
+  margin: 0;
+  padding: var(--space-4) var(--space-3);
+  border: none;
+  border-right: 1px solid var(--color-divider);
+  border-radius: 0;
+  background: var(--color-bg);
+  color: inherit;
+  overflow: hidden;
+}
+.et-drawer:popover-open {
+  display: flex;
+  flex-direction: column;
+  animation: et-drawer-in 0.18s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+}
+.et-drawer::backdrop {
+  background: rgb(8 9 14 / 0.62);
+}
+@keyframes et-drawer-in {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@media (max-width: 1119px) {
+  .et-history[data-placement='rail'] {
+    display: none;
+  }
+  .et-drawer-open {
+    display: inline-flex;
+  }
+  /* No hover on a touch screen, so a control that appears on hover never appears. */
+  .et-bubble-edit {
+    opacity: 1;
+  }
+  /* No hover on a touch screen, so a control that appears on hover never appears. */
+  .et-history[data-placement='drawer'] .et-history-delete {
+    opacity: 1;
+  }
+}
+
+/* The drawer is never used above 1119, where the rail holds the list. */
+@media (min-width: 1120px) {
+  .et-drawer {
+    display: none;
+  }
+}
+
+.et-chat-column {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.et-chat-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: var(--space-8) var(--space-6) 0;
+}
+.et-chat-inner {
+  max-width: 740px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+.et-chat-tail {
+  height: var(--space-4);
+}
+
+.et-intro {
+  animation: et-in 0.4s ease both;
+}
+.et-intro-heading {
+  margin: var(--space-3) 0;
+  max-width: 20ch;
+  font-size: 34px;
+}
+.et-intro-body {
+  max-width: 60ch;
+  font-size: 15px;
+  line-height: 1.6;
+  text-wrap: pretty;
+}
+.et-examples {
+  margin-top: var(--space-8);
+}
+.et-eyebrow {
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.et-example-grid {
+  display: grid;
+  gap: var(--space-2);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-top: var(--space-3);
+}
+.et-example {
+  display: flex;
+  align-items: center;
+  min-height: 52px;
+  padding: 10px 14px;
+  border: 1px solid var(--color-divider);
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: color-mix(in srgb, var(--color-text) 82%, transparent);
+  font: inherit;
+  font-size: 13.5px;
+  line-height: 1.4;
+  text-align: left;
+  text-wrap: pretty;
+  cursor: pointer;
+}
+.et-example:hover {
+  border-color: var(--color-accent);
+  color: var(--color-text);
+}
+
+.et-turn {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--space-3);
+  animation: et-in 0.3s ease both;
+}
+/* ---------------------------------------------------------------------------
+   The two sides of a turn
+
+   The question is yours and sits on the right in the accent; the answer is the
+   system's and sits on the left on a surface. Colour and side carry that, so the
+   "QUESTION" label above each one is gone: it was saying what the layout now
+   says.
+   --------------------------------------------------------------------------- */
+.et-said {
+  display: flex;
+  flex-direction: column;
+  max-width: min(78%, 62ch);
+}
+.et-said-you {
+  align-self: flex-end;
+  align-items: flex-end;
+}
+.et-said-them {
+  align-self: flex-start;
+  align-items: stretch;
+  /* Wider than the question, because an answer carries sources and a gap panel
+     under it and those read badly in a narrow column. */
+  max-width: min(92%, 74ch);
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+}
+/* The bubble and its edit control, which sits outside it on the left so it never
+   overlaps the text. */
+.et-bubble-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+.et-bubble-edit {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: none;
+  color: color-mix(in srgb, var(--color-text) 45%, transparent);
+  cursor: pointer;
+  opacity: 0;
+}
+/* Focus-within as well as hover, because a keyboard never hovers and a control that
+   only appears on hover is a control a keyboard cannot find. */
+.et-bubble-row:hover .et-bubble-edit,
+.et-bubble-row:focus-within .et-bubble-edit {
+  opacity: 1;
+}
+.et-bubble-edit:hover {
+  color: var(--color-text);
+  background: color-mix(in srgb, var(--color-text) 8%, transparent);
+}
+.et-composer[data-editing] {
+  border-color: var(--color-accent);
+}
+/* A chip rather than a sentence. The composer already looks different while editing,
+   so this only has to name the state and offer the way out. */
+.et-editing-note {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  align-self: flex-start;
+  margin-bottom: var(--space-2);
+  padding: 3px var(--space-2);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--color-accent) 18%, transparent);
+  color: var(--color-accent-200);
+  font-size: 11.5px;
+}
+.et-editing-cancel {
+  display: flex;
+  align-items: center;
+  padding: 0;
+  border: none;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+  opacity: 0.75;
+}
+.et-editing-cancel:hover {
+  opacity: 1;
+}
+
+.et-bubble {
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-lg);
+  font-size: 15px;
+  line-height: 1.5;
+  text-wrap: pretty;
+  overflow-wrap: anywhere;
+}
+.et-bubble-you {
+  background: var(--color-accent);
+  /* The page background rather than white: the accent is a light purple, so dark
+     text on it is the readable pairing and white would be the unreadable one. */
+  color: var(--color-bg);
+  font-weight: 500;
+  border-bottom-right-radius: var(--radius-sm);
+}
+.et-said-them .et-answer {
+  max-width: none;
+}
+.et-turn-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+.et-turn-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+}
+.et-coverage {
+  gap: 6px;
+  padding: 4px 10px;
+}
+.et-coverage svg {
+  margin-right: 6px;
+}
+.et-turn-timing {
+  font-size: 11.5px;
+  font-variant-numeric: tabular-nums;
+}
+
+.et-retrieving {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+.et-retrieving-line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: color-mix(in srgb, var(--color-text) 65%, transparent);
+}
+.et-spinner {
+  animation: et-spin 1s linear infinite;
+}
+.et-skeleton-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-width: 640px;
+}
+.et-skeleton {
+  height: 11px;
+  border-radius: 3px;
+  background: var(--color-neutral-800);
+  animation: et-pulse 1.4s ease-in-out infinite;
+}
+.et-answer-pending {
+  margin-top: var(--space-2);
+}
+
+.et-answer {
+  max-width: 68ch;
+}
+/* Quieter than a coverage badge, because it reports the absence of a search rather
+   than the outcome of one. */
+.et-coverage-aside {
+  opacity: 0.72;
+}
+.et-answer p {
+  font-size: 16px;
+  line-height: 1.75;
+  margin: 0 0 var(--space-4);
+  text-wrap: pretty;
+}
+.et-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 19px;
+  height: 19px;
+  padding: 0 5px;
+  margin: 0 1px;
+  position: relative;
+  top: -1px;
+  border: 1px solid var(--color-accent-700);
+  border-radius: 5px;
+  background: var(--color-accent-900);
+  color: var(--color-accent-200);
+  font: inherit;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1;
+  cursor: pointer;
+  vertical-align: middle;
+}
+.et-chip:hover {
+  background: var(--color-accent-800);
+  border-color: var(--color-accent);
+  color: var(--color-accent-100);
+}
+
+.et-gap {
+  max-width: 68ch;
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--color-text) 5%, transparent);
+}
+.et-gap-body {
+  font-size: 14.5px;
+  line-height: 1.65;
+  text-wrap: pretty;
+  margin-top: 6px;
+}
+
+/* A failed request, which is the one thing here that really is an error. The four
+   coverage states are answers and never use this treatment. */
+.et-failure {
+  max-width: 68ch;
+  padding: var(--space-4);
+  border: 1px solid var(--color-neutral-700);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+}
+.et-failure-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-heading);
+  font-weight: 500;
+  font-size: 15px;
+}
+.et-failure-body {
+  font-size: 14px;
+  line-height: 1.6;
+  margin: var(--space-3) 0;
+}
+.et-failure-retry {
+  font-size: 13px;
+}
+
+.et-inline-sources {
+  border: 1px solid var(--color-divider);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+.et-inline-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 9px var(--space-3);
+  border: 0;
+  background: var(--color-surface);
+  color: inherit;
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+  text-align: left;
+}
+/* The chevron turns from the button's own state rather than from a prop, so both
+   disclosures in the project rotate the same way from one rule. */
+.et-inline-toggle svg {
+  flex: none;
+  transition: transform 0.2s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+.et-inline-toggle[aria-expanded='true'] svg {
+  transform: rotate(90deg);
+}
+.et-inline-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border-top: 1px solid var(--color-divider);
+}
+
+.et-source-card {
+  display: flex;
+  gap: var(--space-3);
+  width: 100%;
+  text-align: left;
+  padding: var(--space-3);
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+.et-source-card:hover {
+  border-color: var(--color-neutral-700);
+}
+.et-source-card[data-active] {
+  border-color: var(--color-accent);
+}
+.et-source-number {
+  flex: none;
+  width: 21px;
+  height: 21px;
+  border-radius: 5px;
+  background: var(--color-accent-800);
+  color: var(--color-accent-100);
+  display: grid;
+  place-items: center;
+  font-size: 11px;
+  font-weight: 600;
+}
+.et-source-detail {
+  min-width: 0;
+  flex: 1;
+}
+.et-source-name {
+  display: block;
+  font-size: 13.5px;
+  font-weight: 500;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+.et-source-tags {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+}
+.et-source-date {
+  font-size: 11px;
+}
+.et-source-status {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+}
+.et-source-note {
+  font-size: 11px;
+  overflow-wrap: anywhere;
+}
+.et-source-score {
+  display: block;
+  margin-top: 8px;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+
+.et-composer-region {
+  flex: none;
+  padding: var(--space-4) var(--space-6) var(--space-6);
+}
+.et-composer-inner {
+  align-items: stretch;
+  max-width: 740px;
+  margin: 0 auto;
+}
+.et-composer {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-2);
+  padding: var(--space-2);
+  border: 1px solid var(--color-divider);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+}
+.et-composer-input {
+  flex: 1;
+  min-width: 0;
+  min-height: 36px;
+  max-height: 150px;
+  padding: 7px 6px;
+  border: 0;
+  background: transparent;
+  color: var(--color-text);
+  caret-color: var(--color-accent);
+  font: inherit;
+  font-size: 15px;
+  line-height: 1.5;
+  resize: none;
+}
+.et-send {
+  flex: none;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+}
+.et-composer-hint {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-top: 7px;
+  font-size: 11px;
+  justify-content: space-between;
+}
+
+/* The panel. A column beside the answer on desktop, an overlay below that. */
+.et-panel {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  width: 404px;
+  flex: none;
+  border-left: 1px solid var(--color-divider);
+  background: var(--color-bg);
+}
+.et-panel-head {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  height: 44px;
+  padding: 0 var(--space-4);
+  border-bottom: 1px solid var(--color-divider);
+}
+.et-panel-title {
+  margin: 0;
+  color: color-mix(in srgb, var(--color-text) 70%, transparent);
+}
+.et-panel-count {
+  margin-left: auto;
+  font-size: 11px;
+}
+.et-panel-back {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 6px;
+  margin-left: -6px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-accent);
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+.et-panel-back:hover {
+  background: color-mix(in srgb, var(--color-accent) 12%, transparent);
+}
+.et-panel-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: var(--space-4);
+}
+.et-panel-sources {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+.et-panel-note {
+  font-size: 11.5px;
+  line-height: 1.5;
+  margin: 0 0 var(--space-2);
+}
+.et-panel-error {
+  padding: var(--space-4);
+  border: 1px solid var(--color-neutral-700);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+}
+.et-panel-error-title {
+  font-size: 14px;
+  font-weight: 500;
+}
+.et-panel-error-body {
+  margin: 6px 0 var(--space-3);
+  font-size: 12.5px;
+  line-height: 1.6;
+}
+
+.et-doc {
+  animation: et-in 0.25s ease both;
+}
+.et-doc-title {
+  margin: 0 0 6px;
+  font-size: 19px;
+  line-height: 1.25;
+}
+.et-doc-path {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11.5px;
+  overflow-wrap: anywhere;
+}
+.et-doc-status {
+  margin-top: var(--space-4);
+  padding: var(--space-3);
+  border: 1px solid var(--color-accent-700);
+  border-radius: var(--radius-md);
+  background: var(--color-accent-900);
+}
+.et-doc-status-title {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-accent-200);
+}
+.et-doc-status-note {
+  margin-top: 6px;
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: color-mix(in srgb, var(--color-text) 78%, transparent);
+}
+.et-doc-successor {
+  margin-top: 8px;
+  font-size: 12.5px;
+  padding: 0;
+}
+.et-doc-meta {
+  margin: var(--space-4) 0 0;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 5px var(--space-4);
+  font-size: 12px;
+}
+.et-doc-meta dt,
+.et-doc-meta dd {
+  margin: 0;
+}
+.et-doc-meta dd {
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+.et-doc-body p {
+  font-size: 13.5px;
+  line-height: 1.72;
+  margin: 0 0 var(--space-3);
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+  text-wrap: pretty;
+}
+.et-doc-body p[data-quoted] {
+  background: color-mix(in srgb, var(--color-accent) 22%, transparent);
+  box-shadow: 0 0 0 1px var(--color-accent-700);
+}
+
+@media (max-width: 1119px) {
+  /* Below desktop the panel is an overlay, opened from a chip or from the folded list
+     inside the turn. It is not shown at all until a document is opened, so the
+     conversation keeps the full width. */
+  .et-panel {
+    position: absolute;
+    inset: 0;
+    z-index: 5;
+    width: auto;
+    border-left: 0;
+  }
+  .et-panel:not([data-open]) {
+    display: none;
+  }
+}
+
+@media (min-width: 1120px) {
+  /* On desktop the folded list inside a turn is redundant: the same sources are in the
+     column beside it, carrying the same numbers. */
+  .et-inline-sources {
+    display: none;
+  }
+}
+
+@media (max-width: 699px) {
+  .et-chat-scroll {
+    padding: var(--space-6) var(--space-4) 0;
+  }
+  .et-composer-region {
+    padding: var(--space-3) var(--space-4) var(--space-4);
+  }
+  .et-example-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .et-intro-heading {
+    font-size: 27px;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Dashboard overview
+
+   The breakpoints are the design's own, 1120 and 700, the same two the shell
+   uses. Four metric cards on desktop, two on a tablet, one on a phone; the run
+   and query tables drop their least useful columns rather than scrolling
+   sideways, because a table that scrolls hides the column a reader is looking
+   for behind a gesture they have to discover.
+   --------------------------------------------------------------------------- */
+
+.et-dash {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: var(--space-6) var(--space-6) var(--space-8);
+}
+.et-dash-inner {
+  max-width: 1060px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+.et-dash-head h3 {
+  margin: 0;
+}
+.et-dash-head p {
+  margin: 5px 0 0;
+  font-size: 13px;
+}
+
+.et-metrics {
+  display: grid;
+  gap: var(--space-3);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+.et-metric {
+  gap: var(--space-2);
+  padding: var(--space-4);
+}
+.et-metric-value {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+.et-metric-value strong {
+  font-family: var(--font-heading);
+  font-weight: 500;
+  font-size: 30px;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.et-metric-value strong.et-metric-small {
+  font-size: 24px;
+}
+.et-metric-sub {
+  font-size: 12px;
+  line-height: 1.5;
+}
+.et-metric-bar {
+  height: 5px;
+  border-radius: 3px;
+  background: var(--color-neutral-800);
+  overflow: hidden;
+}
+.et-metric-bar span {
+  display: block;
+  height: 100%;
+  background: var(--color-accent-500);
+}
+
+.et-dash-section-head {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
+}
+.et-dash-section-head h6 {
+  margin: 0;
+}
+.et-dash-section-head .et-dash-checked {
+  margin-left: auto;
+  font-size: 11px;
+}
+
+.et-health {
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-sm);
+}
+.et-health-grid {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 9px var(--space-4);
+  font-size: 13px;
+}
+.et-health-grid span:nth-child(even) {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+/* A reading that is not what it should be, which is the only reason to look here. */
+.et-health-wrong {
+  color: var(--color-accent);
+}
+
+.et-dash-empty {
+  padding: var(--space-8) var(--space-6);
+  border: 1px dashed var(--color-neutral-700);
+  border-radius: var(--radius-md);
+  text-align: center;
+}
+.et-dash-empty-title {
+  font-family: var(--font-heading);
+  font-weight: 500;
+  font-size: 16px;
+}
+.et-dash-empty p {
+  margin: 8px auto var(--space-4);
+  max-width: 52ch;
+  font-size: 13px;
+  line-height: 1.6;
+}
+.et-dash-empty code {
+  font-family: ui-monospace, monospace;
+  font-size: 12.5px;
+  color: var(--color-accent-200);
+}
+
+.et-row-head,
+.et-row {
+  display: grid;
+  gap: var(--space-3);
+  align-items: center;
+}
+.et-row-head {
+  padding: 0 var(--space-2) 7px;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.et-row {
+  width: 100%;
+  padding: 10px var(--space-2);
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+  background: linear-gradient(
+      to right,
+      transparent,
+      color-mix(in srgb, var(--color-text) 8%, transparent) 48px,
+      color-mix(in srgb, var(--color-text) 8%, transparent) calc(100% - 48px),
+      transparent
+    )
+    no-repeat bottom / 100% 1px;
+}
+.et-row:hover {
+  background-color: color-mix(in srgb, var(--color-text) 4%, transparent);
+}
+.et-row[aria-expanded='true'] {
+  color: var(--color-accent);
+}
+.et-runs .et-row-head,
+.et-runs .et-row {
+  grid-template-columns: 150px minmax(0, 1fr) 300px 110px;
+}
+.et-queries .et-row-head,
+.et-queries .et-row {
+  grid-template-columns: minmax(0, 1fr) 150px 90px 96px;
+}
+.et-row-when {
+  font-variant-numeric: tabular-nums;
+}
+.et-row-when span {
+  display: block;
+  font-size: 11px;
+}
+.et-row-trigger {
+  font-size: 12px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.et-row-counts {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  font-size: 12.5px;
+}
+.et-row-outcome {
+  text-align: right;
+}
+.et-row-question {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.et-row-number {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.et-row-ago {
+  text-align: right;
+  font-size: 12px;
+}
+
+.et-row-detail {
+  margin: 0 0 var(--space-3);
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  animation: pfIn 0.2s ease both;
+}
+.et-row-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-6);
+  font-size: 12.5px;
+  font-variant-numeric: tabular-nums;
+}
+.et-row-facts code {
+  font-family: ui-monospace, monospace;
+}
+.et-row-detail p {
+  margin: var(--space-3) 0 0;
+  font-size: 13px;
+  line-height: 1.6;
+  max-width: 66ch;
+}
+.et-failures {
+  border-top: 1px solid var(--color-divider);
+  margin-top: var(--space-3);
+  padding-top: var(--space-3);
+}
+.et-failures-title {
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.et-failure-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px var(--space-3);
+  font-size: 12.5px;
+}
+.et-failure-row code {
+  font-family: ui-monospace, monospace;
+  overflow-wrap: anywhere;
+}
+.et-failure-row span {
+  margin-left: auto;
+}
+
+@media (max-width: 1120px) {
+  .et-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .et-runs .et-row-head,
+  .et-runs .et-row {
+    grid-template-columns: minmax(0, 1fr) 190px 96px;
+  }
+  .et-queries .et-row-head,
+  .et-queries .et-row {
+    grid-template-columns: minmax(0, 1fr) 150px;
+  }
+  .et-row-trigger,
+  .et-row-ago,
+  .et-row-number {
+    display: none;
+  }
+}
+
+@media (max-width: 700px) {
+  .et-dash {
+    padding: var(--space-4) var(--space-4) var(--space-8);
+  }
+  .et-metrics {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Document list
+
+   Same row grammar as the run and query tables, because it is the same thing:
+   a list where a row expands into what it is about. Reusing the grid classes
+   means one set of breakpoints to keep in step rather than three.
+   --------------------------------------------------------------------------- */
+
+.et-doc-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--space-4);
+}
+.et-doc-filters label {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.et-doc-filters select {
+  min-width: 190px;
+  font-size: 13px;
+  text-transform: capitalize;
+}
+.et-doc-count {
+  margin-left: auto;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.et-docs .et-row-head,
+.et-docs .et-row {
+  grid-template-columns: minmax(0, 1fr) 150px 110px 190px;
+}
+.et-row-path {
+  display: block;
+  font-family: ui-monospace, monospace;
+  font-size: 11px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.et-row-date {
+  font-variant-numeric: tabular-nums;
+  font-size: 12.5px;
+}
+.et-docs .et-row-outcome {
+  display: flex;
+  gap: 4px;
+  justify-content: flex-end;
+}
+.et-doc-status-note {
+  margin: var(--space-3) 0 0;
+  font-size: 12.5px;
+  line-height: 1.6;
+  max-width: 66ch;
+  color: color-mix(in srgb, var(--color-text) 72%, transparent);
+}
+.et-link-button {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--color-accent);
+  font: inherit;
+  font-family: ui-monospace, monospace;
+  font-size: 12.5px;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+@media (max-width: 1120px) {
+  .et-docs .et-row-head,
+  .et-docs .et-row {
+    grid-template-columns: minmax(0, 1fr) 110px 170px;
+  }
+  .et-docs .et-row-date {
+    display: none;
+  }
+}
+
+@media (max-width: 700px) {
+  .et-docs .et-row-head,
+  .et-docs .et-row {
+    grid-template-columns: minmax(0, 1fr) 150px;
+  }
+  .et-doc-count {
+    margin-left: 0;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   The signed-out surfaces
+
+   These were written before the design landed and kept a token set that no
+   longer existed anywhere else, so the first screen anybody opened rendered
+   light and plain while every screen behind sign-in rendered dark and designed.
+   They now use the same variables, the same card and the same button as the
+   rest of the interface.
+   --------------------------------------------------------------------------- */
+
+.et-auth {
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-8) var(--space-6);
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+.et-auth-inner {
+  width: 100%;
+  max-width: 420px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+.et-auth-wide {
+  max-width: 560px;
+}
+.et-auth-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.et-auth-mark {
+  width: 26px;
+  height: 26px;
+  flex: none;
+  border-radius: 7px;
+  border: 1px solid var(--color-accent);
+  display: grid;
+  place-items: center;
+  color: var(--color-accent);
+  font-size: 12px;
+  font-weight: 600;
+}
+.et-auth-name {
+  font-family: var(--font-heading);
+  font-weight: 500;
+  font-size: 20px;
+}
+.et-auth h1 {
+  margin: 0;
+  font-size: 28px;
+}
+.et-auth-lead {
+  margin: var(--space-3) 0 0;
+  font-size: 15px;
+  line-height: 1.6;
+  text-wrap: pretty;
+}
+.et-auth-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  /* Was `var(--space-5)`, which is not a token this scale has. An undefined custom
+     property makes the whole declaration invalid, so this panel had no padding at all. */
+  padding: var(--space-6);
+}
+.et-auth-what {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 13.5px;
+  line-height: 1.55;
+}
+.et-auth-what strong {
+  display: block;
+  font-weight: 500;
+  color: var(--color-text);
+}
+.et-auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+.et-auth-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.et-auth-field span {
+  font-size: 13px;
+  font-weight: 500;
+}
+/* The one place a warning colour is right: the visitor did something they can correct. */
+.et-auth-error {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--color-accent-300);
+}
+.et-auth-note {
+  margin: 0;
+  font-size: 12.5px;
+  line-height: 1.6;
+}
+
+/* ---------------------------------------------------------------------------
+   The account menu
+
+   A native popover, so light dismiss and Escape come from the platform. Only
+   the appearance and the position are set here.
+   --------------------------------------------------------------------------- */
+/* The conversation-not-found page, which reuses the dashboard's scroll container. */
+.et-notfound {
+  max-width: 520px;
+  gap: var(--space-3);
+  padding-top: var(--space-8);
+}
+.et-notfound h3 {
+  margin: 0;
+}
+.et-notfound p {
+  margin: 0;
+  font-size: 13.5px;
+  line-height: 1.65;
+}
+.et-notfound-action {
+  align-self: flex-start;
+}
+
+.et-account-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 5px var(--space-2);
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  max-width: 260px;
+}
+.et-account-trigger:hover {
+  border-color: var(--color-divider);
+  background: var(--color-surface);
+}
+.et-account-trigger-text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 0;
+  line-height: 1.25;
+}
+.et-account-trigger-email {
+  font-size: 12.5px;
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.et-account-trigger-role {
+  font-size: 11px;
+  text-transform: capitalize;
+}
+.et-account-trigger svg {
+  flex: none;
+  opacity: 0.6;
+}
+
+.et-menu {
+  /* A popover sits in the top layer with its own box, so it is placed against the
+     viewport rather than against the header. The offset is the header's height. */
+  position: fixed;
+  inset: auto;
+  top: 52px;
+  right: var(--space-4);
+  margin: 0;
+  padding: var(--space-2);
+  width: 236px;
+  border: 1px solid var(--color-divider);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-lg);
+  color: inherit;
+  flex-direction: column;
+  gap: 2px;
+}
+/**
+ * Only laid out when it is open.
+ *
+ * The browser hides a closed popover with `display: none` from its own stylesheet, and
+ * an author rule beats a user agent rule whatever the specificity says. Declaring
+ * `display: flex` on `.et-menu` therefore made the menu permanently visible, sitting over
+ * the page with nothing to dismiss it. Found in a screenshot, not in a test.
+ */
+.et-menu:popover-open {
+  display: flex;
+}
+.et-menu-head {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: var(--space-2);
+}
+.et-menu-email {
+  font-size: 12.5px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.et-menu-role {
+  font-size: 11px;
+  text-transform: capitalize;
+}
+.et-menu-divider {
+  height: 1px;
+  margin: var(--space-1) 0;
+  background: var(--color-divider);
+}
+.et-menu-item {
+  padding: var(--space-2);
+  border: none;
+  border-radius: var(--radius-sm);
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+}
+.et-menu-item:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--color-text) 7%, transparent);
+}
+.et-menu-item-quiet {
+  color: color-mix(in srgb, var(--color-text) 70%, transparent);
+}
+.et-menu-item:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+
+@media (max-width: 700px) {
+  /* The email is the widest thing in the header on a phone, and the role beneath
+     it is already in the menu. */
+  .et-account-trigger-text {
+    display: none;
+  }
+  .et-menu {
+    right: var(--space-3);
+    left: var(--space-3);
+    width: auto;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   The password dialog
+
+   A native <dialog>, so the backdrop, the focus trap and Escape come from the
+   element rather than from script. Only the appearance is set here.
+   --------------------------------------------------------------------------- */
+.et-dialog {
+  /* The element is its own positioned box in the top layer, so it is centred
+     here rather than by wrapping it in a flex container. */
+  margin: auto;
+  padding: 0;
+  border: none;
+  background: none;
+  max-width: min(440px, calc(100vw - var(--space-6)));
+  width: 100%;
+  color: inherit;
+}
+.et-dialog::backdrop {
+  background: rgb(8 9 14 / 0.66);
+  backdrop-filter: blur(2px);
+}
+.et-dialog-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-6);
+  border: 1px solid var(--color-divider);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-lg);
+}
+.et-dialog-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+.et-dialog-head h6 {
+  margin: 0;
+}
+.et-dialog-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  background: none;
+  color: color-mix(in srgb, var(--color-text) 55%, transparent);
+  cursor: pointer;
+}
+.et-dialog-close:hover {
+  border-color: var(--color-divider);
+  color: var(--color-text);
+}
+.et-dialog-lead {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.6;
+}
+.et-dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-3);
+}
+.et-dialog-status {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: color-mix(in srgb, var(--color-text) 55%, transparent);
+  /* Holds its line whether or not there is a message, so the buttons do not jump
+     when the confirmation appears. */
+  min-height: 1.5em;
+}
+/* The second accent, which is what this design system uses for a settled state.
+   There is no green in the palette and introducing one for a single message would
+   put a colour on screen that belongs to nothing else. */
+.et-dialog-status[data-saved] {
+  color: var(--color-accent-2-300);
+}
+
+/* The form inside it, and the same field styling the sign-in form uses. */
+.et-password-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+.et-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.et-field label {
+  font-size: 13px;
+  font-weight: 500;
+}
+/* The one place a warning colour is right: the reader did something they can fix. */
+.et-field-error {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--color-accent-300);
+}
+.et-field-hint {
+  margin: 0;
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+
+/* ---------------------------------------------------------------------------
+   The landing screen
+
+   Left aligned rather than centred in a box, so it reads as an application
+   rather than as a dialog. Two columns on desktop, stacked below 1120, and the
+   same two breakpoints the shell uses so this screen has no private idea of
+   what a tablet is.
+   --------------------------------------------------------------------------- */
+
+.et-landing {
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  padding: var(--space-8) var(--space-8);
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+.et-landing-inner {
+  width: 100%;
+  max-width: 1120px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  /* A flex item will not shrink below its content without this, and the content here is
+     a grid holding a code sample, so a phone got a 590px layout in a 375px viewport. */
+  min-width: 0;
+}
+.et-landing-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.et-landing-columns {
+  display: grid;
+  /* Weighted towards the example, which is doing more work than the copy beside it. */
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+  gap: var(--space-8);
+  align-items: start;
+  min-width: 0;
+}
+.et-landing-copy {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  max-width: min(30rem, 100%);
+  min-width: 0;
+}
+.et-landing-copy h1 {
+  margin: 0;
+  font-size: 38px;
+  line-height: 1.15;
+  text-wrap: balance;
+}
+.et-landing-claims {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+.et-landing-claims p {
+  margin: 0;
+  font-size: 14.5px;
+  line-height: 1.6;
+  color: color-mix(in srgb, var(--color-text) 74%, transparent);
+  text-wrap: pretty;
+}
+.et-landing-claims strong {
+  font-weight: 500;
+  color: var(--color-text);
+}
+.et-landing-enter {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  align-items: flex-start;
+}
+.et-landing-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+/* The example answer, which is the interface rather than a picture of it.
+
+   Two spacing steps between the groups and one inside them, so the eyebrow belongs to
+   the question and the badge belongs to the answer without anything being said. The
+   scale has no fifth step, which is how this card spent a day with no padding. */
+.et-landing-example {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  padding: var(--space-8);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-sm);
+}
+.et-landing-head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+.et-landing-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+.et-landing-eyebrow {
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+/* Below the heading on the left, which is the headline. This is the sample. */
+.et-landing-question {
+  font-family: var(--font-heading);
+  font-weight: 500;
+  font-size: 15px;
+  line-height: 1.45;
+  text-wrap: pretty;
+}
+.et-landing-example .et-coverage {
+  align-self: flex-start;
+}
+.et-landing-answer p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.7;
+  /* `LumenSDK.event(name, payload)` is one unbreakable token on a narrow screen. */
+  overflow-wrap: anywhere;
+}
+/* Inert: this chip opens nothing, so it must not offer a pointer. */
+.et-landing-example .et-chip {
+  cursor: default;
+}
+
+/* The references, folded away by default.
+
+   The cards are the detail behind the point rather than the point itself, and the point
+   is already in the answer text as chips. What the closed row keeps is the count and the
+   retired flag, because an answer that cites a deprecated document is the thing worth
+   noticing. */
+.et-landing-refs {
+  display: flex;
+  flex-direction: column;
+  padding-top: var(--space-2);
+  border-top: 1px solid var(--color-divider);
+}
+/* No horizontal padding, so the label lines up with the answer above it, but the
+   vertical padding stays: it is what makes the row a target rather than a line of text. */
+.et-landing-refs-toggle {
+  padding: var(--space-3) 0;
+  background: transparent;
+}
+.et-landing-refs-panel {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  /* A grid row from 0fr to 1fr grows to the content's own height with nothing measured
+     in JavaScript, so opening moves the cards into place instead of jumping them there. */
+  transition:
+    grid-template-rows 0.2s cubic-bezier(0.22, 0.61, 0.36, 1),
+    opacity 0.2s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+.et-landing-refs-panel[data-open] {
+  grid-template-rows: 1fr;
+  opacity: 1;
+}
+.et-landing-sources {
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding-top: var(--space-3);
+}
+.et-landing-source {
+  cursor: default;
+}
+
+/* ---------------------------------------------------------------------------
+   First paint
+
+   A short staggered rise, finished inside half a second, and nothing moves
+   afterwards. The steps are fixed classes rather than inline variables so the
+   stylesheet holds every duration in one place.
+   --------------------------------------------------------------------------- */
+
+.et-rise {
+  animation: pfRise 0.34s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+}
+.et-rise-0 {
+  animation-delay: 0s;
+}
+.et-rise-1 {
+  animation-delay: 0.05s;
+}
+.et-rise-2 {
+  animation-delay: 0.11s;
+}
+.et-rise-3 {
+  animation-delay: 0.17s;
+}
+.et-rise-4 {
+  animation-delay: 0.13s;
+}
+
+@keyframes pfRise {
+  from {
+    opacity: 0;
+    transform: translateY(7px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (max-width: 1120px) {
+  .et-landing-columns {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-6);
+  }
+  .et-landing-copy {
+    max-width: min(34rem, 100%);
+  }
+  .et-landing-copy h1 {
+    font-size: 32px;
+  }
+}
+
+@media (max-width: 700px) {
+  .et-landing {
+    align-items: flex-start;
+    padding: var(--space-6) var(--space-4);
+  }
+  .et-landing-copy h1 {
+    font-size: 27px;
+  }
+  .et-landing-example {
+    padding: var(--space-6);
+    gap: var(--space-4);
+  }
+  .et-landing-question {
+    font-size: 14.5px;
+  }
+  .et-landing-answer p {
+    font-size: 13.5px;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Reduced motion
+
+   Off rather than shortened. Somebody who has asked their system for less
+   motion has asked for none, not for the same movement in less time. This
+   covers every animation in the stylesheet, including the ones the chat page
+   uses, and `motion.test.ts` fails if this block goes missing.
+   --------------------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    animation-delay: 0ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
