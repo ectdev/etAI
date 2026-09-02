@@ -2310,7 +2310,7 @@ textarea::placeholder {
   margin: 0;
   font-size: 14px;
   line-height: 1.7;
-  /* `LumenSDK.event(name, payload)` is one unbreakable token on a narrow screen. */
+  /* `drift.emit(name, payload)` is one unbreakable token on a narrow screen. */
   overflow-wrap: anywhere;
 }
 /* Inert: this chip opens nothing, so it must not offer a pointer. */

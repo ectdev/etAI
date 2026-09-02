@@ -140,13 +140,13 @@ describe('refusing', () => {
 
 describe('answering partly', () => {
   /**
-   * Six client briefs name Azure as a target network and no document specifies
-   * anything about it, so the question retrieves confidently and cannot be answered. A
-   * distance threshold cannot catch this, which is why coverage is a judgement made with
-   * the documents in view.
+   * Six customer briefs name Azure as somewhere the customer already runs, and no
+   * document specifies anything about running on it, so the question retrieves
+   * confidently and cannot be answered. A distance threshold cannot catch this, which is
+   * why coverage is a judgement made with the documents in view.
    */
   it('says what it has and names what is missing', async () => {
-    const result = await answerQuestion('What is the Azure file size limit?');
+    const result = await answerQuestion('What is the maximum artifact size on Azure?');
 
     expect(result.coverage).toBe('partial');
     expect(result.gap).toMatch(/azure/i);

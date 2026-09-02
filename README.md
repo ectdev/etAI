@@ -12,54 +12,59 @@ question touches a topic the collection mentions but never explains.
 The same search runs behind two surfaces: a chat page for asking questions, and an MCP
 server so an assistant such as Claude Desktop can call the search as a tool.
 
+### The sample collection
+
+`corpus/` holds 131 markdown files describing a fictional company called Halcyon that
+runs continuous integration pipelines for other people. Point `CORPUS_PATH` somewhere else
+and the pipeline indexes that instead; the sample is here so the system can be run and
+measured the moment it is cloned.
+
+It is written rather than collected, and the difficulties in it are deliberate. There are
+two versions of the same build agent guide, one retired and one current, and the current
+one says "It supersedes v2" three lines in, so a rule that looks for words about
+deprecation marks the wrong document. There is a decision made in one release note and
+reversed by the next, with eight later notes after it. Azure is named in six customer
+briefs as somewhere a customer already runs and specified nowhere, which is a question the
+collection can neither answer nor honestly refuse. And 87 of the 131 files come from two
+templates, with whole sentences repeated word for word, which is what a search has to see
+past. Each of those is a failure this system is built to survive, and each one is
+measured in [docs/evaluation.md](docs/evaluation.md).
+
 ## Features
 
-| Area                                           | Where it is explained                                                               |
-| ---------------------------------------------- | ----------------------------------------------------------------------------------- |
-| Monorepo with shared types across the boundary | [Project layout](docs/architecture.md#project-layout)                               |
-| Ingestion pipeline that can rerun safely       | [Re-running ingestion](docs/retrieval.md#re-running-ingestion)                      |
-| Hybrid retrieval: vector and keyword by rank   | [Measuring retrieval](docs/evaluation.md#measuring-retrieval)                       |
-| Reranking on what is known about a document    | [Ranking](docs/retrieval.md#ranking-on-what-is-known-about-a-document)              |
-| Answers with citations, and honest refusals    | [Answering](docs/retrieval.md#answering)                                            |
-| An evaluation over 79 questions, reported      | [Measuring retrieval](docs/evaluation.md#measuring-retrieval)                       |
-| A comparison of the two generation models      | [Which model writes the answers](docs/evaluation.md#which-model-writes-the-answers) |
-| Login with role based access                   | [How access is decided](docs/architecture.md#how-access-is-decided)                 |
-| Chat page and an administrator dashboard       | [The interface](docs/architecture.md#decisions-in-the-interface)                    |
-| Conversations kept and reopened                | [Conversations](#conversations)                                                     |
-| Password changes, and accounts an admin adds   | [Accounts](#accounts)                                                               |
-| MCP server over stdio and HTTP                 | [Connecting an MCP client](#connecting-an-mcp-client)                               |
+| Area                                           | Where it is explained                                                  |
+| ---------------------------------------------- | ---------------------------------------------------------------------- |
+| Monorepo with shared types across the boundary | [Project layout](docs/architecture.md#project-layout)                  |
+| Ingestion pipeline that can rerun safely       | [Re-running ingestion](docs/retrieval.md#re-running-ingestion)         |
+| Hybrid retrieval: vector and keyword by rank   | [Measuring retrieval](docs/evaluation.md#measuring-retrieval)          |
+| Reranking on what is known about a document    | [Ranking](docs/retrieval.md#ranking-on-what-is-known-about-a-document) |
+| Answers with citations, and honest refusals    | [Answering](docs/retrieval.md#answering)                               |
+| An evaluation over 106 questions, reported     | [Measuring retrieval](docs/evaluation.md#measuring-retrieval)          |
+| Search that keeps working without embeddings   | [Errors](#errors)                                                      |
+| Login with role based access                   | [How access is decided](docs/architecture.md#how-access-is-decided)    |
+| Chat page and an administrator dashboard       | [The interface](docs/architecture.md#decisions-in-the-interface)       |
+| Conversations kept and reopened                | [Conversations](#conversations)                                        |
+| Password changes, and accounts an admin adds   | [Accounts](#accounts)                                                  |
+| MCP server over stdio and HTTP                 | [Connecting an MCP client](#connecting-an-mcp-client)                  |
 
-### Bonus features
+### What is built, and what is not
 
-The brief lists seven optional items. Five are built, one is half built, and two are not,
-which is the whole accounting. Each of the built ones is here because the system needed it
-rather than because the list mentioned it, which is why three of them predate my noticing
-they were on the list at all.
+Three things are deliberately absent rather than unfinished, and the reasons differ.
 
-| Bonus                                              | State | Why it is here                                                                           |
-| -------------------------------------------------- | ----- | ---------------------------------------------------------------------------------------- |
-| Hybrid retrieval, vector and keyword fused by rank | Built | Vector similarity alone missed three questions the collection answers plainly            |
-| Reranking on document metadata                     | Built | A retired guide outranking its replacement is the failure this corpus is built to punish |
-| An evaluation over 79 questions, reported          | Built | The relevance threshold could not be set without measuring it                            |
-| Result highlighting                                | Built | A citation that opens a document at the top has not shown you where the claim came from  |
-| A self-updating pipeline                           | Built | Editing a document and getting the old answer back is the thing the demo makes obvious   |
-| User management                                    | Part  | An admin knowing every user's password is a real weakness in a system judged on roles    |
+**Authorization on the MCP server over OIDC.** What stands in its place is a bearer token
+this application issues, hashes and can revoke. What it does not do is delegation, and the
+difference is under [future work](#future-work).
 
-User management is the half built one: anyone can change their own password and an
-administrator can create accounts, both from the account menu. What is missing is editing
-and removing accounts afterwards, and the reasoning is under
-[the rest of user management](#the-rest-of-user-management).
+**Managing other people's accounts.** Anyone can change their own password and an
+administrator can create accounts. Editing, suspending and listing accounts is not built,
+and the reason is [the last administrator problem](#the-rest-of-user-management) rather
+than the work.
 
-Two are not built, and the reasons differ.
+**A live deployment.** Nothing in the application assumes it runs locally; what is missing
+is a host and a managed PostgreSQL with pgvector. What that would take is under
+[deploying it](#deploying-it).
 
-**MCP authorization over OIDC.** What stands in its place, and what it does not do, is
-under [future work](#future-work).
-
-**A live deployment.** Not deployed, and what I would do plus which parts are already true
-is under [deploying it](#deploying-it). Nothing about the application assumes it runs
-locally; what is missing is a host and a managed PostgreSQL with pgvector.
-
-**Streaming answers** are a third case and a design conflict rather than a shortfall. The
+**Streaming answers** are a fourth case and a design conflict rather than a shortfall. The
 answer is checked against the retrieved documents before it is sent, and a citation gate
 that runs after the last token cannot run halfway through the first. The chat already
 streams the part that can be streamed honestly: sources appear as soon as retrieval
@@ -145,9 +150,9 @@ range, reporting secrets as present or absent rather than printing them. Running
 turns a misconfigured `.env` into a readable error instead of a failure halfway through
 indexing.
 
-Indexing takes about a minute and a half, almost all of it waiting on the embedding API.
-Running it again takes under a second, because nothing changed and nothing reaches a
-model.
+Indexing the 131 sample documents took 77 seconds here, almost all of it waiting on the
+embedding API. Running it again takes under a second, because nothing changed and nothing
+reaches a model.
 
 Three things worth knowing:
 
@@ -237,14 +242,14 @@ reasoning is under [future work](#future-work).
 
 ## Where the rest of it is
 
-This file is the map. Three documents under `docs/` carry the reasoning, so somebody who
-wants to run the project does not have to read past it.
+This README is a 526 line map. Three documents under `docs/` carry the reasoning, so
+somebody who wants to run the project does not have to read past it.
 
-| Document                                     | What is in it                                                                     |
-| -------------------------------------------- | --------------------------------------------------------------------------------- |
-| [docs/retrieval.md](docs/retrieval.md)       | Ingestion, chunking, how search combines two methods, how an answer is grounded   |
-| [docs/evaluation.md](docs/evaluation.md)     | The 79 question set, what each retrieval step scored, and the two models compared |
-| [docs/architecture.md](docs/architecture.md) | Layout, data model, access, tests, and the decisions worth explaining             |
+| Document                                     | What is in it                                                                       |
+| -------------------------------------------- | ----------------------------------------------------------------------------------- |
+| [docs/retrieval.md](docs/retrieval.md)       | Ingestion, chunking, how search combines two methods, how an answer is grounded     |
+| [docs/evaluation.md](docs/evaluation.md)     | The 106 question set, what each retrieval step scored, and what is still unmeasured |
+| [docs/architecture.md](docs/architecture.md) | Layout, data model, access, tests, and the decisions worth explaining               |
 
 ## API
 
@@ -260,7 +265,7 @@ much cheaper than asking a question, which is why it is separate.
 ```bash
 curl -X POST http://localhost:3000/api/search \
   -H 'content-type: application/json' -b cookies.txt \
-  -d '{"query": "maximum file size for an AppLovin playable", "limit": 5}'
+  -d '{"query": "maximum artifact size on AWS", "limit": 5}'
 ```
 
 | Field     | Required | Notes                                      |
@@ -279,16 +284,16 @@ Answers a question from the documents.
 ```bash
 curl -X POST http://localhost:3000/api/ask \
   -H 'content-type: application/json' -b cookies.txt \
-  -d '{"question": "Which languages must every playable ship with?"}'
+  -d '{"question": "Which four checks must every runner release pass?"}'
 ```
 
 ```json
 {
-  "answer": "Every Lumen playable must ship with English, Spanish, ... [1]",
+  "answer": "Every release must be green on all four providers [1], ... [1]",
   "coverage": "full",
   "gap": null,
-  "citations": [{ "sourceNumber": 1, "documentPath": "localization-guide.md", "quote": "..." }],
-  "sources": [{ "path": "localization-guide.md", "isDeprecated": false }],
+  "citations": [{ "sourceNumber": 1, "documentPath": "release-checklist.md", "quote": "..." }],
+  "sources": [{ "path": "release-checklist.md", "isDeprecated": false }],
   "droppedCitations": [],
   "model": "gemini-3.6-flash"
 }
@@ -342,7 +347,7 @@ argument for hybrid search in the first place, and measurably worse is not unava
 | `pnpm ingest`                           | Reads the corpus and reports what it found, writing nothing |
 | `pnpm ingest --write`                   | Stores it, embedding only the chunks that changed           |
 | `INGEST_WATCH=true pnpm ingest --write` | Stays open and reindexes when the corpus changes            |
-| `pnpm eval`                             | Measures retrieval against 79 questions and reports it      |
+| `pnpm eval`                             | Measures retrieval against 106 questions and reports it     |
 | `pnpm eval --sweep`                     | Runs the same set at twelve settings to check the constants |
 | `pnpm compare:providers`                | Runs the question set through both generation models        |
 | `pnpm answers`                          | Answers nine questions and prints them, for reading         |
@@ -367,7 +372,7 @@ INGEST_WATCH=true pnpm ingest --write
 
 The watcher decides only _when_ to run. What changed is worked out afterwards by the same
 hash comparison the command line uses, so editing one file re-embeds one file and the
-other 141 cost a hash each. That split is not tidiness. Watching `corpus/` and measuring
+other 130 cost a hash each. That split is not tidiness. Watching `corpus/` and measuring
 what the operating system actually reports:
 
 | What I did                | What arrived                                                        |

@@ -149,7 +149,7 @@ export function demotionFor(
  * Fills the result list, holding the crowded types back on the first pass.
  *
  * Two passes. The first applies the quota, the second takes whatever is left, so a
- * question that genuinely is about delivery reports still fills its results with them
+ * question that genuinely is about deployment reports still fills its results with them
  * rather than coming back half empty.
  */
 function applyQuota<T extends RankableChunk>(

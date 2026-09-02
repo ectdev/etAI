@@ -175,7 +175,7 @@ documents="$(curl -s -b "$JAR_DIR/admin.jar" "$BASE/dashboard/documents")"
 contains "document list holds the whole corpus" "142 documents" "$documents"
 
 # The filters offer what the corpus actually contains rather than a list typed by hand.
-contains "type filter offers a real type" "delivery report" "$documents"
+contains "type filter offers a real type" "deployment report" "$documents"
 
 # The two markers the collection was built to test. A retired document listed as ordinary
 # is the failure that turns a correct answer into a wrong one.
