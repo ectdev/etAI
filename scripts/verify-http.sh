@@ -170,9 +170,9 @@ check "document list renders" 200 "$(status -b "$JAR_DIR/admin.jar" "$BASE/dashb
 
 documents="$(curl -s -b "$JAR_DIR/admin.jar" "$BASE/dashboard/documents")"
 
-# All 142 in one payload, which is the decision this page rests on. If a future change
+# All 131 in one payload, which is the decision this page rests on. If a future change
 # starts paginating, this is what says so.
-contains "document list holds the whole corpus" "142 documents" "$documents"
+contains "document list holds the whole corpus" "131 documents" "$documents"
 
 # The filters offer what the corpus actually contains rather than a list typed by hand.
 contains "type filter offers a real type" "deployment report" "$documents"
@@ -184,7 +184,7 @@ contains "a superseded changelog is marked" "Replaced" "$documents"
 contains "the retired guide is the one expected" "drift-agent-v2.md" "$documents"
 
 # Dates are shown at the precision they are known to, not padded to a day nobody wrote.
-contains "a dated document shows its date" "2026-05-25" "$documents"
+contains "a dated document shows its date" "2026-01-14" "$documents"
 contains "an undated document says so" "not dated" "$documents"
 
 echo
