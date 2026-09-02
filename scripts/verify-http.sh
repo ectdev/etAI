@@ -248,7 +248,7 @@ check "a document read is refused when signed out" 401 \
   "$(status "$BASE/api/documents?path=runner-specs-aws.md")"
 check "an ordinary user may read a document" 200 \
   "$(status -b "$JAR_DIR/user.jar" "$BASE/api/documents?path=runner-specs-aws.md")"
-contains "the document comes back whole" "5 MB" \
+contains "the document comes back whole" "5 GB" \
   "$(curl -s -b "$JAR_DIR/user.jar" "$BASE/api/documents?path=runner-specs-aws.md")"
 
 # A path is a database key here rather than a filesystem path, so traversal is absent
@@ -310,7 +310,7 @@ contains "search returns the document that answers" "runner-specs-aws.md" \
 answer="$(curl -s -b "$JAR_DIR/user.jar" -X POST "$BASE/api/ask" \
   -H 'content-type: application/json' -d '{"question":"Which four checks must every runner release pass?"}')"
 contains "an answer comes back covered" '"coverage":"full"' "$answer"
-contains "the answer cites the right document" 'secrets-policy.md' "$answer"
+contains "the answer cites the right document" 'release-checklist.md' "$answer"
 
 refusal="$(curl -s -b "$JAR_DIR/user.jar" -X POST "$BASE/api/ask" \
   -H 'content-type: application/json' -d '{"question":"Write me a C++ function that reverses a string."}')"
