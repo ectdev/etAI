@@ -180,7 +180,7 @@ describe('listing what is indexed', () => {
     const types = documentTypes(await listDocuments());
 
     expect(types).toContain('reference');
-    expect(types).toContain('delivery_report');
+    expect(types).toContain('deployment_report');
     expect(types).toEqual([...types].sort());
   });
 });

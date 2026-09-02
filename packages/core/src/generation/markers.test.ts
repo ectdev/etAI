@@ -36,7 +36,7 @@ function markersResolve(answer: { answer: string; citations: Array<{ sourceNumbe
 
 describe('the markers a model writes into an answer', () => {
   it('marks the claim with the number of the one document it used', async () => {
-    const result = await answerQuestion('What is the maximum file size for an AppLovin playable?');
+    const result = await answerQuestion('What is the maximum artifact size on AWS?');
 
     expect(citationMarkers(result.answer).length).toBeGreaterThan(0);
     expect(markersResolve(result)).toBe(true);
@@ -52,7 +52,7 @@ describe('the markers a model writes into an answer', () => {
      * the answer.
      */
     const result = await answerQuestion(
-      'How do I initialize the current Lumen SDK, and what happened to lumen.track?',
+      'How do I start the current drift agent, and what happened to report()?',
     );
 
     const paths = new Map(
@@ -63,21 +63,21 @@ describe('the markers a model writes into an answer', () => {
     expect(markers.size).toBeGreaterThan(1);
     expect(markersResolve(result)).toBe(true);
     expect([...markers].map((marker) => paths.get(marker))).toEqual(
-      expect.arrayContaining(['sdk-notes-v3.md', 'sdk-notes-v2.md']),
+      expect.arrayContaining(['drift-agent-v3.md', 'drift-agent-v2.md']),
     );
     expect(result.coherence).toEqual([]);
   }, 60_000);
 
   it('marks what a partial answer does have, at whatever number that document sits at', async () => {
     /**
-     * The number here is not 1. The brief that names ironSource is sixth among the
+     * The number here is not 1. The brief that names Azure is sixth among the
      * retrieved documents, and the answer cites only that one, so the single citation in
      * a correct answer is numbered 6.
      *
      * Worth asserting rather than assuming: a rule requiring citation numbers to run
      * contiguously from 1 would reject this, and it is the correct answer.
      */
-    const result = await answerQuestion('What is the ironSource file size limit?');
+    const result = await answerQuestion('What is the Azure file size limit?');
 
     expect(result.coverage).toBe('partial');
     expect(citationMarkers(result.answer).length).toBeGreaterThan(0);
@@ -119,7 +119,7 @@ describe('the markers a model writes into an answer', () => {
     // Rule 6 tells the model to answer in the language it was asked in, and a marker is
     // not a word. An instruction that only survives in English would leave every
     // non-English reader without a single chip.
-    const result = await answerQuestion('AppLovin icin maksimum dosya boyutu nedir?');
+    const result = await answerQuestion('AWS icin maksimum artifact boyutu nedir?');
 
     expect(result.coverage).toBe('full');
     expect(citationMarkers(result.answer).length).toBeGreaterThan(0);

@@ -9,7 +9,7 @@ import { indexStats, ingestCorpus } from './persist.js';
  * Checks the state ingestion left in the database.
  *
  * Most of these read what is there rather than running ingestion again, because a first
- * run makes 142 embedding calls and takes over a minute.
+ * run makes 131 embedding calls and takes over a minute.
  *
  * The two about run records do run it, and that is a correction. They used to read
  * whichever run happened to be most recent, which passed for weeks because that row was
@@ -30,9 +30,9 @@ describe('the indexed corpus', () => {
   it('holds every document with a chunk and a vector', async () => {
     const stats = await indexStats();
 
-    expect(stats.documents).toBe(142);
-    expect(stats.chunks).toBe(142);
-    expect(stats.embedded).toBe(142);
+    expect(stats.documents).toBe(131);
+    expect(stats.chunks).toBe(131);
+    expect(stats.embedded).toBe(131);
   });
 
   it('stored vectors that are unit length, so cosine distance needs no extra step', async () => {
@@ -57,21 +57,31 @@ describe('the indexed corpus', () => {
         ORDER BY older.path`,
     );
 
+    /**
+     * Ordered by path, which is why the last pair reads 5.9 to 5.10 rather than the other
+     * way round. String order would have put 5.10 before 5.2 and broken the chain in the
+     * middle; the numeric comparison in supersede.ts is what makes this list contiguous.
+     */
     expect(rows).toEqual([
-      { older: 'changelogs/lumen-build-3.8.md', newer: 'changelogs/lumen-build-3.9.md' },
-      { older: 'changelogs/lumen-build-3.9.md', newer: 'changelogs/lumen-build-4.0.md' },
-      { older: 'changelogs/lumen-build-4.0.md', newer: 'changelogs/lumen-build-4.1.md' },
-      { older: 'changelogs/lumen-build-4.1.md', newer: 'changelogs/lumen-build-4.2.md' },
-      { older: 'changelogs/lumen-build-4.2.md', newer: 'changelogs/lumen-build-4.3.md' },
+      { older: 'changelogs/halcyon-runner-5.0.md', newer: 'changelogs/halcyon-runner-5.1.md' },
+      { older: 'changelogs/halcyon-runner-5.1.md', newer: 'changelogs/halcyon-runner-5.2.md' },
+      { older: 'changelogs/halcyon-runner-5.2.md', newer: 'changelogs/halcyon-runner-5.3.md' },
+      { older: 'changelogs/halcyon-runner-5.3.md', newer: 'changelogs/halcyon-runner-5.4.md' },
+      { older: 'changelogs/halcyon-runner-5.4.md', newer: 'changelogs/halcyon-runner-5.5.md' },
+      { older: 'changelogs/halcyon-runner-5.5.md', newer: 'changelogs/halcyon-runner-5.6.md' },
+      { older: 'changelogs/halcyon-runner-5.6.md', newer: 'changelogs/halcyon-runner-5.7.md' },
+      { older: 'changelogs/halcyon-runner-5.7.md', newer: 'changelogs/halcyon-runner-5.8.md' },
+      { older: 'changelogs/halcyon-runner-5.8.md', newer: 'changelogs/halcyon-runner-5.9.md' },
+      { older: 'changelogs/halcyon-runner-5.9.md', newer: 'changelogs/halcyon-runner-5.10.md' },
     ]);
   });
 
-  it('marked the retired SDK guide and nothing else', async () => {
+  it('marked the retired agent guide and nothing else', async () => {
     const { rows } = await pool.query<{ path: string }>(
       'SELECT path FROM document WHERE is_deprecated AND deleted_at IS NULL',
     );
 
-    expect(rows.map((row) => row.path)).toEqual(['sdk-notes-v2.md']);
+    expect(rows.map((row) => row.path)).toEqual(['drift-agent-v2.md']);
   });
 
   it('kept the precision of each date rather than inventing a day', async () => {
@@ -82,9 +92,9 @@ describe('the indexed corpus', () => {
 
     const counts = new Map(rows.map((row) => [row.precision ?? 'none', Number(row.count)]));
 
-    expect(counts.get('day')).toBe(36);
-    expect(counts.get('month')).toBe(81);
-    expect(counts.get('none')).toBe(25);
+    expect(counts.get('day')).toBe(40);
+    expect(counts.get('month')).toBe(62);
+    expect(counts.get('none')).toBe(29);
   });
 
   it('records an outcome for every file, and skips them all on a rerun', async () => {
@@ -100,7 +110,7 @@ describe('the indexed corpus', () => {
 
     try {
       expect(summary.status).toBe('completed');
-      expect(summary.skipped).toBe(142);
+      expect(summary.skipped).toBe(131);
       expect(summary.created).toBe(0);
       expect(summary.updated).toBe(0);
       expect(summary.failed).toBe(0);
@@ -110,7 +120,7 @@ describe('the indexed corpus', () => {
         [summary.runId],
       );
 
-      expect(Number(rows[0]?.items)).toBe(142);
+      expect(Number(rows[0]?.items)).toBe(131);
     } finally {
       // The run this test made is not part of the history anybody should read.
       const db = getDb();
@@ -164,11 +174,11 @@ describe('searching what was stored', () => {
       `SELECT d.path
          FROM chunk c JOIN document d ON d.id = c.document_id
         WHERE d.deleted_at IS NULL AND c.embedding IS NOT NULL
-          AND c.search_vector @@ websearch_to_tsquery('english', 'applovin file size')
-        ORDER BY ts_rank(c.search_vector, websearch_to_tsquery('english', 'applovin file size')) DESC
+          AND c.search_vector @@ websearch_to_tsquery('english', 'runner specification aws')
+        ORDER BY ts_rank(c.search_vector, websearch_to_tsquery('english', 'runner specification aws')) DESC
         LIMIT 3`,
     );
 
-    expect(rows[0]?.path).toBe('network-specs-applovin.md');
+    expect(rows[0]?.path).toBe('runner-specs-aws.md');
   });
 });

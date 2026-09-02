@@ -26,12 +26,31 @@ export interface SweepResult extends RetrievalScore {
   label: string;
 }
 
+/**
+ * A search that fell back to keyword only, retried rather than counted.
+ *
+ * A sweep is twelve times as many embedding calls as an ordinary run, sent one after
+ * another, and that is enough to meet a rate limit that a single run never does. When it
+ * does, `searchChunks` does the right thing for a user and the wrong thing for a
+ * measurement: it returns keyword results and sets `degraded`, and the row goes into the
+ * table looking like a ranking result rather than a search that never ran.
+ *
+ * Every number in the table has to come from the same path, so a degraded result waits
+ * and asks again, and a setting that cannot get a clean answer stops the run instead of
+ * reporting a contaminated one. Losing the sweep is cheap; publishing a comparison
+ * between one setting measured properly and another measured without vectors is not.
+ */
+const RETRY_PAUSE_MS = 20_000;
+const MAX_ATTEMPTS = 4;
+
+const pause = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
 export async function sweep(settings: SweepSetting[]): Promise<SweepResult[]> {
   const results: SweepResult[] = [];
 
   for (const setting of settings) {
     const measured = await measureQueries(async (question) => {
-      const result = await searchChunks(question, {
+      const result = await searchUntilNotDegraded(question, {
         limit: TOP_K,
         ...(setting.perTypeLimit === undefined ? {} : { perTypeLimit: setting.perTypeLimit }),
         ...(setting.crowdedTypes === undefined ? {} : { crowdedTypes: setting.crowdedTypes }),
@@ -56,6 +75,28 @@ export async function sweep(settings: SweepSetting[]): Promise<SweepResult[]> {
   return results;
 }
 
+async function searchUntilNotDegraded(
+  question: string,
+  options: Parameters<typeof searchChunks>[1],
+): Promise<Awaited<ReturnType<typeof searchChunks>>> {
+  for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt += 1) {
+    const result = await searchChunks(question, options);
+    if (!result.degraded) return result;
+
+    if (attempt < MAX_ATTEMPTS) {
+      console.error(
+        `  embedding unavailable on "${question.slice(0, 48)}", waiting ${RETRY_PAUSE_MS / 1000}s (attempt ${attempt} of ${MAX_ATTEMPTS})`,
+      );
+      await pause(RETRY_PAUSE_MS);
+    }
+  }
+
+  throw new Error(
+    `Embedding stayed unavailable after ${MAX_ATTEMPTS} attempts on: ${question}\n` +
+      'The sweep is stopping rather than reporting a row measured without vector search.',
+  );
+}
+
 /**
  * The settings worth checking.
  *
@@ -69,10 +110,10 @@ export const SWEEP_SETTINGS: SweepSetting[] = [
   {
     label: 'quota on every type',
     crowdedTypes: [
-      'delivery_report',
+      'deployment_report',
       'meeting_note',
       'reference',
-      'client_brief',
+      'customer',
       'changelog',
       'guide',
       'postmortem',

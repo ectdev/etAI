@@ -18,11 +18,11 @@ describe('normalizeText', () => {
   ])(
     'removes a %s, which would otherwise change the hash without changing the text',
     (_l, code) => {
-      const polluted = `App${ch(code)}Lovin`;
+      const polluted = `Hal${ch(code)}cyon`;
 
-      expect(polluted).not.toBe('AppLovin');
-      expect(normalizeText(polluted)).toBe('AppLovin');
-      expect(hashText(normalizeText(polluted))).toBe(hashText('AppLovin'));
+      expect(polluted).not.toBe('Halcyon');
+      expect(normalizeText(polluted)).toBe('Halcyon');
+      expect(hashText(normalizeText(polluted))).toBe(hashText('Halcyon'));
     },
   );
 

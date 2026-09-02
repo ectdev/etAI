@@ -27,7 +27,7 @@ export interface Options {
  * Turns the command line into options, or explains why it cannot.
  *
  * Exported so it can be tested without running ingestion. This is the part of the
- * command that decides whether 142 embedding calls happen, and it used to make that
+ * command that decides whether 131 embedding calls happen, and it used to make that
  * decision quietly in two ways.
  *
  * An argument it did not recognise was skipped. `--wrote` instead of `--write` read the

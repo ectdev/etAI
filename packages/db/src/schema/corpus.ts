@@ -69,14 +69,14 @@ export const document = pgTable(
      */
     contentHash: text('content_hash').notNull(),
 
-    /** Derived from the directory the file sits in, for example `delivery-report`. */
+    /** Derived from the directory the file sits in, for example `deployment-report`. */
     docType: text('doc_type').notNull(),
 
     /** Null for the documents that genuinely have no date attached to them. */
     temporalDate: date('temporal_date'),
     temporalPrecision: temporalPrecision('temporal_precision'),
 
-    /** For example `lumen-build`, with `versionNumber` holding `4.2`. */
+    /** For example `halcyon-runner`, with `versionNumber` holding `4.2`. */
     versionSeries: text('version_series'),
     versionNumber: text('version_number'),
 
@@ -149,7 +149,7 @@ export const chunk = pgTable(
 
     /**
      * The headings above this chunk, joined into a trail such as
-     * `Lumen SDK v3 > Initialization`. Kept as its own column so that keyword search
+     * `drift agent v3 > Initialization`. Kept as its own column so that keyword search
      * can match on a heading, which is often where the term a person searched for
      * actually appears.
      */

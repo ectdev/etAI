@@ -25,8 +25,8 @@ afterAll(async () => {
   await closeDb();
 });
 
-const ANSWERABLE = 'What is the maximum file size for an AppLovin playable?';
-const EXPECTED_DOCUMENT = 'network-specs-applovin.md';
+const ANSWERABLE = 'What is the maximum artifact size on AWS?';
+const EXPECTED_DOCUMENT = 'runner-specs-aws.md';
 
 /**
  * Deliberately wider than the marker syntax the application knows.
@@ -141,7 +141,7 @@ describe('the journey from a question to a cited answer', () => {
    */
   it('reaches every document behind an answer that rests on more than one', async () => {
     const answer = await answerQuestion(
-      'How do I initialize the current Lumen SDK, and what happened to lumen.track?',
+      'How do I start the current drift agent, and what happened to report()?',
     );
     const segments = parseAnswer(answer.answer, answer.citations).flat();
     const chips = segments.flatMap((segment) => (segment.kind === 'chip' ? [segment] : []));

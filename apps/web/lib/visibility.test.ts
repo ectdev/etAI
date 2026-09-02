@@ -17,8 +17,8 @@ import { answerForRole, searchForRole } from './visibility';
 
 const chunk = {
   documentId: 'doc-1',
-  path: 'network-specs-applovin.md',
-  title: 'AppLovin network specification',
+  path: 'runner-specs-aws.md',
+  title: 'AWS runner specification',
   headingPath: null,
   docType: 'reference',
   temporalDate: null,
@@ -45,8 +45,8 @@ const answer = (degraded: boolean) => ({
     {
       sourceNumber: 1,
       documentId: 'doc-1',
-      documentPath: 'network-specs-applovin.md',
-      title: 'AppLovin network specification',
+      documentPath: 'runner-specs-aws.md',
+      title: 'AWS runner specification',
       quote: 'Maximum file size: 5 MB.',
     },
   ],

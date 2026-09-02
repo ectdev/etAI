@@ -181,7 +181,7 @@ contains "type filter offers a real type" "delivery report" "$documents"
 # is the failure that turns a correct answer into a wrong one.
 contains "the retired guide is marked" "Retired" "$documents"
 contains "a superseded changelog is marked" "Replaced" "$documents"
-contains "the retired guide is the one expected" "sdk-notes-v2.md" "$documents"
+contains "the retired guide is the one expected" "drift-agent-v2.md" "$documents"
 
 # Dates are shown at the precision they are known to, not padded to a day nobody wrote.
 contains "a dated document shows its date" "2026-05-25" "$documents"
@@ -190,11 +190,11 @@ contains "an undated document says so" "not dated" "$documents"
 echo
 echo "What each role is allowed to see"
 user_search="$(curl -s -b "$JAR_DIR/user.jar" -X POST "$BASE/api/search" \
-  -H 'content-type: application/json' -d '{"query":"maximum file size for an AppLovin playable"}')"
+  -H 'content-type: application/json' -d '{"query":"maximum artifact size on AWS"}')"
 admin_search="$(curl -s -b "$JAR_DIR/admin.jar" -X POST "$BASE/api/search" \
-  -H 'content-type: application/json' -d '{"query":"maximum file size for an AppLovin playable"}')"
+  -H 'content-type: application/json' -d '{"query":"maximum artifact size on AWS"}')"
 
-contains "both roles get the documents" "network-specs-applovin.md" "$user_search"
+contains "both roles get the documents" "runner-specs-aws.md" "$user_search"
 contains "an admin gets the distance" '"distance"' "$admin_search"
 contains "an admin gets the timings" '"timings"' "$admin_search"
 
@@ -211,9 +211,9 @@ for field in '"distance"' '"score"' '"timings"' '"nearestDistance"'; do
 done
 
 user_answer="$(curl -s -b "$JAR_DIR/user.jar" -X POST "$BASE/api/ask" \
-  -H 'content-type: application/json' -d '{"question":"Which languages must every playable ship with?"}')"
+  -H 'content-type: application/json' -d '{"question":"Which four checks must every runner release pass?"}')"
 admin_answer="$(curl -s -b "$JAR_DIR/admin.jar" -X POST "$BASE/api/ask" \
-  -H 'content-type: application/json' -d '{"question":"Which languages must every playable ship with?"}')"
+  -H 'content-type: application/json' -d '{"question":"Which four checks must every runner release pass?"}')"
 
 contains "both roles get the coverage" '"coverage":"full"' "$user_answer"
 contains "both roles get the citations" '"sourceNumber"' "$user_answer"
@@ -245,11 +245,11 @@ check "an admin new conversation opens" 200 "$(status -b "$JAR_DIR/admin.jar" "$
 
 # The document endpoint the source panel opens a citation with.
 check "a document read is refused when signed out" 401 \
-  "$(status "$BASE/api/documents?path=network-specs-applovin.md")"
+  "$(status "$BASE/api/documents?path=runner-specs-aws.md")"
 check "an ordinary user may read a document" 200 \
-  "$(status -b "$JAR_DIR/user.jar" "$BASE/api/documents?path=network-specs-applovin.md")"
+  "$(status -b "$JAR_DIR/user.jar" "$BASE/api/documents?path=runner-specs-aws.md")"
 contains "the document comes back whole" "5 MB" \
-  "$(curl -s -b "$JAR_DIR/user.jar" "$BASE/api/documents?path=network-specs-applovin.md")"
+  "$(curl -s -b "$JAR_DIR/user.jar" "$BASE/api/documents?path=runner-specs-aws.md")"
 
 # A path is a database key here rather than a filesystem path, so traversal is absent
 # rather than defended against. These assert that stays true.
@@ -286,31 +286,31 @@ post() {
 
 check "search refuses a signed out request" 401 \
   "$(curl -s -o /dev/null -w '%{http_code}' -X POST "$BASE/api/search" \
-    -H 'content-type: application/json' -d '{"query":"applovin"}')"
+    -H 'content-type: application/json' -d '{"query":"aws"}')"
 check "ask refuses a signed out request" 401 \
   "$(curl -s -o /dev/null -w '%{http_code}' -X POST "$BASE/api/ask" \
     -H 'content-type: application/json' -d '{"question":"what is the size limit"}')"
 
-check "an ordinary user may search" 200 "$(post "$JAR_DIR/user.jar" /api/search '{"query":"applovin size"}')"
+check "an ordinary user may search" 200 "$(post "$JAR_DIR/user.jar" /api/search '{"query":"aws artifact size"}')"
 check "an empty search is refused" 400 "$(post "$JAR_DIR/user.jar" /api/search '{"query":""}')"
 check "a whitespace search is refused" 400 "$(post "$JAR_DIR/user.jar" /api/search '{"query":"   "}')"
 check "an overlong search is refused" 400 \
   "$(post "$JAR_DIR/user.jar" /api/search "{\"query\":\"$(printf 'a%.0s' {1..600})\"}")"
 check "a search limit above the maximum is refused" 400 \
-  "$(post "$JAR_DIR/user.jar" /api/search '{"query":"applovin","limit":500}')"
+  "$(post "$JAR_DIR/user.jar" /api/search '{"query":"aws","limit":500}')"
 check "a body that is not json is refused" 400 \
   "$(curl -s -o /dev/null -w '%{http_code}' -b "$JAR_DIR/user.jar" -X POST "$BASE/api/search" \
     -H 'content-type: application/json' -d 'not json at all')"
 check "a missing field is refused" 400 "$(post "$JAR_DIR/user.jar" /api/search '{}')"
 
-contains "search returns the document that answers" "network-specs-applovin.md" \
+contains "search returns the document that answers" "runner-specs-aws.md" \
   "$(curl -s -b "$JAR_DIR/user.jar" -X POST "$BASE/api/search" \
-    -H 'content-type: application/json' -d '{"query":"maximum file size for an AppLovin playable"}')"
+    -H 'content-type: application/json' -d '{"query":"maximum artifact size on AWS"}')"
 
 answer="$(curl -s -b "$JAR_DIR/user.jar" -X POST "$BASE/api/ask" \
-  -H 'content-type: application/json' -d '{"question":"Which languages must every playable ship with?"}')"
+  -H 'content-type: application/json' -d '{"question":"Which four checks must every runner release pass?"}')"
 contains "an answer comes back covered" '"coverage":"full"' "$answer"
-contains "the answer cites the right document" 'localization-guide.md' "$answer"
+contains "the answer cites the right document" 'secrets-policy.md' "$answer"
 
 refusal="$(curl -s -b "$JAR_DIR/user.jar" -X POST "$BASE/api/ask" \
   -H 'content-type: application/json' -d '{"question":"Write me a C++ function that reverses a string."}')"
@@ -372,8 +372,8 @@ fi
 contains "a search token cannot call answering" 'not found' \
   "$(mcp "$MCP_SEARCH" '{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"answer_question","arguments":{"question":"which languages ship"}}}')"
 
-contains "a search token can search" 'network-specs-applovin.md' \
-  "$(mcp "$MCP_SEARCH" '{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"search_corpus","arguments":{"query":"maximum file size for an AppLovin playable","limit":2}}}')"
+contains "a search token can search" 'runner-specs-aws.md' \
+  "$(mcp "$MCP_SEARCH" '{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"search_corpus","arguments":{"query":"maximum artifact size on AWS","limit":2}}}')"
 
 # A question asked through MCP has to reach the same record the dashboard reads. It did
 # not for a while, and the visible result was a page headed "what people are asking" that
@@ -381,7 +381,7 @@ contains "a search token can search" 'network-specs-applovin.md' \
 # number. Asserted end to end rather than by unit test, because the gap was between two
 # components that each worked.
 MCP_MARK="verify-http mcp recording $(date +%s)"
-mcp "$MCP_FULL" "{\"jsonrpc\":\"2.0\",\"id\":9,\"method\":\"tools/call\",\"params\":{\"name\":\"answer_question\",\"arguments\":{\"question\":\"$MCP_MARK, what is the AppLovin file size limit?\"}}}" >/dev/null
+mcp "$MCP_FULL" "{\"jsonrpc\":\"2.0\",\"id\":9,\"method\":\"tools/call\",\"params\":{\"name\":\"answer_question\",\"arguments\":{\"question\":\"$MCP_MARK, what is the maximum artifact size on AWS?\"}}}" >/dev/null
 
 contains "an MCP question reaches the dashboard" "through MCP" \
   "$(curl -s -b "$JAR_DIR/admin.jar" "$BASE/dashboard")"

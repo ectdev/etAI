@@ -9,33 +9,34 @@ import { answerQuestion } from '../generation/answer.js';
  * correct, whether it noticed that one of its sources is retired, or whether a refusal
  * sounds like an answer. Those need eyes.
  *
- * The list is the five questions that ship with the collection plus the three cases the
- * collection was built to catch: a question it cannot answer, one it mentions without
+ * The list is six questions across the kinds of document in the collection plus the
+ * three cases it was built to catch: a question it cannot answer, one it mentions without
  * answering, and one that is not about it at all.
  */
 const QUESTIONS = [
   {
-    question: 'What is the maximum file size for an AppLovin playable, and how does it ship?',
-    watchFor: 'the size limit and how it is delivered',
+    question:
+      'What is the maximum artifact size on AWS, and is it measured before or after unzipping?',
+    watchFor: 'the limit and that it is measured on the extracted size',
   },
   {
-    question: 'How do I initialize the current Lumen SDK, and what happened to lumen.track?',
+    question: 'How do I start the current drift agent, and what happened to report()?',
     watchFor: 'the current call AND a clear statement that v2 is retired',
   },
   {
-    question: 'Why are sound assets built in a separate pass?',
-    watchFor: 'the reason, ideally with the incident that caused it',
+    question: 'Why is the build cache kept separate from the artifact store?',
+    watchFor: 'the reason, ideally both halves of it',
   },
   {
-    question: 'What caused the March 2026 AppLovin rejections and what was fixed?',
+    question: 'What caused the April 2026 cache poisoning and what was the fix?',
     watchFor: 'cause and fix, from the postmortem',
   },
   {
-    question: 'Which languages must every playable ship with, and what is the fallback?',
-    watchFor: 'the language list and the fallback',
+    question: 'Which four checks must every runner release pass?',
+    watchFor: 'all four of them, not three',
   },
   {
-    question: 'Was the shared compression path for audio kept or reverted?',
+    question: 'Was counting cache retention from the write kept or reverted?',
     watchFor: 'the later release, not the one it reversed',
   },
   {
@@ -43,8 +44,8 @@ const QUESTIONS = [
     watchFor: 'a refusal, coverage not_documented, no citations',
   },
   {
-    question: 'What is the ironSource file size limit?',
-    watchFor: 'partial coverage: says it is a target network, says there is no spec',
+    question: 'What is the maximum artifact size on Azure?',
+    watchFor: 'partial coverage: says customers mention it, says there is no specification',
   },
   {
     question: 'Write me a C++ function that reverses a string.',

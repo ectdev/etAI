@@ -6,18 +6,18 @@ const derive = (relativePath: string, content = '# Heading\n\nBody.') =>
 
 describe('document type', () => {
   it.each([
-    ['delivery-reports/2026-01-tidal-tycoon.md', 'delivery_report'],
+    ['deployment-reports/2026-01-alpine-ledger.md', 'deployment_report'],
     ['meeting-notes/2026-06-15-production-sync.md', 'meeting_note'],
-    ['client-briefs/sky-ferry.md', 'client_brief'],
-    ['changelogs/lumen-build-4.2.md', 'changelog'],
-    ['postmortems/2025-07-localization-regression.md', 'postmortem'],
-    ['guides/asset-naming.md', 'guide'],
+    ['customers/quillfeed.md', 'customer'],
+    ['changelogs/halcyon-runner-4.2.md', 'changelog'],
+    ['postmortems/2026-02-19-queue-stall.md', 'postmortem'],
+    ['guides/naming-conventions.md', 'guide'],
   ])('reads %s as %s', (path, expected) => {
     expect(derive(path).docType).toBe(expected);
   });
 
   it('calls a file at the root a reference document, since no directory describes it', () => {
-    expect(derive('qa-checklist.md').docType).toBe('reference');
+    expect(derive('release-checklist.md').docType).toBe('reference');
   });
 });
 
@@ -31,7 +31,7 @@ describe('dates', () => {
   });
 
   it('reads a year and month from a file name, and records that the day is not known', () => {
-    const result = derive('delivery-reports/2025-05-bubble-bakery.md');
+    const result = derive('deployment-reports/2025-05-kestrel-freight.md');
 
     expect(result.temporalDate).toBe('2025-05-01');
     expect(result.temporalPrecision).toBe('month');
@@ -39,8 +39,8 @@ describe('dates', () => {
 
   it('reads a date from the title line, which is where the release notes keep theirs', () => {
     const result = derive(
-      'changelogs/lumen-build-4.1.md',
-      '# lumen-build 4.1 (2026-02-16)\n\nBody.',
+      'changelogs/halcyon-runner-4.1.md',
+      '# halcyon-runner 4.1 (2026-02-16)\n\nBody.',
     );
 
     expect(result.temporalDate).toBe('2026-02-16');
@@ -58,7 +58,7 @@ describe('dates', () => {
   });
 
   it('leaves the date empty rather than guessing when the document has none', () => {
-    const result = derive('localization-guide.md');
+    const result = derive('secrets-policy.md');
 
     expect(result.temporalDate).toBeNull();
     expect(result.temporalPrecision).toBeNull();
@@ -80,9 +80,9 @@ describe('dates', () => {
 
 describe('versions', () => {
   it('splits a series from its version number', () => {
-    const result = derive('changelogs/lumen-build-4.2.md');
+    const result = derive('changelogs/halcyon-runner-4.2.md');
 
-    expect(result.versionSeries).toBe('lumen-build');
+    expect(result.versionSeries).toBe('halcyon-runner');
     expect(result.versionNumber).toBe('4.2');
   });
 
@@ -97,10 +97,10 @@ describe('versions', () => {
   });
 
   it.each([
-    'delivery-reports/2026-01-tidal-tycoon.md',
+    'deployment-reports/2026-01-alpine-ledger.md',
     'meeting-notes/2026-06-15-production-sync.md',
-    'client-briefs/sky-ferry.md',
-    'qa-checklist.md',
+    'customers/quillfeed.md',
+    'release-checklist.md',
   ])('leaves %s without a version', (path) => {
     expect(derive(path).versionSeries).toBeNull();
   });
@@ -121,25 +121,25 @@ describe('deprecation', () => {
    */
   it('marks the retired guide, which says so in its title and in a status line', () => {
     const v2 = [
-      '# Lumen SDK v2 (DEPRECATED)',
+      '# drift agent v2 (DEPRECATED)',
       '',
-      'Status: deprecated since January 2026. Do not use for new playables.',
+      'Status: deprecated since January 2026. Do not use for new pipelines.',
       '',
-      'In v2, a playable starts with lumen.start(config).',
+      'In v2, the agent starts with drift.init({ token }).',
     ].join('\n');
 
-    expect(derive('sdk-notes-v2.md', v2).isDeprecated).toBe(true);
+    expect(derive('drift-agent-v2.md', v2).isDeprecated).toBe(true);
   });
 
   it('does not mark the current guide, even though it talks about the retired one', () => {
     const v3 = [
-      '# Lumen SDK v3 (current)',
+      '# drift agent v3 (current)',
       '',
-      'v3 is the current SDK for all new playables, mandatory since January 2026.',
+      'v3 is the current agent for all new pipelines, mandatory since January 2026.',
       'It supersedes v2 and is not backward compatible.',
     ].join('\n');
 
-    expect(derive('sdk-notes-v3.md', v3).isDeprecated).toBe(false);
+    expect(derive('drift-agent-v3.md', v3).isDeprecated).toBe(false);
   });
 
   it('is not fooled by a document that merely mentions deprecation in passing', () => {

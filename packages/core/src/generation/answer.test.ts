@@ -17,16 +17,16 @@ afterAll(async () => {
 
 describe('answering from the documents', () => {
   it('answers a question the collection covers, and cites what it used', async () => {
-    const result = await answerQuestion('What is the maximum file size for an AppLovin playable?');
+    const result = await answerQuestion('What is the maximum artifact size on AWS?');
 
     expect(result.coverage).toBe('full');
     expect(result.answer).toMatch(/5\s*MB/i);
     expect(result.citations.length).toBeGreaterThan(0);
-    expect(result.citations[0]?.documentPath).toBe('network-specs-applovin.md');
+    expect(result.citations[0]?.documentPath).toBe('runner-specs-aws.md');
   });
 
   it('cites nothing it was not given', async () => {
-    const result = await answerQuestion('Which languages must every playable ship with?');
+    const result = await answerQuestion('Which four checks must every runner release pass?');
     const allowed = new Set(result.sources.map((source) => source.path));
 
     for (const citation of result.citations) {
@@ -36,7 +36,7 @@ describe('answering from the documents', () => {
   });
 
   it('quotes the document rather than paraphrasing it in the citation', async () => {
-    const result = await answerQuestion('Which languages must every playable ship with?');
+    const result = await answerQuestion('Which four checks must every runner release pass?');
 
     expect(result.citations[0]?.quote.length).toBeGreaterThan(10);
   });
@@ -58,10 +58,10 @@ describe('answering from the documents', () => {
 
   it('says the old SDK call no longer works when asked about it', async () => {
     const result = await answerQuestion(
-      'How do I initialize the current Lumen SDK, and what happened to lumen.track?',
+      'How do I start the current drift agent, and what happened to report()?',
     );
 
-    expect(result.answer).toMatch(/LumenSDK\.init/);
+    expect(result.answer).toMatch(/start\(/);
     // The second half of the question. An answer that only gives the new call has
     // answered half of what was asked.
     expect(result.answer).toMatch(/no longer|not recognized|fail silently|deprecated|retired/i);
@@ -77,7 +77,7 @@ describe('answering from the documents', () => {
    * is exactly why it needs a test rather than a reading.
    */
   it('says nothing about supersession when nothing it cited is retired', async () => {
-    const result = await answerQuestion('Which languages must every playable ship with?');
+    const result = await answerQuestion('Which four checks must every runner release pass?');
 
     /**
      * The premise, and it used to be the wrong one.
@@ -140,16 +140,16 @@ describe('refusing', () => {
 
 describe('answering partly', () => {
   /**
-   * Six client briefs name ironSource as a target network and no document specifies
+   * Six client briefs name Azure as a target network and no document specifies
    * anything about it, so the question retrieves confidently and cannot be answered. A
    * distance threshold cannot catch this, which is why coverage is a judgement made with
    * the documents in view.
    */
   it('says what it has and names what is missing', async () => {
-    const result = await answerQuestion('What is the ironSource file size limit?');
+    const result = await answerQuestion('What is the Azure file size limit?');
 
     expect(result.coverage).toBe('partial');
-    expect(result.gap).toMatch(/ironsource/i);
+    expect(result.gap).toMatch(/azure/i);
     expect(result.gap).toMatch(/not|no /i);
   });
 });

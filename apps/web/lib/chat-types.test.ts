@@ -100,7 +100,7 @@ describe('splitting an answer into text and chips', () => {
 
 describe('finding the passage a citation quoted', () => {
   const paragraphs = [
-    'AppLovin playables ship as a single self-contained HTML file.',
+    'AWS enforces the artifact limit on the extracted size, not the archive.',
     'Hard limits: maximum file size 5 MB for the final single HTML file.',
     'The QA bot rejects builds that make any outbound request.',
   ];

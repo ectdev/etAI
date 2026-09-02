@@ -57,7 +57,7 @@ describe('searching while the embedding provider is down', () => {
       new UpstreamServiceError('embedding', new Error('429 quota exceeded')),
     );
 
-    const result = await searchChunks('lumen.track events SDK');
+    const result = await searchChunks('report() steps agent');
 
     expect(result.degraded).toBe(true);
     expect(result.chunks.length).toBeGreaterThan(0);
@@ -74,12 +74,12 @@ describe('searching while the embedding provider is down', () => {
       new UpstreamServiceError('embedding', new Error('503')),
     );
 
-    const result = await searchChunks('lumen.track');
+    const result = await searchChunks('report()');
 
     // Not a claim that degraded search is as good as hybrid: it is measurably worse, and
     // that is the argument for hybrid. It is a claim that it is still useful, on a
     // question whose wording appears in the documents.
-    expect(result.chunks.map((chunk) => chunk.path)).toContain('sdk-notes-v2.md');
+    expect(result.chunks.map((chunk) => chunk.path)).toContain('drift-agent-v2.md');
   });
 
   it('is not a general catch: a bug still fails the request', async () => {
@@ -91,13 +91,13 @@ describe('searching while the embedding provider is down', () => {
      */
     vi.mocked(embedQuery).mockRejectedValueOnce(new TypeError('cannot read property of undefined'));
 
-    await expect(searchChunks('lumen.track')).rejects.toThrow(TypeError);
+    await expect(searchChunks('report()')).rejects.toThrow(TypeError);
   });
 
   it('runs the normal path when embedding works, so the flag means something', async () => {
     // Without this the first test could pass against a system that had given up on
     // vectors entirely, and `degraded: true` would be the only state there is.
-    const result = await searchChunks('What is the maximum file size for an AppLovin playable?');
+    const result = await searchChunks('What is the maximum artifact size on AWS?');
 
     expect(result.degraded).toBe(false);
     expect(result.nearestDistance).not.toBeNull();
@@ -135,8 +135,8 @@ describe('the widening that only happens when keyword search is alone', () => {
   it('finds a question whose terms never co-occur, which AND cannot', async () => {
     /**
      * The failure this fixes was found by running the system with a dead key rather than
-     * by reading the code. "What happened to lumen.track?" parses to
-     * `'happen' & 'lumen.track'`, no document holds both, and the empty result was
+     * by reading the code. "What happened to report()?" parses to
+     * `'happen' & 'report()'`, no document holds both, and the empty result was
      * reported to the reader as "this question is outside what the indexed documents
      * cover" about a question the corpus answers on its own front page.
      */
@@ -144,7 +144,7 @@ describe('the widening that only happens when keyword search is alone', () => {
       new UpstreamServiceError('embedding', new Error('401')),
     );
 
-    const result = await searchChunks('What happened to lumen.track?');
+    const result = await searchChunks('What happened to report()?');
 
     expect(result.degraded).toBe(true);
     expect(result.chunks.length).toBeGreaterThan(0);
@@ -153,22 +153,22 @@ describe('the widening that only happens when keyword search is alone', () => {
   it('does not widen when the strict query already matched', async () => {
     /**
      * The premise, and the reason this is a fallback. Widening costs precision, and the
-     * cost is measurable on this collection: "lumen.track events" matches 2 chunks with
-     * AND and 16 with OR. A search that widened every time would be worse than the one it
+     * cost is measurable on this collection: "drift agent v2" matches 4 chunks with AND
+     * and 8 with OR. A search that widened every time would be worse than the one it
      * replaced.
      *
-     * The first version of this test asserted the top result was the SDK guide. That was
-     * a guess and it was wrong: every strict match here ties at the same ts_rank, so the
-     * order at the top is decided by the metadata pass rather than by the text search.
-     * The count is the thing that actually distinguishes the two paths.
+     * Asserted on membership and on the count rather than on which document comes first.
+     * The strict matches tie closely at ts_rank, so the order at the top is decided by the
+     * metadata pass rather than by the text search, and the count is the thing that
+     * actually distinguishes the two paths.
      */
     vi.mocked(embedQuery).mockRejectedValueOnce(
       new UpstreamServiceError('embedding', new Error('401')),
     );
 
-    const result = await searchChunks('lumen.track events', { limit: 20 });
+    const result = await searchChunks('drift agent v2', { limit: 20 });
 
-    expect(result.chunks.map((chunk) => chunk.path)).toContain('sdk-notes-v2.md');
+    expect(result.chunks.map((chunk) => chunk.path)).toContain('drift-agent-v2.md');
     expect(result.chunks.length).toBeLessThan(10);
   });
 
@@ -184,7 +184,9 @@ describe('the widening that only happens when keyword search is alone', () => {
      * question's strict query matches nothing, so with the guard in place every result
      * must have come from the vector half and carry no keyword rank at all.
      */
-    const result = await searchChunks('What happened to lumen.track?');
+    const result = await searchChunks(
+      'Why is the build cache kept separate from the artifact store?',
+    );
 
     expect(result.degraded).toBe(false);
     expect(result.chunks.some((chunk) => chunk.distance !== null)).toBe(true);

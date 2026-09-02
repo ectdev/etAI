@@ -152,7 +152,7 @@ describe('searching chunks', () => {
   async function seedTestDocument() {
     const { rows } = await pool.query<{ id: string }>(
       `INSERT INTO document (path, title, content, content_hash, doc_type)
-       VALUES ('test/schema-fixture.md', 'AppLovin size limit', 'body', 'test-hash', 'test')
+       VALUES ('test/schema-fixture.md', 'AWS artifact limit', 'body', 'test-hash', 'test')
        RETURNING id`,
     );
 
@@ -228,7 +228,7 @@ describe('searching chunks', () => {
     try {
       await pool.query(
         `INSERT INTO chunk (document_id, position, heading_path, content, content_hash, token_count)
-         VALUES ($1, 0, 'Network Specs: AppLovin', 'Ships as a single HTML file under 5 MB.', 'hash-kw', 10)`,
+         VALUES ($1, 0, 'Runner specification: AWS', 'Ships as a single HTML file under 5 MB.', 'hash-kw', 10)`,
         [documentId],
       );
 
@@ -236,7 +236,7 @@ describe('searching chunks', () => {
         `SELECT position FROM chunk
           WHERE document_id = $1
             AND search_vector @@ websearch_to_tsquery('english', $2)`,
-        [documentId, 'applovin'],
+        [documentId, 'aws'],
       );
 
       expect(rows).toHaveLength(1);

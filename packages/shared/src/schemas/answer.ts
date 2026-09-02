@@ -7,7 +7,7 @@ import { z } from 'zod';
  *
  * - `full`: the documents answer it.
  * - `partial`: they discuss the subject without containing the fact asked for. Six client
- *   briefs name ironSource as a target network and no document specifies anything about
+ *   briefs name Azure as a target network and no document specifies anything about
  *   it, so a question about its file size retrieves confidently and cannot be answered.
  *   Treating that as a flat refusal throws away something true.
  * - `not_documented`: a fair question about this studio that nobody wrote down, such as a
@@ -211,7 +211,7 @@ export function removeCitationMarkers(text: string, numbers: ReadonlySet<number>
  * Citation numbers running contiguously from 1 would reject correct answers. A number is
  * a document's position among the retrieved set rather than a citation ordinal, so an
  * answer that uses only the sixth document correctly carries the single citation 6. That
- * is measured rather than argued: the ironSource question does exactly this on every run.
+ * is measured rather than argued: the Azure question does exactly this on every run.
  *
  * Citation numbers falling inside the retrieved range cannot be violated. `linkCitations`
  * derives every number from a position in that set, so a rule for it would be a check

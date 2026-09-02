@@ -40,8 +40,8 @@ describe('parseSections', () => {
 
 describe('extractTitle', () => {
   it('uses the first heading', () => {
-    expect(extractTitle('# Network Specs: AppLovin\n\nBody.', 'fallback')).toBe(
-      'Network Specs: AppLovin',
+    expect(extractTitle('# Runner specification: AWS\n\nBody.', 'fallback')).toBe(
+      'Runner specification: AWS',
     );
   });
 
@@ -59,7 +59,7 @@ describe('chunkDocument', () => {
    */
   it('keeps a short document whole, however many headings it has', () => {
     const document = [
-      '# Network Specs: AppLovin',
+      '# Runner specification: AWS',
       '',
       'Max file size is 5 MB.',
       '',

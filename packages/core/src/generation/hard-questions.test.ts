@@ -68,26 +68,26 @@ function expectWellFormed(answer: {
 describe('a question that spans two unrelated parts of the collection', () => {
   it('answers both halves and cites a document for each', async () => {
     /**
-     * The network specification and the localization guide have nothing to do with each
+     * A provider specification and the on call rotation have nothing to do with each
      * other: different documents, different types, no shared vocabulary. Retrieval has to
      * bring back both, and the answer has to carry both rather than the stronger match
      * crowding the weaker one out, which is what a per-type quota exists to prevent.
      *
-     * The failure to catch is a confident half-answer. Answering only the file size,
+     * The failure to catch is a confident half-answer. Answering only the artifact size,
      * fluently, with a correct citation, reads exactly like answering the whole question.
      */
     const result = await answerQuestion(
-      'What is the maximum file size for an AppLovin playable, and which languages must every playable ship with?',
+      'What is the maximum artifact size on AWS, and how long is an on call shift?',
     );
 
     expect(isAnswered(result.coverage)).toBe(true);
 
     const paths = citedPaths(result);
-    expect(paths, 'the size half was not cited').toContain('network-specs-applovin.md');
-    expect(paths, 'the language half was not cited').toContain('localization-guide.md');
+    expect(paths, 'the size half was not cited').toContain('runner-specs-aws.md');
+    expect(paths, 'the rotation half was not cited').toContain('guides/oncall-rotation.md');
 
-    expect(result.answer).toMatch(/5\s*MB/i);
-    expect(result.answer).toMatch(/spanish|português|portuguese|german|japanese|korean/i);
+    expect(result.answer).toMatch(/5\s*GB/i);
+    expect(result.answer).toMatch(/week|monday/i);
 
     expectWellFormed(result);
   }, 90_000);
@@ -96,34 +96,34 @@ describe('a question that spans two unrelated parts of the collection', () => {
 describe('a question about two separately out of date things', () => {
   it('warns about both, and cites the current document for each', async () => {
     /**
-     * Two independent kinds of out of date in one question. `lumen.track` belongs to an
-     * SDK guide marked deprecated in its own title; the shared audio compression path was
-     * introduced in one changelog and reverted by a later one, which is supersession
-     * rather than deprecation. They are marked differently in the index and read
-     * differently in the prompt.
+     * Two independent kinds of out of date in one question. `report()` belongs to an
+     * agent guide marked deprecated in its own title; counting cache retention from the
+     * write was introduced in one changelog and reverted by a later one, which is
+     * supersession rather than deprecation. They are marked differently in the index and
+     * read differently in the prompt.
      *
      * The failure this catches is warning about one and silently answering the other from
      * the stale document, which produces an answer that is half current and reads as
      * entirely current.
      */
     const result = await answerQuestion(
-      'What happened to lumen.track, and was the shared audio compression path kept or reverted?',
+      'What happened to report(), and is cache retention counted from the write or the last read?',
     );
 
     expect(isAnswered(result.coverage)).toBe(true);
 
     const paths = citedPaths(result);
     expect(
-      paths.some((path) => path.includes('sdk-notes')),
-      'the SDK half was not cited',
+      paths.some((path) => path.includes('drift-agent')),
+      'the agent half was not cited',
     ).toBe(true);
     expect(
-      paths.some((path) => path.includes('changelogs/') || path.includes('postmortem')),
-      'the compression half was not cited',
+      paths.some((path) => path.includes('changelogs/') || path.includes('build-cache')),
+      'the retention half was not cited',
     ).toBe(true);
 
     // Both halves have to say the old thing is old, in whatever words the model picks.
-    expect(result.answer).toMatch(/revert|reverted|dedicated pass/i);
+    expect(result.answer).toMatch(/revert|reverted|last read/i);
     expect(result.answer).toMatch(/v3|removed|deprecated|retired|no longer/i);
 
     expectWellFormed(result);
@@ -135,7 +135,7 @@ describe('the same question in languages the collection is not written in', () =
    * The collection is entirely in English. A question in another language has to retrieve
    * across that gap, which the embedding handles, and then be answered in the language it
    * was asked in, which only the prompt handles. Identifiers have to survive: a file size
-   * limit is useless if `AppLovin` comes back translated.
+   * limit is useless if `AWS` comes back translated.
    *
    * Four languages rather than one, because they fail differently. Spanish and German are
    * close to the training distribution and to English; Japanese and Chinese are neither,
@@ -144,11 +144,11 @@ describe('the same question in languages the collection is not written in', () =
   const questions = [
     {
       language: 'Spanish',
-      ask: '¿Cuál es el tamaño máximo de archivo para un playable de AppLovin?',
+      ask: '¿Cuál es el tamaño máximo de artefacto en AWS?',
     },
-    { language: 'German', ask: 'Wie groß darf eine AppLovin-Playable-Datei maximal sein?' },
-    { language: 'Japanese', ask: 'AppLovin のプレイアブル広告の最大ファイルサイズは？' },
-    { language: 'Chinese', ask: 'AppLovin 可玩广告的最大文件大小是多少？' },
+    { language: 'German', ask: 'Wie groß darf ein Artefakt auf AWS maximal sein?' },
+    { language: 'Japanese', ask: 'AWS の最大アーティファクトサイズはどれくらいですか？' },
+    { language: 'Chinese', ask: 'AWS 上的最大构建产物大小是多少？' },
   ];
 
   for (const { language, ask } of questions) {
@@ -156,13 +156,13 @@ describe('the same question in languages the collection is not written in', () =
       const result = await answerQuestion(ask);
 
       expect(result.coverage, `${language} did not reach an answer`).toBe('full');
-      expect(citedPaths(result)).toContain('network-specs-applovin.md');
+      expect(citedPaths(result)).toContain('runner-specs-aws.md');
 
       // The fact itself, which is a number and a unit in every language.
-      expect(result.answer).toMatch(/5\s*MB/i);
+      expect(result.answer).toMatch(/5\s*GB/i);
 
       // And the identifier, which must not be translated or transliterated away.
-      expect(result.answer).toMatch(/AppLovin/);
+      expect(result.answer).toMatch(/AWS/);
 
       expectWellFormed(result);
     }, 90_000);
@@ -178,12 +178,12 @@ describe('questions at the edges of what a person would type', () => {
      * preamble. This one buries the question at the end on purpose.
      */
     const rambling =
-      'Hi, I am new to the team and I have been reading through the build pipeline notes ' +
-      'and the QA checklist for the last hour, and there is a lot of context I am still ' +
-      'missing about how deliveries actually work here and who signs them off, and I do ' +
-      'not want to ask something that is written down somewhere obvious, but I could not ' +
-      'find it. Anyway what I actually need to know is this: what is the maximum file ' +
-      'size for an AppLovin playable?';
+      'Hi, I am new to the team and I have been reading through the build cache notes ' +
+      'and the release checklist for the last hour, and there is a lot of context I am ' +
+      'still missing about how migrations actually work here and who signs them off, and ' +
+      'I do not want to ask something that is written down somewhere obvious, but I could ' +
+      'not find it. Anyway what I actually need to know is this: what is the maximum ' +
+      'artifact size on AWS?';
 
     expect(rambling.length).toBeGreaterThan(400);
     expect(askSchema.safeParse({ question: rambling }).success).toBe(true);
@@ -191,7 +191,7 @@ describe('questions at the edges of what a person would type', () => {
     const result = await answerQuestion(rambling);
 
     expect(isAnswered(result.coverage)).toBe(true);
-    expect(result.answer).toMatch(/5\s*MB/i);
+    expect(result.answer).toMatch(/5\s*GB/i);
     expectWellFormed(result);
   }, 90_000);
 
@@ -204,7 +204,7 @@ describe('questions at the edges of what a person would type', () => {
      * No model call: this is the schema both surfaces validate against, so the same limit
      * applies to the web API and to the MCP tool.
      */
-    const enormous = `What is the AppLovin file size limit? ${'and also please explain the build pipeline in detail. '.repeat(80)}`;
+    const enormous = `What is the AWS artifact size limit? ${'and also please explain the build cache in detail. '.repeat(80)}`;
 
     expect(enormous.length).toBeGreaterThan(4000);
 

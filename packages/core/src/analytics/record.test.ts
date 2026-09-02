@@ -32,8 +32,8 @@ function answerFor(coverage: AnswerResponse['coverage']): AnswerResponse {
     sources: [
       {
         documentId: '00000000-0000-0000-0000-000000000001',
-        path: 'network-specs-applovin.md',
-        title: 'AppLovin',
+        path: 'runner-specs-aws.md',
+        title: 'AWS',
         headingPath: null,
         docType: 'reference',
         temporalDate: null,

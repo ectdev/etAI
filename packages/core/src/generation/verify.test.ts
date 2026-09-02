@@ -17,13 +17,13 @@ const source = (path: string): AnswerSource => ({
 
 const answer = (overrides: Partial<GroundedAnswer> = {}): GroundedAnswer => ({
   answer: 'The limit is 5 MB.',
-  citations: [{ documentPath: 'network-specs-applovin.md', quote: 'Maximum file size: 5 MB.' }],
+  citations: [{ documentPath: 'runner-specs-aws.md', quote: 'Maximum file size: 5 MB.' }],
   coverage: 'full',
   gap: null,
   ...overrides,
 });
 
-const RETRIEVED = ['network-specs-applovin.md', 'qa-checklist.md'];
+const RETRIEVED = ['runner-specs-aws.md', 'release-checklist.md'];
 
 describe('verifyAnswer', () => {
   it('keeps a citation that names a document the model was given', () => {
@@ -41,17 +41,17 @@ describe('verifyAnswer', () => {
     const result = verifyAnswer(
       answer({
         citations: [
-          { documentPath: 'network-specs-applovin.md', quote: 'real' },
-          { documentPath: 'network-specs-ironsource.md', quote: 'invented' },
+          { documentPath: 'runner-specs-aws.md', quote: 'real' },
+          { documentPath: 'runner-specs-azure.md', quote: 'invented' },
         ],
       }),
       RETRIEVED,
     );
 
     expect(result.citations.map((citation) => citation.documentPath)).toEqual([
-      'network-specs-applovin.md',
+      'runner-specs-aws.md',
     ]);
-    expect(result.droppedCitations).toEqual(['network-specs-ironsource.md']);
+    expect(result.droppedCitations).toEqual(['runner-specs-azure.md']);
   });
 
   it('records what it dropped rather than discarding it quietly', () => {
@@ -90,7 +90,7 @@ describe('verifyAnswer', () => {
       answer({
         coverage: 'not_documented',
         answer: 'There is nothing about this.',
-        citations: [{ documentPath: 'network-specs-applovin.md', quote: 'unrelated' }],
+        citations: [{ documentPath: 'runner-specs-aws.md', quote: 'unrelated' }],
       }),
       RETRIEVED,
     );
@@ -103,9 +103,9 @@ describe('verifyAnswer', () => {
     const result = verifyAnswer(
       answer({
         coverage: 'partial',
-        answer: 'The briefs name ironSource as a target network.',
+        answer: 'The briefs name Azure as a target network.',
         gap: 'No document states its file size limit.',
-        citations: [{ documentPath: 'qa-checklist.md', quote: 'real quote' }],
+        citations: [{ documentPath: 'release-checklist.md', quote: 'real quote' }],
       }),
       RETRIEVED,
     );
@@ -125,11 +125,11 @@ describe('verifyAnswer', () => {
 
   it('does not treat a similar looking path as a match', () => {
     const result = verifyAnswer(
-      answer({ citations: [{ documentPath: 'network-specs-applovin.MD', quote: 'x' }] }),
+      answer({ citations: [{ documentPath: 'runner-specs-aws.MD', quote: 'x' }] }),
       RETRIEVED,
     );
 
-    expect(result.droppedCitations).toEqual(['network-specs-applovin.MD']);
+    expect(result.droppedCitations).toEqual(['runner-specs-aws.MD']);
   });
 
   it('handles an empty retrieved set', () => {
@@ -174,8 +174,8 @@ describe('the markers inside the answer text', () => {
       answer({
         answer: 'The limit is 5 MB [1] and QA signs it off [7].',
         citations: [
-          { documentPath: 'network-specs-applovin.md', quote: 'Maximum file size: 5 MB.' },
-          { documentPath: 'qa-checklist.md', quote: 'QA signs off.' },
+          { documentPath: 'runner-specs-aws.md', quote: 'Maximum file size: 5 MB.' },
+          { documentPath: 'release-checklist.md', quote: 'QA signs off.' },
         ],
       }),
       RETRIEVED,
@@ -208,7 +208,7 @@ describe('the markers inside the answer text', () => {
     const result = verifyAnswer(
       answer({
         answer: 'Both the spec and the checklist say so [1, 9].',
-        citations: [{ documentPath: 'network-specs-applovin.md', quote: 'Maximum file size.' }],
+        citations: [{ documentPath: 'runner-specs-aws.md', quote: 'Maximum file size.' }],
       }),
       RETRIEVED,
     );
@@ -263,8 +263,8 @@ describe('the markers inside the answer text', () => {
         coverage: 'out_of_scope',
         answer: 'That is not what this collection covers.',
         citations: [
-          { documentPath: 'network-specs-applovin.md', quote: 'unrelated' },
-          { documentPath: 'qa-checklist.md', quote: 'also unrelated' },
+          { documentPath: 'runner-specs-aws.md', quote: 'unrelated' },
+          { documentPath: 'release-checklist.md', quote: 'also unrelated' },
         ],
       }),
       RETRIEVED,
@@ -284,8 +284,8 @@ describe('the markers inside the answer text', () => {
     const twoClaims = verifyAnswer(
       answer({
         citations: [
-          { documentPath: 'network-specs-applovin.md', quote: 'Maximum file size: 5 MB.' },
-          { documentPath: 'network-specs-applovin.md', quote: 'All assets are inlined.' },
+          { documentPath: 'runner-specs-aws.md', quote: 'Maximum file size: 5 MB.' },
+          { documentPath: 'runner-specs-aws.md', quote: 'All assets are inlined.' },
         ],
       }),
       RETRIEVED,
@@ -296,8 +296,8 @@ describe('the markers inside the answer text', () => {
     const sameTwice = verifyAnswer(
       answer({
         citations: [
-          { documentPath: 'network-specs-applovin.md', quote: 'Maximum file size: 5 MB.' },
-          { documentPath: 'network-specs-applovin.md', quote: 'Maximum file size: 5 MB.' },
+          { documentPath: 'runner-specs-aws.md', quote: 'Maximum file size: 5 MB.' },
+          { documentPath: 'runner-specs-aws.md', quote: 'Maximum file size: 5 MB.' },
         ],
       }),
       RETRIEVED,
@@ -319,13 +319,13 @@ describe('the markers inside the answer text', () => {
      * Every document contributes one chunk on this collection, so this cannot happen
      * today. It is what the pipeline does on a corpus large enough to need splitting.
      */
-    const paths = ['qa-checklist.md', 'lumen-sdk-v3.md', 'lumen-sdk-v3.md'];
+    const paths = ['release-checklist.md', 'drift-agent-v3.md', 'drift-agent-v3.md'];
     const sources = paths.map((path) => source(path));
 
     const result = verifyAnswer(
       answer({
-        answer: 'Initialize with lumen.init [2]. The same guide covers teardown [3].',
-        citations: [{ documentPath: 'lumen-sdk-v3.md', quote: 'lumen.init(config)' }],
+        answer: 'Initialize with start() [2]. The same guide covers teardown [3].',
+        citations: [{ documentPath: 'drift-agent-v3.md', quote: 'start({ token })' }],
       }),
       paths,
     );
@@ -355,7 +355,7 @@ describe('outOfScopeAnswer', () => {
   });
 
   it('says what the collection is about, so the reader knows what to ask instead', () => {
-    expect(outOfScopeAnswer().gap).toMatch(/playable ads/i);
+    expect(outOfScopeAnswer().gap).toMatch(/continuous integration/i);
   });
 });
 
@@ -374,18 +374,15 @@ describe('outOfScopeAnswer', () => {
  */
 describe('a quote that is not in the document', () => {
   const CONTENT = new Map([
-    [
-      'network-specs-applovin.md',
-      'Hard limits: Maximum file size: 5 MB. No outbound network requests.',
-    ],
-    ['qa-checklist.md', 'The QA bot rejects builds that make any outbound request.'],
+    ['runner-specs-aws.md', 'Hard limits: Maximum file size: 5 MB. No outbound network requests.'],
+    ['release-checklist.md', 'The QA bot rejects builds that make any outbound request.'],
   ]);
 
   it('keeps the citation and drops the quote', () => {
     const result = verifyAnswer(
       answer({
         citations: [
-          { documentPath: 'network-specs-applovin.md', quote: 'status: RETIRED, do not present' },
+          { documentPath: 'runner-specs-aws.md', quote: 'status: RETIRED, do not present' },
         ],
       }),
       RETRIEVED,
@@ -394,7 +391,7 @@ describe('a quote that is not in the document', () => {
 
     // The document is still the right one. Only the excerpt was invented.
     expect(result.citations).toHaveLength(1);
-    expect(result.citations[0]?.documentPath).toBe('network-specs-applovin.md');
+    expect(result.citations[0]?.documentPath).toBe('runner-specs-aws.md');
     expect(result.citations[0]?.quote).toBe('');
     expect(result.droppedCitations).toEqual([]);
     expect(result.coherence).toEqual([{ rule: 'quote_not_in_document', count: 1 }]);
@@ -410,9 +407,7 @@ describe('a quote that is not in the document', () => {
   it('accepts a quote the model trimmed or respaced, because they all do', () => {
     const result = verifyAnswer(
       answer({
-        citations: [
-          { documentPath: 'network-specs-applovin.md', quote: 'maximum   file size:  5 MB' },
-        ],
+        citations: [{ documentPath: 'runner-specs-aws.md', quote: 'maximum   file size:  5 MB' }],
       }),
       RETRIEVED,
       CONTENT,
@@ -426,7 +421,7 @@ describe('a quote that is not in the document', () => {
     // The unit tests above this block pass no text, and they must keep meaning what they
     // meant. An absent map is "not asked", not "nothing matched".
     const result = verifyAnswer(
-      answer({ citations: [{ documentPath: 'network-specs-applovin.md', quote: 'invented' }] }),
+      answer({ citations: [{ documentPath: 'runner-specs-aws.md', quote: 'invented' }] }),
       RETRIEVED,
     );
 

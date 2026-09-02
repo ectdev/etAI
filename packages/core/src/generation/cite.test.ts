@@ -17,9 +17,9 @@ const source = (path: string, overrides: Partial<AnswerSource> = {}): AnswerSour
 });
 
 const SOURCES: AnswerSource[] = [
-  source('network-specs-applovin.md'),
-  source('qa-checklist.md'),
-  source('localization-guide.md'),
+  source('runner-specs-aws.md'),
+  source('release-checklist.md'),
+  source('secrets-policy.md'),
 ];
 
 const cite = (documentPath: string): Citation => ({ documentPath, quote: 'a quote' });
@@ -29,14 +29,14 @@ describe('giving a citation the identity a reader follows', () => {
     // The number is what an interface prints beside a claim and on the card it refers
     // to. It has to come from the retrieved order, not from the order the model happened
     // to cite things in.
-    const linked = linkCitations([cite('localization-guide.md')], SOURCES);
+    const linked = linkCitations([cite('secrets-policy.md')], SOURCES);
 
     expect(linked[0]?.sourceNumber).toBe(3);
-    expect(linked[0]?.documentId).toBe('id-localization-guide.md');
+    expect(linked[0]?.documentId).toBe('id-secrets-policy.md');
   });
 
   it('numbers from one, because a person reads the number', () => {
-    expect(linkCitations([cite('network-specs-applovin.md')], SOURCES)[0]?.sourceNumber).toBe(1);
+    expect(linkCitations([cite('runner-specs-aws.md')], SOURCES)[0]?.sourceNumber).toBe(1);
   });
 
   it('gives two citations of the same document the same number', () => {
@@ -48,7 +48,10 @@ describe('giving a citation the identity a reader follows', () => {
      * matching on path would work here and stop working as soon as numbering was
      * involved, which is why the number is assigned rather than derived at render time.
      */
-    const linked = linkCitations([cite('qa-checklist.md'), cite('qa-checklist.md')], SOURCES);
+    const linked = linkCitations(
+      [cite('release-checklist.md'), cite('release-checklist.md')],
+      SOURCES,
+    );
 
     expect(linked.map((citation) => citation.sourceNumber)).toEqual([2, 2]);
   });
@@ -57,12 +60,12 @@ describe('giving a citation the identity a reader follows', () => {
     // Two chunks of one document, in rank order. The citation should open the one that
     // ranked highest rather than whichever was seen last.
     const withDuplicate = [
-      source('build-pipeline.md', { documentId: 'chunk-a', headingPath: 'Overview' }),
-      source('qa-checklist.md'),
-      source('build-pipeline.md', { documentId: 'chunk-b', headingPath: 'Sound' }),
+      source('build-cache.md', { documentId: 'chunk-a', headingPath: 'Overview' }),
+      source('release-checklist.md'),
+      source('build-cache.md', { documentId: 'chunk-b', headingPath: 'Sound' }),
     ];
 
-    const linked = linkCitations([cite('build-pipeline.md')], withDuplicate);
+    const linked = linkCitations([cite('build-cache.md')], withDuplicate);
 
     expect(linked[0]?.sourceNumber).toBe(1);
     expect(linked[0]?.documentId).toBe('chunk-a');
@@ -72,7 +75,7 @@ describe('giving a citation the identity a reader follows', () => {
     // The quote is the only part of a citation a reader can check without opening the
     // document, so nothing here may rewrite it.
     const linked = linkCitations(
-      [{ documentPath: 'qa-checklist.md', quote: 'Every delivery passes the checklist.' }],
+      [{ documentPath: 'release-checklist.md', quote: 'Every delivery passes the checklist.' }],
       SOURCES,
     );
 
@@ -100,9 +103,9 @@ describe('the gate and the numbering, together', () => {
     const answer: GroundedAnswer = {
       answer: 'The limit is 5 MB and the checklist covers it.',
       citations: [
-        cite('network-specs-applovin.md'),
+        cite('runner-specs-aws.md'),
         cite('invented-document.md'),
-        cite('qa-checklist.md'),
+        cite('release-checklist.md'),
       ],
       coverage: 'full',
       gap: null,
@@ -125,7 +128,7 @@ describe('the gate and the numbering, together', () => {
     // look checked.
     const answer: GroundedAnswer = {
       answer: 'Invented.',
-      citations: [cite('network-specs-ironsource.md')],
+      citations: [cite('runner-specs-azure.md')],
       coverage: 'full',
       gap: null,
     };

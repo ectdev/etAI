@@ -21,7 +21,7 @@ afterAll(async () => {
 
 describe('reading a document by path', () => {
   it('returns the document a citation names', async () => {
-    const result = await documentTool({ path: 'network-specs-applovin.md' });
+    const result = await documentTool({ path: 'runner-specs-aws.md' });
 
     expect(result.found).toBe(true);
     expect(result.found && result.content).toMatch(/5 MB/);
@@ -41,7 +41,7 @@ describe('reading a document by path', () => {
       '../.env',
       '/etc/passwd',
       'corpus/../../../.env',
-      'network-specs-applovin.md/../../../../etc/hosts',
+      'runner-specs-aws.md/../../../../etc/hosts',
     ]) {
       const result = await documentTool({ path });
       expect(result.found).toBe(false);
@@ -60,12 +60,12 @@ describe('reading a document by path', () => {
 describe('searching through the tool', () => {
   it('returns passages with the metadata that says whether a document is current', async () => {
     const result = await searchTool({
-      query: 'maximum file size for an AppLovin playable',
+      query: 'maximum artifact size on AWS',
       limit: 3,
     });
 
     expect(result.results).toHaveLength(3);
-    expect(result.results[0]?.path).toBe('network-specs-applovin.md');
+    expect(result.results[0]?.path).toBe('runner-specs-aws.md');
     // Without these an MCP client cannot tell a retired document from a current one, and
     // this collection contains both on purpose.
     expect(result.results[0]).toHaveProperty('isDeprecated');
@@ -84,7 +84,7 @@ describe('answering through the tool', () => {
      * totals were short by the same number. Nothing failed. The page showed a smaller,
      * tidier version of the truth.
      */
-    const question = `mcp tool test ${Date.now()}, what is the maximum AppLovin file size?`;
+    const question = `mcp tool test ${Date.now()}, what is the maximum artifact size on AWS?`;
 
     const result = await answerTool({ question });
     expect(result.coverage).toBeTruthy();

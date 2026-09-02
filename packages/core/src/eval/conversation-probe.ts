@@ -22,37 +22,43 @@ interface Turn {
 }
 
 const CONVERSATION: Turn[] = [
-  { ask: 'What is the maximum file size for an AppLovin playable?', watchFor: '5 MB' },
-  { ask: 'Which languages must every playable ship with?', watchFor: 'the language list' },
-  { ask: 'How do I initialize the current Lumen SDK?', watchFor: 'LumenSDK.init' },
+  { ask: 'What is the maximum artifact size on AWS?', watchFor: '5 GB, measured after extraction' },
+  { ask: 'Which four checks must every runner release pass?', watchFor: 'all four, not three' },
+  { ask: 'How do I start the current drift agent?', watchFor: 'start(), not init()' },
   {
-    ask: 'What happened to lumen.track?',
+    ask: 'What happened to report()?',
     refersBack: 3,
     watchFor: 'that it was removed with v2, which the previous turn was about',
   },
-  { ask: 'What caused the March 2026 AppLovin rejections?', watchFor: 'the stage order change' },
+  {
+    ask: 'What caused the April 2026 cache poisoning?',
+    watchFor: 'the missing pipeline id in the key',
+  },
   {
     ask: 'Was that fixed?',
     refersBack: 5,
-    watchFor: '"that" is the March 2026 incident, not a fresh subject',
+    watchFor: '"that" is the April incident, not a fresh subject',
   },
-  { ask: 'What is the ironSource file size limit?', watchFor: 'partial coverage' },
+  { ask: 'What is the maximum artifact size on Azure?', watchFor: 'partial coverage' },
   {
-    ask: 'Going back to the file size you gave me first, does it include the end card?',
+    ask: 'Going back to the size you gave me first, is that before or after unzipping?',
     refersBack: 1,
-    watchFor: 'the AppLovin 5 MB limit from seven turns earlier',
+    watchFor: 'the AWS 5 GB limit from seven turns earlier',
   },
   { ask: 'thanks!', watchFor: 'a polite refusal rather than a search' },
   {
-    ask: 'And the second language you listed earlier?',
+    ask: 'And the second of those four checks?',
     refersBack: 2,
     watchFor: 'the second entry of a list this conversation already produced',
   },
-  { ask: 'Why are sound assets built in a separate pass?', watchFor: 'the incident behind it' },
+  {
+    ask: 'Why is the build cache kept separate from the artifact store?',
+    watchFor: 'the durability argument',
+  },
   {
     ask: 'Of everything I have asked about, which one is out of date?',
     refersBack: 3,
-    watchFor: 'the retired SDK guide, which only this conversation knows was discussed',
+    watchFor: 'the retired agent guide, which only this conversation knows was discussed',
   },
 ];
 

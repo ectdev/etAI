@@ -17,25 +17,25 @@ afterAll(async () => {
 
 describe('searchChunks', () => {
   it('finds the document that answers a plain question', async () => {
-    const result = await searchChunks('What is the maximum file size for an AppLovin playable?');
+    const result = await searchChunks('What is the maximum artifact size on AWS?');
 
-    expect(result.chunks[0]?.path).toBe('network-specs-applovin.md');
+    expect(result.chunks[0]?.path).toBe('runner-specs-aws.md');
   });
 
   it('returns the metadata that ranking depends on', async () => {
-    const result = await searchChunks('How do I initialize the current Lumen SDK?');
+    const result = await searchChunks('How do I start the current drift agent?');
     const paths = result.chunks.map((chunk) => chunk.path);
 
-    expect(paths).toContain('sdk-notes-v3.md');
+    expect(paths).toContain('drift-agent-v3.md');
 
     // Both SDK guides come back, and the retired one is marked as such. Ranking needs
     // that flag, and so does the answer, which has to be able to say the old one is gone.
-    const retired = result.chunks.find((chunk) => chunk.path === 'sdk-notes-v2.md');
+    const retired = result.chunks.find((chunk) => chunk.path === 'drift-agent-v2.md');
     if (retired) expect(retired.isDeprecated).toBe(true);
   });
 
   it('records which search found each result', async () => {
-    const result = await searchChunks('AppLovin size limit');
+    const result = await searchChunks('AWS artifact limit');
 
     const found = result.chunks[0];
     expect(found).toBeDefined();
@@ -45,14 +45,14 @@ describe('searchChunks', () => {
   it('finds an exact term that a paraphrase would lose', async () => {
     // Keyword search earns its place here. Product names and version numbers are the
     // things vector search is worst at, because there is nothing to generalise about.
-    const result = await searchChunks('lumen-build 4.2');
+    const result = await searchChunks('halcyon-runner 4.2');
     const paths = result.chunks.map((chunk) => chunk.path);
 
-    expect(paths).toContain('changelogs/lumen-build-4.2.md');
+    expect(paths).toContain('changelogs/halcyon-runner-4.2.md');
   });
 
   it('reports how far away the nearest result was', async () => {
-    const near = await searchChunks('Which languages must every playable ship with?');
+    const near = await searchChunks('Which four checks must every runner release pass?');
     const far = await searchChunks('Write me a C++ function that reverses a string.');
 
     expect(near.nearestDistance).not.toBeNull();
@@ -61,7 +61,7 @@ describe('searchChunks', () => {
   });
 
   it('respects a limit', async () => {
-    const result = await searchChunks('playable', { limit: 3 });
+    const result = await searchChunks('pipeline', { limit: 3 });
 
     expect(result.chunks.length).toBeLessThanOrEqual(3);
   });

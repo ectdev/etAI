@@ -36,16 +36,16 @@ const turn = (question: string) => ({
     {
       sourceNumber: 1,
       documentId: 'doc-1',
-      documentPath: 'network-specs-applovin.md',
-      title: 'AppLovin network specification',
+      documentPath: 'runner-specs-aws.md',
+      title: 'AWS runner specification',
       quote: 'Maximum file size: 5 MB.',
     },
   ],
   sources: [
     {
       documentId: 'doc-1',
-      path: 'network-specs-applovin.md',
-      title: 'AppLovin network specification',
+      path: 'runner-specs-aws.md',
+      title: 'AWS runner specification',
       headingPath: null,
       docType: 'reference',
       temporalDate: null,
@@ -88,7 +88,7 @@ afterAll(async () => {
 
 describe('storing a turn', () => {
   it('starts a conversation on the first question and reuses it on the second', async () => {
-    const first = await recordTurn(ownerId, null, turn('What is the AppLovin size limit?'));
+    const first = await recordTurn(ownerId, null, turn('What is the AWS artifact limit?'));
     const second = await recordTurn(ownerId, first, turn('And for Unity?'));
 
     expect(second, 'the second question started a new conversation').toBe(first);
@@ -113,11 +113,11 @@ describe('storing a turn', () => {
 
   it('stores the citations and sources as they were given', async () => {
     // A history that loses the citations is a history of unsupported claims.
-    const id = await recordTurn(ownerId, null, turn('What is the AppLovin size limit?'));
+    const id = await recordTurn(ownerId, null, turn('What is the AWS artifact limit?'));
     const found = await getConversation(id, ownerId);
 
     expect(found?.turns[0]?.citations[0]?.quote).toBe('Maximum file size: 5 MB.');
-    expect(found?.turns[0]?.sources[0]?.path).toBe('network-specs-applovin.md');
+    expect(found?.turns[0]?.sources[0]?.path).toBe('runner-specs-aws.md');
   });
 });
 
@@ -250,12 +250,11 @@ describe('deleting a conversation', () => {
 
 describe('the title', () => {
   it('is the question when it is short enough', () => {
-    expect(titleFrom('What is the AppLovin size limit?')).toBe('What is the AppLovin size limit?');
+    expect(titleFrom('What is the AWS artifact limit?')).toBe('What is the AWS artifact limit?');
   });
 
   it('cuts a long question at a word boundary', () => {
-    const long =
-      'What is the maximum file size for an AppLovin playable and does it differ by region?';
+    const long = 'What is the maximum artifact size on AWS and does it differ by region?';
     const title = titleFrom(long);
 
     expect(title.length).toBeLessThanOrEqual(63);

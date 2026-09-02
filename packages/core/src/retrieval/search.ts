@@ -224,7 +224,7 @@ export async function searchChunks(
    *
    * `websearch_to_tsquery` joins terms with AND, which is right when the vector half is
    * there to catch what wording misses. Alone it is brittle: "What happened to
-   * lumen.track?" parses to `'happen' & 'lumen.track'`, and no document in this
+   * report()?" parses to `'happen' & 'report()'`, and no document in this
    * collection contains both, so a question the corpus plainly answers returned nothing
    * and the system called it out of scope. Measured, not guessed: AND matched 0 chunks
    * and OR matched 14.

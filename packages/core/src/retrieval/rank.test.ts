@@ -77,8 +77,8 @@ describe('rankChunks', () => {
       chunk('current-sdk', 2),
       chunk('unrelated-1', 3, { docType: 'meeting_note' }),
       chunk('unrelated-2', 4, { docType: 'meeting_note' }),
-      chunk('unrelated-3', 5, { docType: 'delivery_report' }),
-      chunk('unrelated-4', 6, { docType: 'delivery_report' }),
+      chunk('unrelated-3', 5, { docType: 'deployment_report' }),
+      chunk('unrelated-4', 6, { docType: 'deployment_report' }),
     ];
 
     const ids = rankChunks(chunks, { limit: 5 }).map((item) => item.chunkId);
@@ -118,11 +118,11 @@ describe('rankChunks', () => {
 
   describe('the quota', () => {
     it('stops a template written type from filling every slot', () => {
-      // The failure this exists for: 78 delivery reports written from one template, so a
-      // question matching the template returns the template rather than the answer.
+      // The failure this exists for: 61 deployment reports written from one template, so
+      // a question matching the template returns the template rather than the answer.
       const chunks = [
         ...Array.from({ length: 10 }, (_, i) =>
-          chunk(`report-${i}`, i + 1, { docType: 'delivery_report' }),
+          chunk(`report-${i}`, i + 1, { docType: 'deployment_report' }),
         ),
         chunk('checklist', 11),
       ];
@@ -138,7 +138,7 @@ describe('rankChunks', () => {
 
     it('still fills the results when only one kind of document matches', () => {
       const chunks = Array.from({ length: 10 }, (_, i) =>
-        chunk(`report-${i}`, i + 1, { docType: 'delivery_report' }),
+        chunk(`report-${i}`, i + 1, { docType: 'deployment_report' }),
       );
 
       const ranked = rankChunks(chunks, { limit: 5 });
@@ -148,7 +148,7 @@ describe('rankChunks', () => {
 
     it('takes the best of a crowded type rather than an arbitrary two', () => {
       const chunks = Array.from({ length: 6 }, (_, i) =>
-        chunk(`report-${i}`, i + 1, { docType: 'delivery_report' }),
+        chunk(`report-${i}`, i + 1, { docType: 'deployment_report' }),
       );
 
       const ranked = rankChunks(chunks, { limit: 2 });
@@ -157,7 +157,7 @@ describe('rankChunks', () => {
     });
 
     it('does not cap a type that is not written from a template', () => {
-      // Thirteen reference documents share a type and have nothing else in common. A
+      // Fourteen reference documents share a type and have nothing else in common. A
       // question needing three of them should get three, and an earlier version capped
       // them alongside the templates and cut the third off.
       const chunks = Array.from({ length: 5 }, (_, i) =>
@@ -175,14 +175,13 @@ describe('rankChunks', () => {
       ]);
     });
 
-    it('caps client briefs, which repeat two sentences across all ten of them', () => {
-      // Missing from the list at first, and the measurement found it: a question about
-      // delivery timelines came back with three briefs and not the overview that answers
-      // it, because all ten briefs carry the same sentence about timelines.
+    it('caps customer briefs, which repeat most of their sentences across all twelve', () => {
+      // The briefs are the second template in the collection. Twelve of them repeat the
+      // same sentences about scope, handover and the four week timeline, so a question
+      // touching any of those matches all twelve about equally well and can push out the
+      // one document that actually answers it.
       const chunks = [
-        ...Array.from({ length: 6 }, (_, i) =>
-          chunk(`brief-${i}`, i + 1, { docType: 'client_brief' }),
-        ),
+        ...Array.from({ length: 6 }, (_, i) => chunk(`brief-${i}`, i + 1, { docType: 'customer' })),
         chunk('overview', 7),
       ];
 
@@ -206,13 +205,13 @@ describe('rankChunks', () => {
     it('respects a quota given by the caller', () => {
       const chunks = [
         ...Array.from({ length: 6 }, (_, i) =>
-          chunk(`report-${i}`, i + 1, { docType: 'delivery_report' }),
+          chunk(`report-${i}`, i + 1, { docType: 'deployment_report' }),
         ),
         chunk('other', 7, { docType: 'guide' }),
       ];
 
       const ranked = rankChunks(chunks, { limit: 4, perTypeLimit: 1 });
-      const reports = ranked.filter((item) => item.docType === 'delivery_report');
+      const reports = ranked.filter((item) => item.docType === 'deployment_report');
 
       expect(reports.length).toBeGreaterThanOrEqual(1);
       expect(ranked.map((item) => item.chunkId)).toContain('other');

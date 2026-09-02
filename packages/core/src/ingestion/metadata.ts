@@ -18,16 +18,16 @@ const FILENAME_MONTH = /(\d{4})-(\d{2})(?!-\d{2})/;
 /** A date in brackets on the title line, which is how the release notes carry theirs. */
 const HEADING_DAY = /\((\d{4}-\d{2}-\d{2})\)/;
 
-/** A trailing version, as in `lumen-build-4.2`. */
+/** A trailing version, as in `halcyon-runner-5.2`. */
 const VERSIONED_NAME = /^(.*?)-(\d+(?:\.\d+)*)$/;
 
 /**
  * An explicit retirement notice, and only that.
  *
  * The narrowness is deliberate and was arrived at by reading the two documents this
- * has to tell apart. The retired guide opens with `# Lumen SDK v2 (DEPRECATED)` and a
+ * has to tell apart. The retired guide opens with `# drift agent v2 (DEPRECATED)` and a
  * `Status: deprecated since January 2026` line. The current one opens with
- * `# Lumen SDK v3 (current)` and says, three lines down, `It supersedes v2`.
+ * `# drift agent v3 (current)` and says, three lines down, `It supersedes v2`.
  *
  * A rule that scanned the opening for words about deprecation would match the second
  * document on the word `supersedes` and mark the current guide as retired, which is
@@ -35,7 +35,7 @@ const VERSIONED_NAME = /^(.*?)-(\d+(?:\.\d+)*)$/;
  * mention is never enough. Only a declaration counts, and there are three places a
  * document can make one:
  *
- * - a status marker in the title, `# Lumen SDK v2 (DEPRECATED)`
+ * - a status marker in the title, `# drift agent v2 (DEPRECATED)`
  * - a `Status:` line, `Status: deprecated since January 2026`
  * - a line that opens with the word and a colon, `DEPRECATED: replaced by the spec`
  *
@@ -75,7 +75,7 @@ export function deriveMetadata(input: {
   const temporal = deriveTemporal(stem, content);
 
   // The date is taken out of the name before a version is looked for. Without that,
-  // `incident-postmortem-2026-03` reads as version 03 of a series called
+  // `incident-postmortem-2026-04` reads as version 04 of a series called
   // `incident-postmortem-2026`, because the trailing group of digits after a dash looks
   // exactly like a version number.
   const version = deriveVersion(temporal.raw ? stem.replace(temporal.raw, '') : stem);

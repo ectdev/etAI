@@ -1,9 +1,9 @@
 /**
  * The question set the retrieval work is measured against.
  *
- * The five questions that ship with the collection are in here, but five is not enough
- * to draw a line with. A threshold set from five numbers is a guess, and the questions
- * that matter most for setting one are the questions nobody thought to ask.
+ * Five questions would be enough to demonstrate that search returns something. They are
+ * not enough to draw a line with. A threshold set from five numbers is a guess, and the
+ * questions that matter most for setting one are the questions nobody thought to ask.
  *
  * So the set is deliberately wider in the direction of the strange. Real users do not
  * confine themselves to the topic: they paste code, they say hello, they try to talk to
@@ -21,300 +21,515 @@ export interface EvalQuery {
   documents?: string[];
   /** Which kind of question this is, so results can be read by group. */
   group: string;
-  /** Where the question came from, when it is not one of mine. */
-  source?: 'sample_questions.md';
 }
 
 /**
  * Questions the collection can answer, spread across every kind of document in it.
  *
  * A set drawn only from the reference documents would flatter the system, because those
- * are short and distinctive. The delivery reports and meeting notes are the hard ones:
- * there are 108 of them built from two templates, and telling them apart is most of the
+ * are short and distinctive. The deployment reports and meeting notes are the hard ones:
+ * there are 87 of them built from two templates, and telling them apart is most of the
  * work.
+ *
+ * Every path here was checked against the collection on disk before the first run. An
+ * expected document that does not exist scores zero and reads as a retrieval failure,
+ * which is an expensive way to find a typo.
  */
 const answerable: EvalQuery[] = [
+  /**
+   * Provider limits, which are the bulk of what anybody asks.
+   *
+   * Four documents with the same headings and different numbers. This is the part of the
+   * collection where keyword search earns its place: `hetzner` appears in one title and
+   * a question naming it should not need the embedding to guess.
+   */
   {
-    question: 'What is the maximum file size for an AppLovin playable, and how does it ship?',
+    question:
+      'What is the maximum artifact size on AWS, and is it measured before or after unzipping?',
     expect: 'answerable',
-    documents: ['network-specs-applovin.md'],
-    group: 'network specs',
-    source: 'sample_questions.md',
+    documents: ['runner-specs-aws.md'],
+    group: 'runner specs',
   },
   {
-    question: 'How do I initialize the current Lumen SDK, and what happened to lumen.track?',
+    question: 'Which provider allows the longest running job?',
     expect: 'answerable',
-    documents: ['sdk-notes-v3.md'],
-    group: 'sdk',
-    source: 'sample_questions.md',
+    documents: ['runner-specs-hetzner.md'],
+    group: 'runner specs',
   },
   {
-    question: 'Why are sound assets built in a separate pass?',
+    question: 'Where can I get a static egress address without paying extra for it?',
     expect: 'answerable',
-    documents: ['build-pipeline.md'],
-    group: 'build pipeline',
-    source: 'sample_questions.md',
+    documents: ['runner-specs-hetzner.md'],
+    group: 'runner specs',
   },
   {
-    question: 'What caused the March 2026 AppLovin rejections and what was fixed?',
+    question: 'Which providers offer a GPU machine size?',
     expect: 'answerable',
-    documents: ['incident-postmortem-2026-03.md'],
-    group: 'incidents',
-    source: 'sample_questions.md',
+    documents: ['runner-specs-hetzner.md'],
+    group: 'runner specs',
   },
   {
-    question: 'Which languages must every playable ship with, and what is the fallback?',
+    question: 'Why does a matrix build with thirty legs queue on Hetzner?',
     expect: 'answerable',
-    documents: ['localization-guide.md'],
-    group: 'localization',
-    source: 'sample_questions.md',
+    documents: ['runner-specs-hetzner.md'],
+    group: 'runner specs',
+  },
+  {
+    question: 'What is the job duration ceiling on Google Cloud and what does it force?',
+    expect: 'answerable',
+    documents: ['runner-specs-gcp.md'],
+    group: 'runner specs',
+  },
+  {
+    question: 'Why does large carry more memory on GCP than on AWS?',
+    expect: 'answerable',
+    documents: ['runner-specs-gcp.md'],
+    group: 'runner specs',
+  },
+  {
+    question: 'Which machine sizes exist on Fly, and what happens if I ask for large?',
+    expect: 'answerable',
+    documents: ['runner-specs-fly.md'],
+    group: 'runner specs',
+  },
+  {
+    question: 'What kind of work is Fly meant for?',
+    expect: 'answerable',
+    documents: ['runner-specs-fly.md'],
+    group: 'runner specs',
+  },
+  {
+    question: 'How does Docker layer caching behave differently on AWS?',
+    expect: 'answerable',
+    documents: ['runner-specs-aws.md'],
+    group: 'runner specs',
   },
 
+  /**
+   * The build cache, which is the thing most often misunderstood during a migration and
+   * therefore the thing most often asked about.
+   */
   {
-    question: 'What is the size limit for a Unity playable before and after unzipping?',
+    question: 'Why is the build cache kept separate from the artifact store?',
     expect: 'answerable',
-    documents: ['network-specs-unity-meta.md'],
-    group: 'network specs',
+    documents: ['build-cache.md'],
+    group: 'build cache',
   },
   {
-    question: 'How strict is Meta about load time and interaction locking?',
+    question: 'How is a cache entry keyed?',
     expect: 'answerable',
-    documents: ['network-specs-unity-meta.md'],
-    group: 'network specs',
+    documents: ['build-cache.md'],
+    group: 'build cache',
   },
   {
-    question: 'Can a playable make network requests at runtime on AppLovin?',
+    question: 'When does keeping a cache cost more than it saves?',
     expect: 'answerable',
-    documents: ['network-specs-applovin.md'],
-    group: 'network specs',
+    documents: ['build-cache.md'],
+    group: 'build cache',
   },
   {
-    question: 'Which event divided by which other event gives the reported CTR?',
+    question: 'Is cache retention counted from when an entry is written or when it was last read?',
     expect: 'answerable',
-    documents: ['analytics-events.md'],
-    group: 'analytics',
+    documents: ['build-cache.md'],
+    group: 'build cache',
+  },
+
+  /**
+   * The agent, which is the one place in the collection where a retired document and a
+   * current one describe the same thing with different calls. Getting the wrong one is
+   * the failure that costs a reader the most, so both directions are asked.
+   */
+  {
+    question: 'How do I start the current drift agent, and what happened to report()?',
+    expect: 'answerable',
+    documents: ['drift-agent-v3.md'],
+    group: 'agent',
   },
   {
-    question: 'What prefix do custom analytics events need?',
+    question: 'Why was the v2 drift agent retired?',
     expect: 'answerable',
-    documents: ['analytics-events.md'],
-    group: 'analytics',
+    documents: ['drift-agent-v2.md'],
+    group: 'agent',
   },
   {
-    question: 'What is the primary engagement metric and how is it measured?',
+    question: 'How do I scope an agent token to a single permission?',
     expect: 'answerable',
-    documents: ['analytics-events.md'],
-    group: 'analytics',
+    documents: ['drift-agent-v3.md'],
+    group: 'agent',
   },
   {
-    question: 'What has to pass before a delivery goes to a client?',
+    question: 'What happens when the agent has more pending steps than it can buffer?',
     expect: 'answerable',
-    documents: ['qa-checklist.md'],
+    documents: ['drift-agent-v3.md'],
+    group: 'agent',
+  },
+  {
+    /**
+     * Both documents, deliberately. The retired one states it is retired and the current
+     * one states that pipelines on it keep working, and an answer carrying only one of
+     * those is either alarming or wrong. This is the strictest expectation in the set:
+     * recall counts it only if both come back inside the top five.
+     */
+    question: 'Are pipelines still on the v2 agent going to break?',
+    expect: 'answerable',
+    documents: ['drift-agent-v2.md', 'drift-agent-v3.md'],
+    group: 'agent',
+  },
+
+  /**
+   * Process documents. Short, distinctive, and the easiest questions here, which is why
+   * there are not many of them.
+   */
+  {
+    question: 'Which four checks must every runner release pass?',
+    expect: 'answerable',
+    documents: ['release-checklist.md'],
     group: 'process',
   },
   {
-    question: 'How should audio files be named and where do they live?',
+    question: 'What should I check before running a customer pipeline for the first time?',
     expect: 'answerable',
-    documents: ['guides/asset-naming.md'],
-    group: 'conventions',
-  },
-  {
-    question: 'What is the most common cause of size regressions at the verify stage?',
-    expect: 'answerable',
-    documents: ['guides/asset-naming.md'],
-    group: 'conventions',
-  },
-  {
-    question: 'How do I replace a lumen.endCard call when moving to the current SDK?',
-    expect: 'answerable',
-    documents: ['sdk-notes-v3.md'],
-    group: 'sdk',
-  },
-  {
-    question: 'Is the old SDK still supported for new work?',
-    expect: 'answerable',
-    documents: ['sdk-notes-v2.md', 'sdk-notes-v3.md'],
-    group: 'sdk',
-  },
-  {
-    question: 'What happens when a build targets several ad networks at once?',
-    expect: 'answerable',
-    documents: ['network-specs-unity-meta.md'],
-    group: 'network specs',
-  },
-  {
-    question: 'What does a new developer need to set up in their first week?',
-    expect: 'answerable',
-    documents: ['onboarding-new-dev.md'],
-    group: 'onboarding',
-  },
-  {
-    question: 'Where is the studio based and how many playables does it ship a month?',
-    expect: 'answerable',
-    documents: ['company-overview.md'],
-    group: 'company',
-  },
-  {
-    question: 'How are the production pods organised?',
-    expect: 'answerable',
-    documents: ['company-overview.md'],
-    group: 'company',
-  },
-  {
-    question: 'What should a playable brief contain before work starts?',
-    expect: 'answerable',
-    documents: ['playable-brief-guidelines.md'],
+    documents: ['release-checklist.md'],
     group: 'process',
   },
   {
-    question: 'What are the rules for buttons and text contrast in the interface?',
+    question: 'Why is performance regression testing not on the release checklist?',
     expect: 'answerable',
-    documents: ['style-guide-ui.md'],
-    group: 'conventions',
+    documents: ['release-checklist.md'],
+    group: 'process',
   },
   {
-    question: 'What are the steps when an incident is declared?',
+    question: 'How many approvals does a change to the config validator need?',
+    expect: 'answerable',
+    documents: ['guides/review-process.md'],
+    group: 'process',
+  },
+  {
+    question: 'Who reviews a customer migration before handover, and on which day?',
+    expect: 'answerable',
+    documents: ['guides/review-process.md'],
+    group: 'process',
+  },
+  {
+    question: 'What are the incident severities and which one pages at night?',
     expect: 'answerable',
     documents: ['guides/incident-process.md'],
     group: 'process',
   },
   {
-    question: 'What went wrong with localization in July 2025?',
+    question: 'How long is an on call shift and how often does it come round?',
     expect: 'answerable',
-    documents: ['postmortems/2025-07-localization-regression.md'],
-    group: 'incidents',
+    documents: ['guides/oncall-rotation.md'],
+    group: 'process',
   },
   {
-    question: 'What was the analytics leak in November 2025 and how was it contained?',
+    question: 'What is explicitly not covered by on call?',
     expect: 'answerable',
-    documents: ['postmortems/2025-11-analytics-leak.md'],
-    group: 'incidents',
-  },
-  {
-    question: 'What changed in lumen-build 4.3?',
-    expect: 'answerable',
-    documents: ['changelogs/lumen-build-4.3.md'],
-    group: 'changelogs',
-  },
-  {
-    question: 'Was the shared compression path for audio kept or reverted?',
-    expect: 'answerable',
-    documents: ['changelogs/lumen-build-4.2.md'],
-    group: 'changelogs',
-  },
-  {
-    question: 'What is the brief for Bubble Bakery asking for?',
-    expect: 'answerable',
-    documents: ['client-briefs/bubble-bakery.md'],
-    group: 'client briefs',
-  },
-  {
-    question: 'Which studio is behind Gloom Garden and what do they want?',
-    expect: 'answerable',
-    documents: ['client-briefs/gloom-garden.md'],
-    group: 'client briefs',
-  },
-  {
-    /**
-     * The expected document here was wrong at first, and the measurement is what said so.
-     * I had put the brief guidelines, which turn out never to mention a timeline. The
-     * overview states it and every client brief repeats it, which is what retrieval
-     * returned. That is the second label in this file the numbers corrected.
-     */
-    question: 'What is the standard delivery timeline from brief approval?',
-    expect: 'answerable',
-    documents: ['company-overview.md'],
+    documents: ['guides/oncall-rotation.md'],
     group: 'process',
   },
 
   /**
-   * Questions that need several reference documents at once.
-   *
-   * These are here because of a disagreement the rest of the set could not settle. The
-   * quota that stops one kind of document filling the results could be applied to every
-   * type or only to the two written from templates, and no question in the set needed
-   * three reference documents at once, so both settings scored the same on the thing they
-   * disagreed about.
+   * Secrets. Five questions on one document, because it is the document where a
+   * confidently wrong answer does the most damage.
    */
   {
-    question:
-      'What does a playable have to satisfy on size, languages and analytics before it ships?',
+    question: 'How does a step end up with only the secrets it needs?',
     expect: 'answerable',
-    // The checklist covers all three in one document, which is a better answer than the
-    // three separate specifications I first expected. Corrected after reading it.
-    documents: ['qa-checklist.md'],
+    documents: ['secrets-policy.md'],
+    group: 'secrets',
+  },
+  {
+    question: 'Can I read a secret back after setting it?',
+    expect: 'answerable',
+    documents: ['secrets-policy.md'],
+    group: 'secrets',
+  },
+  {
+    question: 'Why is log masking not treated as a control?',
+    expect: 'answerable',
+    documents: ['secrets-policy.md'],
+    group: 'secrets',
+  },
+  {
+    question: 'Why can a secret never be passed as a command line argument?',
+    expect: 'answerable',
+    documents: ['secrets-policy.md'],
+    group: 'secrets',
+  },
+  {
+    question: 'Who rotates secrets, and why does the platform not expire them?',
+    expect: 'answerable',
+    documents: ['secrets-policy.md'],
+    group: 'secrets',
+  },
+
+  /** The config schema. */
+  {
+    question: 'What is the smallest valid pipeline.yaml?',
+    expect: 'answerable',
+    documents: ['pipeline-config-schema.md'],
+    group: 'schema',
+  },
+  {
+    question: 'Why is a file with no version key rejected instead of being read as version 1?',
+    expect: 'answerable',
+    documents: ['pipeline-config-schema.md'],
+    group: 'schema',
+  },
+  {
+    question: 'Is there an if key or an expression language in the pipeline config?',
+    expect: 'answerable',
+    documents: ['pipeline-config-schema.md'],
+    group: 'schema',
+  },
+
+  /** Analytics. */
+  {
+    question: 'Which events carry the cache key hash?',
+    expect: 'answerable',
+    documents: ['analytics-events.md'],
+    group: 'analytics',
+  },
+  {
+    question: 'How are event names formed?',
+    expect: 'answerable',
+    documents: ['analytics-events.md'],
+    group: 'analytics',
+  },
+  {
+    question: 'How long are analytics events kept before they are rolled up?',
+    expect: 'answerable',
+    documents: ['analytics-events.md'],
+    group: 'analytics',
+  },
+  {
+    question: 'Why is step output not recorded?',
+    expect: 'answerable',
+    documents: ['analytics-events.md'],
+    group: 'analytics',
+  },
+
+  /** The company, and joining it. */
+  {
+    question: 'Where is the company based and how many pipeline runs does it handle a month?',
+    expect: 'answerable',
+    documents: ['company-overview.md'],
+    group: 'company',
+  },
+  {
+    question: 'What has the platform been asked for and turned down?',
+    expect: 'answerable',
+    documents: ['company-overview.md'],
+    group: 'company',
+  },
+  {
+    question: 'What does a new engineer do in their second week?',
+    expect: 'answerable',
+    documents: ['onboarding-new-engineer.md'],
+    group: 'onboarding',
+  },
+
+  /** Conventions. */
+  {
+    question: 'How should a pipeline be named, and how should a job be named?',
+    expect: 'answerable',
+    documents: ['guides/naming-conventions.md'],
+    group: 'conventions',
+  },
+  {
+    question: 'Can I set my own cache key?',
+    expect: 'answerable',
+    documents: ['guides/naming-conventions.md'],
+    group: 'conventions',
+  },
+
+  /**
+   * Incidents. Four documents in two places: one postmortem sits at the root under an
+   * older filename and three are in the postmortems folder. A question about the April
+   * one should not need the reader to know which.
+   */
+  {
+    question: 'What caused the April 2026 cache poisoning and what was the fix?',
+    expect: 'answerable',
+    documents: ['incident-postmortem-2026-04.md'],
+    group: 'incidents',
+  },
+  {
+    question: 'Why did every GCP pipeline stop starting in February?',
+    expect: 'answerable',
+    documents: ['postmortems/2026-02-19-queue-stall.md'],
+    group: 'incidents',
+  },
+  {
+    question: 'How did a deploy key end up readable in a job log?',
+    expect: 'answerable',
+    documents: ['postmortems/2026-05-08-masking-bypass.md'],
+    group: 'incidents',
+  },
+  {
+    question: 'Why did Hetzner jobs start failing the artifact check at 5 GB?',
+    expect: 'answerable',
+    documents: ['postmortems/2026-07-30-artifact-limit-regression.md'],
+    group: 'incidents',
+  },
+
+  /**
+   * Changelogs. Eleven documents in one series, which is where a search that ignores
+   * version ordering goes wrong: 5.9 and 5.10 sort the wrong way round as strings.
+   */
+  {
+    question: 'What did runner 5.5 add?',
+    expect: 'answerable',
+    documents: ['changelogs/halcyon-runner-5.5.md'],
+    group: 'changelogs',
+  },
+  {
+    question: 'Was counting cache retention from the write kept or reverted?',
+    expect: 'answerable',
+    documents: ['changelogs/halcyon-runner-5.3.md'],
+    group: 'changelogs',
+  },
+  {
+    question: 'When was the bug fixed that rejected a pipeline with exactly 60 jobs?',
+    expect: 'answerable',
+    documents: ['changelogs/halcyon-runner-5.8.md'],
+    group: 'changelogs',
+  },
+  {
+    question: 'What did the 5.0 runner release remove?',
+    expect: 'answerable',
+    documents: ['changelogs/halcyon-runner-5.0.md'],
+    group: 'changelogs',
+  },
+  {
+    question: 'What is the most recent change to how the cache is fetched on Fly?',
+    expect: 'answerable',
+    documents: ['changelogs/halcyon-runner-5.10.md'],
+    group: 'changelogs',
+  },
+
+  /**
+   * Customers and their reports, which is where the template repetition lives. Every
+   * customer brief shares most of its sentences with eleven others, so a question has to
+   * be specific enough to name one and the ranking has to keep the other eleven out.
+   */
+  {
+    question: 'What is Kestrel Freight moving away from, and what will they judge us on?',
+    expect: 'answerable',
+    documents: ['customers/kestrel-freight.md'],
+    group: 'customers',
+  },
+  {
+    question: 'Which customer is moving because of simulation runs no hosted runner would finish?',
+    expect: 'answerable',
+    documents: ['customers/meridian-labs.md'],
+    group: 'customers',
+  },
+  {
+    question:
+      'How many repositories are in scope for Fernwood Bank and which provider are they on?',
+    expect: 'answerable',
+    documents: ['customers/fernwood-bank.md'],
+    group: 'customers',
+  },
+  {
+    question: 'How did the Kestrel Freight pipeline timing change in November 2025?',
+    expect: 'answerable',
+    documents: ['deployment-reports/2025-11-kestrel-freight.md'],
+    group: 'deployment reports',
+  },
+
+  /**
+   * Questions that need more than one reference document at once.
+   *
+   * These exist because of a disagreement the rest of the set cannot settle. The quota
+   * that stops one kind of document filling the results can be applied to every type or
+   * only to the ones written from templates, and without a question that needs three
+   * different reference documents in one answer, both settings score the same.
+   */
+  {
+    question: 'Which documents cover naming, code review, and what to do during an incident?',
+    expect: 'answerable',
+    documents: [
+      'guides/naming-conventions.md',
+      'guides/review-process.md',
+      'guides/incident-process.md',
+    ],
     group: 'multi reference',
   },
   {
-    question: 'Which rules cover naming assets, reviewing creative work and handling an incident?',
+    question:
+      'What has to be true about artifact size, job duration and machine size before a pipeline runs?',
     expect: 'answerable',
-    documents: ['guides/asset-naming.md', 'guides/review-process.md', 'guides/incident-process.md'],
+    // One document covers all three for the customer pipeline case, which is a better
+    // answer than the four provider specifications separately.
+    documents: ['release-checklist.md'],
     group: 'multi reference',
   },
 
   /**
    * Asked in another language, and answerable all the same.
    *
-   * These started out in the out of scope list, which was a mistake worth keeping a
-   * note of: a question about playable file size is a question about playable file
-   * size whichever language it arrives in. The measurement caught the error, because
-   * both landed among the answerable questions by distance rather than among the
-   * refusals. The embedding model was right and the label was wrong.
+   * A question about an artifact size limit is a question about an artifact size limit
+   * whichever language it arrives in. These are in the answerable set rather than in the
+   * refusals for that reason, and they are here to catch a change that quietly makes the
+   * system English only.
    */
   {
-    question: 'Wie gross darf eine Playable-Datei sein?',
+    question: 'Wie gross darf ein Artefakt auf AWS sein?',
     expect: 'answerable',
-    documents: ['network-specs-applovin.md'],
+    documents: ['runner-specs-aws.md'],
     group: 'other language',
   },
   {
-    question: 'Welche Sprachen muss jedes Playable unterstuetzen?',
+    question: 'Hetzner runner limitleri neler?',
     expect: 'answerable',
-    documents: ['localization-guide.md'],
+    documents: ['runner-specs-hetzner.md'],
     group: 'other language',
   },
   {
-    question: 'AppLovin icin maksimum dosya boyutu nedir?',
+    question: 'Cual es el tamano maximo de artefacto en AWS?',
     expect: 'answerable',
-    documents: ['network-specs-applovin.md'],
+    documents: ['runner-specs-aws.md'],
     group: 'other language',
   },
   {
-    question: 'Cual es el tamano maximo de archivo para AppLovin?',
+    question: 'Bir surum yayinlanmadan once hangi dort kontrolden gecmeli?',
     expect: 'answerable',
-    documents: ['network-specs-applovin.md'],
+    documents: ['release-checklist.md'],
     group: 'other language',
   },
 
   /**
    * Questions with the mistakes people actually make while typing.
    *
-   * These are here to hold a measured result in place rather than to fix a problem. The
-   * embedding handles misspellings already, and keeping them in the set means a later
-   * change to retrieval cannot quietly take that away.
+   * These are here to hold a result in place rather than to fix a problem. The embedding
+   * handles misspellings on its own, and keeping them in the set means a later change to
+   * retrieval cannot quietly take that away.
    */
   {
-    question: 'What is the maximum file size for an AppLovn playble?',
+    question: 'waht is the maxium artifcat size on aws',
     expect: 'answerable',
-    documents: ['network-specs-applovin.md'],
+    documents: ['runner-specs-aws.md'],
     group: 'misspelled',
   },
   {
-    question: 'aplovin maximum fil size',
+    question: 'hetzer gpu machien size',
     expect: 'answerable',
-    documents: ['network-specs-applovin.md'],
+    documents: ['runner-specs-hetzner.md'],
     group: 'misspelled',
   },
   {
-    question: 'lokalizasion languages fallbak',
+    question: 'drfit agent v3 how to strat',
     expect: 'answerable',
-    documents: ['localization-guide.md'],
+    documents: ['drift-agent-v3.md'],
     group: 'misspelled',
   },
   {
-    question: 'wich langauges must a playble shipp with',
+    question: 'why is teh cach seperate from artifcats',
     expect: 'answerable',
-    documents: ['localization-guide.md'],
+    documents: ['build-cache.md'],
     group: 'misspelled',
   },
 ];
@@ -322,42 +537,38 @@ const answerable: EvalQuery[] = [
 /**
  * Questions the collection touches without answering.
  *
- * These are the ones a threshold cannot catch, and the reason coverage has to be a
- * judgement rather than a number. Six briefs name ironSource as a target network, so a
- * question about it retrieves confidently and none of what comes back contains a
- * specification. The honest answer says exactly that.
+ * These are the ones a distance threshold cannot catch, and the reason coverage has to be
+ * a judgement rather than a number. Six customer briefs name Azure as somewhere the
+ * customer already runs, so a question about it retrieves confidently and none of what
+ * comes back contains a specification. The honest answer says exactly that: we know Azure
+ * is mentioned, we have nothing that describes running on it.
  */
 const partial: EvalQuery[] = [
+  { question: 'What is the maximum artifact size on Azure?', expect: 'partial', group: 'azure' },
+  { question: 'Can I set target to azure in pipeline.yaml?', expect: 'partial', group: 'azure' },
+  {
+    question: 'What are the concurrency limits for Azure runners?',
+    expect: 'partial',
+    group: 'azure',
+  },
+  {
+    question: 'How do I move a pipeline from Azure onto the platform?',
+    expect: 'partial',
+    group: 'azure',
+  },
   {
     /**
-     * Labelled `answerable` until both generation models disagreed with me about it.
+     * Two questions in one, and the collection answers half.
      *
-     * `review-process.md` names who runs the delivery review and says nothing at all
-     * about what happens to the feedback, so the question asks two things and the
-     * collection answers one. That is `partial` by the rule this project uses
-     * everywhere else. Retrieval still finds the right document, which is why this stays
-     * in the set with its expected path intact.
+     * The incident process names the lead and says they own communication. It does not
+     * say who decides an incident is over. Retrieval finds the right document either way,
+     * which is why this keeps its expected path: the gap is in the document, not in the
+     * search.
      */
-    question: 'Who runs a creative review and what happens to the feedback?',
+    question: 'Who leads an incident, and who decides when it is resolved?',
     expect: 'partial',
-    documents: ['guides/review-process.md'],
+    documents: ['guides/incident-process.md'],
     group: 'process',
-  },
-  { question: 'What is the ironSource file size limit?', expect: 'partial', group: 'ironsource' },
-  {
-    question: 'How do I export a build for ironSource?',
-    expect: 'partial',
-    group: 'ironsource',
-  },
-  {
-    question: 'Does ironSource allow runtime network requests like AppLovin forbids?',
-    expect: 'partial',
-    group: 'ironsource',
-  },
-  {
-    question: 'What is the review turnaround for an ironSource submission?',
-    expect: 'partial',
-    group: 'ironsource',
   },
 ];
 
@@ -366,8 +577,8 @@ const partial: EvalQuery[] = [
  *
  * Grouped by the way they are out of scope, because they do not behave alike. A request
  * for code is far away from everything. A question about an undocumented company policy
- * is not, because the collection is full of company writing. The ones that sound like
- * the subject are the closest of all, and they are the ones a threshold gets wrong.
+ * is not, because the collection is full of company writing. The ones that sound like the
+ * subject are the closest of all, and they are the ones a threshold gets wrong.
  */
 const outOfScope: EvalQuery[] = [
   {
@@ -410,12 +621,12 @@ const outOfScope: EvalQuery[] = [
   },
 
   {
-    question: 'What is the vacation policy?',
+    question: 'How many vacation days do employees get?',
     expect: 'out_of_scope',
     group: 'undocumented policy',
   },
   {
-    question: 'How much does a mid-level developer earn here?',
+    question: 'How much does a mid-level engineer earn here?',
     expect: 'out_of_scope',
     group: 'undocumented policy',
   },
@@ -440,28 +651,33 @@ const outOfScope: EvalQuery[] = [
     group: 'undocumented policy',
   },
 
+  /**
+   * The hardest refusals in the set. Every one of these is about continuous integration
+   * and none of them is about this platform, so they land close to real documents and a
+   * distance threshold alone will let them through.
+   */
   {
-    question: 'How does the Unity engine implement its garbage collector?',
+    question: 'How do I write a GitHub Actions workflow that runs on a pull request?',
     expect: 'out_of_scope',
     group: 'sounds related',
   },
   {
-    question: 'What are the App Store review guidelines for advertising?',
+    question: 'What does the Jenkins declarative pipeline agent directive do?',
     expect: 'out_of_scope',
     group: 'sounds related',
   },
   {
-    question: 'How do I set up a Google Ads campaign for a mobile game?',
+    question: 'How does Docker BuildKit cache mounts work?',
     expect: 'out_of_scope',
     group: 'sounds related',
   },
   {
-    question: 'What is the best monetisation model for a hyper casual game?',
+    question: 'What is the difference between a Kubernetes Job and a CronJob?',
     expect: 'out_of_scope',
     group: 'sounds related',
   },
   {
-    question: 'How does WebGL texture compression compare to ASTC?',
+    question: 'How do I configure a self hosted GitLab runner?',
     expect: 'out_of_scope',
     group: 'sounds related',
   },
@@ -505,13 +721,13 @@ export const evalQueries: EvalQuery[] = [...answerable, ...partial, ...outOfScop
 /**
  * Counted by what each question is labelled, not by which array it was written in.
  *
- * Those were two different answers for a while. A question I had labelled `answerable`
- * was reclassified to `partial` in place, and the summary line kept counting it as
- * answerable because it counted array lengths, while the table below it counted labels.
- * The same run reported 41 answerable in its header and 40 in its results.
+ * Those can be two different answers. A question labelled `answerable` that is later
+ * reclassified to `partial` in place would keep being counted as answerable by anything
+ * counting array lengths, while the table below it counted labels, and one run would
+ * report two different totals for the same thing.
  *
- * The arrays are for reading. `expect` is what every measurement uses, so it is what
- * gets counted, and the two can no longer disagree.
+ * The arrays are for reading. `expect` is what every measurement uses, so it is what gets
+ * counted, and the two cannot disagree.
  */
 export const queryCounts = {
   answerable: evalQueries.filter((query) => query.expect === 'answerable').length,

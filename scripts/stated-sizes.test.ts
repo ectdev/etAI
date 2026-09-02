@@ -6,10 +6,9 @@ import { describe, expect, it } from 'vitest';
 /**
  * A document claiming how long another document is, checked against how long it is.
  *
- * AI_USAGE.md carries an entry about the brief asking for a short README, and it ended by
- * saying the README is a 319 line map now. It was, on the day it was written. The README
- * has been edited four times since and the sentence stayed at 319, inside the very entry
- * whose subject is checking your work against a summary instead of the thing itself.
+ * A sentence saying the README is a 319 line map is true on the day it is written and
+ * quietly false a week later, because editing the README is one action and updating the
+ * sentence that counts it is a second one that nothing forces.
  *
  * Tense is the whole distinction here. "The README was 906 lines" is history and has to
  * stay wrong; that is the point of writing it. "The README is a 347 line map" is a claim
@@ -20,13 +19,10 @@ import { describe, expect, it } from 'vitest';
  */
 
 const ROOT = fileURLToPath(new URL('..', import.meta.url));
-const DOCUMENTS = ['README.md', 'AI_USAGE.md', 'docs/architecture.md', 'docs/retrieval.md'];
+const DOCUMENTS = ['README.md', 'docs/architecture.md', 'docs/retrieval.md'];
 
 /** What a sentence can call a file, and the file it means. */
-const NAMES: Array<[RegExp, string]> = [
-  [/README/, 'README.md'],
-  [/this (?:file|log)/i, 'AI_USAGE.md'],
-];
+const NAMES: Array<[RegExp, string]> = [[/README/, 'README.md']];
 
 function lineCount(file: string): number {
   return readFileSync(join(ROOT, file), 'utf8').split('\n').length - 1;

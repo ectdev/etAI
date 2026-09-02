@@ -146,17 +146,17 @@ describe('what must never be treated as a pleasantry', () => {
 
   it('leaves a greeting that carries a question with it', () => {
     // A message with a question in it is a question, whatever it opens with.
-    expect(classifySmallTalk('hi, what is the AppLovin file size limit?')).toBeNull();
-    expect(classifySmallTalk('merhaba, ironSource limitleri neler?')).toBeNull();
+    expect(classifySmallTalk('hi, what is the AWS artifact size limit?')).toBeNull();
+    expect(classifySmallTalk('merhaba, Azure limitleri neler?')).toBeNull();
     expect(classifySmallTalk('thanks, and what about Unity?')).toBeNull();
   });
 
   it('leaves the real corpus questions alone', () => {
     for (const question of [
-      'How do I initialize the current Lumen SDK, and what happened to lumen.track?',
+      'How do I start the current drift agent, and what happened to report()?',
       'Why are sound assets built in a separate pass?',
-      'What are ironSource file size limits?',
-      'Hangi diller her playable ile birlikte gönderilmeli?',
+      'What are Azure file size limits?',
+      'Bir surum yayinlanmadan once hangi kontroller gecmeli?',
       'How many vacation days do employees get?',
     ]) {
       expect(classifySmallTalk(question), `swallowed: ${question}`).toBeNull();

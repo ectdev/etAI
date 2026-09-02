@@ -111,12 +111,8 @@
           "name": "account_user_id_user_id_fk",
           "tableFrom": "account",
           "tableTo": "user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -210,12 +206,8 @@
           "name": "session_user_id_user_id_fk",
           "tableFrom": "session",
           "tableTo": "user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -225,9 +217,7 @@
         "session_token_unique": {
           "name": "session_token_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "token"
-          ]
+          "columns": ["token"]
         }
       },
       "policies": {},
@@ -333,9 +323,7 @@
         "user_email_unique": {
           "name": "user_email_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "email"
-          ]
+          "columns": ["email"]
         }
       },
       "policies": {},
@@ -539,12 +527,8 @@
           "name": "chunk_document_id_document_id_fk",
           "tableFrom": "chunk",
           "tableTo": "document",
-          "columnsFrom": [
-            "document_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["document_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -554,10 +538,7 @@
         "chunk_document_position_unique": {
           "name": "chunk_document_position_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "document_id",
-            "position"
-          ]
+          "columns": ["document_id", "position"]
         }
       },
       "policies": {},
@@ -743,12 +724,8 @@
           "name": "document_superseded_by_id_fk",
           "tableFrom": "document",
           "tableTo": "document",
-          "columnsFrom": [
-            "superseded_by_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["superseded_by_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -758,9 +735,7 @@
         "document_path_unique": {
           "name": "document_path_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "path"
-          ]
+          "columns": ["path"]
         }
       },
       "policies": {},
@@ -860,12 +835,8 @@
           "name": "ingestion_item_run_id_ingestion_run_id_fk",
           "tableFrom": "ingestion_item",
           "tableTo": "ingestion_run",
-          "columnsFrom": [
-            "run_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["run_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -873,12 +844,8 @@
           "name": "ingestion_item_document_id_document_id_fk",
           "tableFrom": "ingestion_item",
           "tableTo": "document",
-          "columnsFrom": [
-            "document_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["document_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -983,12 +950,8 @@
           "name": "ingestion_run_triggered_by_user_id_user_id_fk",
           "tableFrom": "ingestion_run",
           "tableTo": "user",
-          "columnsFrom": [
-            "triggered_by_user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["triggered_by_user_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -1120,12 +1083,8 @@
           "name": "search_query_user_id_user_id_fk",
           "tableFrom": "search_query",
           "tableTo": "user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         },
@@ -1133,12 +1092,8 @@
           "name": "search_query_mcp_token_id_mcp_token_id_fk",
           "tableFrom": "search_query",
           "tableTo": "mcp_token",
-          "columnsFrom": [
-            "mcp_token_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["mcp_token_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -1234,12 +1189,8 @@
           "name": "mcp_token_created_by_user_id_user_id_fk",
           "tableFrom": "mcp_token",
           "tableTo": "user",
-          "columnsFrom": [
-            "created_by_user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["created_by_user_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -1249,9 +1200,7 @@
         "mcp_token_token_hash_unique": {
           "name": "mcp_token_token_hash_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "token_hash"
-          ]
+          "columns": ["token_hash"]
         }
       },
       "policies": {},
@@ -1324,12 +1273,8 @@
           "name": "conversation_user_id_user_id_fk",
           "tableFrom": "conversation",
           "tableTo": "user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1438,12 +1383,8 @@
           "name": "conversation_turn_conversation_id_conversation_id_fk",
           "tableFrom": "conversation_turn",
           "tableTo": "conversation",
-          "columnsFrom": [
-            "conversation_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["conversation_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1459,60 +1400,32 @@
     "public.temporal_precision": {
       "name": "temporal_precision",
       "schema": "public",
-      "values": [
-        "day",
-        "month"
-      ]
+      "values": ["day", "month"]
     },
     "public.answer_coverage": {
       "name": "answer_coverage",
       "schema": "public",
-      "values": [
-        "full",
-        "partial",
-        "not_documented",
-        "out_of_scope"
-      ]
+      "values": ["full", "partial", "not_documented", "out_of_scope"]
     },
     "public.ingestion_action": {
       "name": "ingestion_action",
       "schema": "public",
-      "values": [
-        "created",
-        "updated",
-        "skipped",
-        "deleted",
-        "failed"
-      ]
+      "values": ["created", "updated", "skipped", "deleted", "failed"]
     },
     "public.ingestion_status": {
       "name": "ingestion_status",
       "schema": "public",
-      "values": [
-        "running",
-        "completed",
-        "partial",
-        "failed"
-      ]
+      "values": ["running", "completed", "partial", "failed"]
     },
     "public.ingestion_trigger": {
       "name": "ingestion_trigger",
       "schema": "public",
-      "values": [
-        "cli",
-        "dashboard",
-        "watch",
-        "schedule",
-        "seed"
-      ]
+      "values": ["cli", "dashboard", "watch", "schedule", "seed"]
     },
     "public.question_source": {
       "name": "question_source",
       "schema": "public",
-      "values": [
-        "web",
-        "mcp"
-      ]
+      "values": ["web", "mcp"]
     }
   },
   "schemas": {},
