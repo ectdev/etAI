@@ -57,6 +57,7 @@
   --shadow-sm: 0 0 0 1px #333d44;
   --shadow-md: 0 0 0 1px #4e5a62, 0 8px 24px rgba(0, 0, 0, 0.5);
   --shadow-lg: 0 0 0 1px #84939c, 0 20px 48px rgba(0, 0, 0, 0.62);
+  --motion-out: cubic-bezier(0.32, 0.72, 0.36, 1);
 }
 
 .text-muted {
@@ -584,7 +585,7 @@ textarea::placeholder {
   padding: 0 var(--space-2);
 }
 .et-history-new {
-  font-size: 12.5px;
+  font-size: 12px;
   color: var(--color-accent-300);
   text-decoration: none;
 }
@@ -679,7 +680,7 @@ textarea::placeholder {
 .et-history-empty {
   margin: 0;
   padding: var(--space-2);
-  font-size: 12.5px;
+  font-size: 12px;
   line-height: 1.55;
 }
 
@@ -731,7 +732,7 @@ textarea::placeholder {
 .et-drawer:popover-open {
   display: flex;
   flex-direction: column;
-  animation: et-drawer-in 0.18s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+  animation: et-drawer-in 0.22s var(--motion-out) both;
 }
 .et-drawer::backdrop {
   background: rgb(8 9 14 / 0.62);
@@ -793,7 +794,7 @@ textarea::placeholder {
 }
 
 .et-intro {
-  animation: et-in 0.4s ease both;
+  animation: et-in 0.36s ease both;
 }
 .et-intro-heading {
   margin: var(--space-3) 0;
@@ -830,7 +831,7 @@ textarea::placeholder {
   background: transparent;
   color: color-mix(in srgb, var(--color-text) 82%, transparent);
   font: inherit;
-  font-size: 13.5px;
+  font-size: 13px;
   line-height: 1.4;
   text-align: left;
   text-wrap: pretty;
@@ -846,7 +847,7 @@ textarea::placeholder {
   flex-direction: column;
   align-items: stretch;
   gap: var(--space-3);
-  animation: et-in 0.3s ease both;
+  animation: et-in 0.28s ease both;
 }
 /* ---------------------------------------------------------------------------
    The two sides of a turn
@@ -923,7 +924,7 @@ textarea::placeholder {
   border-radius: 999px;
   background: color-mix(in srgb, var(--color-accent) 18%, transparent);
   color: var(--color-accent-200);
-  font-size: 11.5px;
+  font-size: 11px;
 }
 .et-editing-cancel {
   display: flex;
@@ -977,7 +978,7 @@ textarea::placeholder {
   margin-right: 6px;
 }
 .et-turn-timing {
-  font-size: 11.5px;
+  font-size: 11px;
   font-variant-numeric: tabular-nums;
 }
 
@@ -994,7 +995,7 @@ textarea::placeholder {
   color: color-mix(in srgb, var(--color-text) 65%, transparent);
 }
 .et-spinner {
-  animation: et-spin 1s linear infinite;
+  animation: et-spin 0.9s linear infinite;
 }
 .et-skeleton-stack {
   display: flex;
@@ -1006,7 +1007,7 @@ textarea::placeholder {
   height: 11px;
   border-radius: 3px;
   background: var(--color-neutral-800);
-  animation: et-pulse 1.4s ease-in-out infinite;
+  animation: et-pulse 1.2s ease-in-out infinite;
 }
 .et-answer-pending {
   margin-top: var(--space-2);
@@ -1060,7 +1061,7 @@ textarea::placeholder {
   background: color-mix(in srgb, var(--color-text) 5%, transparent);
 }
 .et-gap-body {
-  font-size: 14.5px;
+  font-size: 14px;
   line-height: 1.65;
   text-wrap: pretty;
   margin-top: 6px;
@@ -1115,7 +1116,7 @@ textarea::placeholder {
    disclosures in the project rotate the same way from one rule. */
 .et-inline-toggle svg {
   flex: none;
-  transition: transform 0.2s cubic-bezier(0.22, 0.61, 0.36, 1);
+  transition: transform 0.14s var(--motion-out);
 }
 .et-inline-toggle[aria-expanded='true'] svg {
   transform: rotate(90deg);
@@ -1165,7 +1166,7 @@ textarea::placeholder {
 }
 .et-source-name {
   display: block;
-  font-size: 13.5px;
+  font-size: 13px;
   font-weight: 500;
   line-height: 1.35;
   overflow-wrap: anywhere;
@@ -1302,7 +1303,7 @@ textarea::placeholder {
   gap: var(--space-2);
 }
 .et-panel-note {
-  font-size: 11.5px;
+  font-size: 11px;
   line-height: 1.5;
   margin: 0 0 var(--space-2);
 }
@@ -1318,12 +1319,12 @@ textarea::placeholder {
 }
 .et-panel-error-body {
   margin: 6px 0 var(--space-3);
-  font-size: 12.5px;
+  font-size: 12px;
   line-height: 1.6;
 }
 
 .et-doc {
-  animation: et-in 0.25s ease both;
+  animation: et-in 0.22s ease both;
 }
 .et-doc-title {
   margin: 0 0 6px;
@@ -1332,7 +1333,7 @@ textarea::placeholder {
 }
 .et-doc-path {
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 11.5px;
+  font-size: 11px;
   overflow-wrap: anywhere;
 }
 .et-doc-status {
@@ -1352,13 +1353,13 @@ textarea::placeholder {
 }
 .et-doc-status-note {
   margin-top: 6px;
-  font-size: 12.5px;
+  font-size: 12px;
   line-height: 1.55;
   color: color-mix(in srgb, var(--color-text) 78%, transparent);
 }
 .et-doc-successor {
   margin-top: 8px;
-  font-size: 12.5px;
+  font-size: 12px;
   padding: 0;
 }
 .et-doc-meta {
@@ -1377,7 +1378,7 @@ textarea::placeholder {
   overflow-wrap: anywhere;
 }
 .et-doc-body p {
-  font-size: 13.5px;
+  font-size: 13px;
   line-height: 1.72;
   margin: 0 0 var(--space-3);
   padding: 2px 6px;
@@ -1553,7 +1554,7 @@ textarea::placeholder {
 }
 .et-dash-empty code {
   font-family: ui-monospace, monospace;
-  font-size: 12.5px;
+  font-size: 12px;
   color: var(--color-accent-200);
 }
 
@@ -1617,7 +1618,7 @@ textarea::placeholder {
 .et-row-counts {
   text-align: right;
   font-variant-numeric: tabular-nums;
-  font-size: 12.5px;
+  font-size: 12px;
 }
 .et-row-outcome {
   text-align: right;
@@ -1642,13 +1643,13 @@ textarea::placeholder {
   padding: var(--space-4);
   border-radius: var(--radius-md);
   background: var(--color-surface);
-  animation: et-in 0.2s ease both;
+  animation: et-in 0.22s ease both;
 }
 .et-row-facts {
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-6);
-  font-size: 12.5px;
+  font-size: 12px;
   font-variant-numeric: tabular-nums;
 }
 .et-row-facts code {
@@ -1675,7 +1676,7 @@ textarea::placeholder {
   display: flex;
   flex-wrap: wrap;
   gap: 4px var(--space-3);
-  font-size: 12.5px;
+  font-size: 12px;
 }
 .et-failure-row code {
   font-family: ui-monospace, monospace;
@@ -1756,7 +1757,7 @@ textarea::placeholder {
 }
 .et-row-date {
   font-variant-numeric: tabular-nums;
-  font-size: 12.5px;
+  font-size: 12px;
 }
 .et-docs .et-row-outcome {
   display: flex;
@@ -1765,7 +1766,7 @@ textarea::placeholder {
 }
 .et-doc-status-note {
   margin: var(--space-3) 0 0;
-  font-size: 12.5px;
+  font-size: 12px;
   line-height: 1.6;
   max-width: 66ch;
   color: color-mix(in srgb, var(--color-text) 72%, transparent);
@@ -1777,7 +1778,7 @@ textarea::placeholder {
   color: var(--color-accent);
   font: inherit;
   font-family: ui-monospace, monospace;
-  font-size: 12.5px;
+  font-size: 12px;
   cursor: pointer;
   text-decoration: underline;
 }
@@ -1878,7 +1879,7 @@ textarea::placeholder {
   margin: 0;
   padding: 0;
   list-style: none;
-  font-size: 13.5px;
+  font-size: 13px;
   line-height: 1.55;
 }
 .et-auth-what strong {
@@ -1909,7 +1910,7 @@ textarea::placeholder {
 }
 .et-auth-note {
   margin: 0;
-  font-size: 12.5px;
+  font-size: 12px;
   line-height: 1.6;
 }
 
@@ -1930,7 +1931,7 @@ textarea::placeholder {
 }
 .et-notfound p {
   margin: 0;
-  font-size: 13.5px;
+  font-size: 13px;
   line-height: 1.65;
 }
 .et-notfound-action {
@@ -1962,7 +1963,7 @@ textarea::placeholder {
   line-height: 1.25;
 }
 .et-account-trigger-email {
-  font-size: 12.5px;
+  font-size: 12px;
   max-width: 160px;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -2013,7 +2014,7 @@ textarea::placeholder {
   padding: var(--space-2);
 }
 .et-menu-email {
-  font-size: 12.5px;
+  font-size: 12px;
   overflow: hidden;
   text-overflow: ellipsis;
 }
@@ -2171,7 +2172,7 @@ textarea::placeholder {
 }
 .et-field-hint {
   margin: 0;
-  font-size: 12.5px;
+  font-size: 12px;
   line-height: 1.5;
 }
 
@@ -2236,7 +2237,7 @@ textarea::placeholder {
 }
 .et-landing-claims p {
   margin: 0;
-  font-size: 14.5px;
+  font-size: 14px;
   line-height: 1.6;
   color: color-mix(in srgb, var(--color-text) 74%, transparent);
   text-wrap: pretty;
@@ -2335,8 +2336,8 @@ textarea::placeholder {
   /* A grid row from 0fr to 1fr grows to the content's own height with nothing measured
      in JavaScript, so opening moves the cards into place instead of jumping them there. */
   transition:
-    grid-template-rows 0.2s cubic-bezier(0.22, 0.61, 0.36, 1),
-    opacity 0.2s cubic-bezier(0.22, 0.61, 0.36, 1);
+    grid-template-rows 0.14s var(--motion-out),
+    opacity 0.14s var(--motion-out);
 }
 .et-landing-refs-panel[data-open] {
   grid-template-rows: 1fr;
@@ -2363,22 +2364,22 @@ textarea::placeholder {
    --------------------------------------------------------------------------- */
 
 .et-rise {
-  animation: et-rise 0.34s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+  animation: et-rise 0.36s var(--motion-out) both;
 }
 .et-rise-0 {
   animation-delay: 0s;
 }
 .et-rise-1 {
-  animation-delay: 0.05s;
+  animation-delay: 0.04s;
 }
 .et-rise-2 {
-  animation-delay: 0.11s;
+  animation-delay: 0.08s;
 }
 .et-rise-3 {
-  animation-delay: 0.17s;
+  animation-delay: 0.16s;
 }
 .et-rise-4 {
-  animation-delay: 0.13s;
+  animation-delay: 0.12s;
 }
 
 @keyframes et-rise {
@@ -2418,10 +2419,10 @@ textarea::placeholder {
     gap: var(--space-4);
   }
   .et-landing-question {
-    font-size: 14.5px;
+    font-size: 14px;
   }
   .et-landing-answer p {
-    font-size: 13.5px;
+    font-size: 13px;
   }
 }
 

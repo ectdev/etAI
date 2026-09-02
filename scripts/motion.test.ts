@@ -54,15 +54,28 @@ describe('motion', () => {
     expect(block).toMatch(/\*,\s*\*::before,\s*\*::after\s*\{/);
 
     // And there has to be a transition for it to turn off, or the rule above is decoration.
-    expect(CSS).toContain('grid-template-rows 0.2s');
-    expect(CSS).toContain('transition: transform 0.2s');
+    // Matched on the property with any duration rather than on the duration itself: what
+    // this test is about is that something is transitioned, and pinning the number here
+    // means a timing change fails a test about reduced motion.
+    expect(CSS).toMatch(/grid-template-rows \d[\d.]*s/);
+    expect(CSS).toMatch(/transition: transform \d[\d.]*s/);
   });
 
   it('does not loop anything on the landing screen', () => {
     // Restraint is a decision here rather than an accident. The pulse on a skeleton row
     // loops because it marks something still loading; nothing on a settled page should.
-    const landing = CSS.slice(CSS.indexOf('.et-rise {'), CSS.indexOf('@media (max-width: 1120px)'));
+    const start = CSS.indexOf('.et-rise {');
 
-    expect(landing).not.toContain('infinite');
+    // Searched from `start` rather than from the beginning of the file. Without the second
+    // argument this found the first breakpoint of that width in the stylesheet, which is
+    // some 700 lines above the landing rules, so the slice ran backwards and came out
+    // empty. An empty string contains no 'infinite' and the assertion below passed on
+    // nothing at all, which it did for as long as this test has existed.
+    const end = CSS.indexOf('@media (max-width: 1180px)', start);
+
+    expect(start).toBeGreaterThan(-1);
+    expect(end).toBeGreaterThan(start);
+
+    expect(CSS.slice(start, end)).not.toContain('infinite');
   });
 });
