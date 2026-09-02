@@ -84,7 +84,7 @@ function toSource(chunk: RetrievedChunk) {
  * refuse everything while appearing to work.
  *
  * So the gate stands down rather than being reinterpreted, and coverage carries the
- * weight instead. That is a real loss and worth naming: 25 of the 34 out of scope
+ * weight instead. That is a real loss and worth naming: 24 of the 34 out of scope
  * questions in the measurement set stop here without a model call, and under a degraded
  * search they reach the model and are refused by judgement. Slower, more expensive, and
  * still correct.

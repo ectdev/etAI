@@ -5,13 +5,13 @@ import { alias } from 'drizzle-orm/pg-core';
 /**
  * The indexed documents, as the corpus view lists them.
  *
- * All of them in one query. This corpus is 142 documents and the whole list is 20 KB of
+ * All of them in one query. This corpus is 131 documents and the whole list is 51 KB of
  * JSON, so filtering happens in the browser and there is no pagination, no cursor and no
  * per-keystroke request. Server-side paging here would be machinery serving nothing: the
  * page it protects against does not exist, and the cost of adding it later is one query
  * and one component rather than a rewrite.
  *
- * `content` is deliberately not selected. The list shows metadata, and sending 111 KB of
+ * `content` is deliberately not selected. The list shows metadata, and sending 125 KB of
  * document bodies to render a table of names would be paying for the whole corpus to
  * display its index.
  */
