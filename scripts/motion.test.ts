@@ -71,7 +71,7 @@ describe('motion', () => {
     // some 700 lines above the landing rules, so the slice ran backwards and came out
     // empty. An empty string contains no 'infinite' and the assertion below passed on
     // nothing at all, which it did for as long as this test has existed.
-    const end = CSS.indexOf('@media (max-width: 1180px)', start);
+    const end = CSS.indexOf('@media (max-width: 1179px)', start);
 
     expect(start).toBeGreaterThan(-1);
     expect(end).toBeGreaterThan(start);

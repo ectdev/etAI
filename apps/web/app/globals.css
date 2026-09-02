@@ -505,7 +505,7 @@ textarea::placeholder {
 }
 
 /* Tablet: the rail keeps its icons and loses its labels. */
-@media (max-width: 1119px) {
+@media (max-width: 1179px) {
   .et-rail {
     width: 60px;
     align-items: stretch;
@@ -522,7 +522,7 @@ textarea::placeholder {
 }
 
 /* Phone: no rail at all, navigation moves into the header. */
-@media (max-width: 699px) {
+@media (max-width: 719px) {
   .et-rail {
     display: none;
   }
@@ -746,7 +746,7 @@ textarea::placeholder {
   }
 }
 
-@media (max-width: 1119px) {
+@media (max-width: 1179px) {
   .et-history[data-placement='rail'] {
     display: none;
   }
@@ -1390,7 +1390,7 @@ textarea::placeholder {
   box-shadow: 0 0 0 1px var(--color-accent-700);
 }
 
-@media (max-width: 1119px) {
+@media (max-width: 1179px) {
   /* Below desktop the panel is an overlay, opened from a chip or from the folded list
      inside the turn. It is not shown at all until a document is opened, so the
      conversation keeps the full width. */
@@ -1414,7 +1414,7 @@ textarea::placeholder {
   }
 }
 
-@media (max-width: 699px) {
+@media (max-width: 719px) {
   .et-chat-scroll {
     padding: var(--space-6) var(--space-4) 0;
   }
@@ -1686,7 +1686,7 @@ textarea::placeholder {
   margin-left: auto;
 }
 
-@media (max-width: 1180px) {
+@media (max-width: 1179px) {
   .et-metrics {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -1705,7 +1705,7 @@ textarea::placeholder {
   }
 }
 
-@media (max-width: 720px) {
+@media (max-width: 719px) {
   .et-dash {
     padding: var(--space-4) var(--space-4) var(--space-8);
   }
@@ -1783,7 +1783,7 @@ textarea::placeholder {
   text-decoration: underline;
 }
 
-@media (max-width: 1180px) {
+@media (max-width: 1179px) {
   .et-docs .et-row-head,
   .et-docs .et-row {
     grid-template-columns: minmax(0, 1fr) 110px 170px;
@@ -1793,7 +1793,7 @@ textarea::placeholder {
   }
 }
 
-@media (max-width: 720px) {
+@media (max-width: 719px) {
   .et-docs .et-row-head,
   .et-docs .et-row {
     grid-template-columns: minmax(0, 1fr) 150px;
@@ -2049,7 +2049,7 @@ textarea::placeholder {
   opacity: 0.6;
 }
 
-@media (max-width: 720px) {
+@media (max-width: 719px) {
   /* The email is the widest thing in the header on a phone, and the role beneath
      it is already in the menu. */
   .et-account-trigger-text {
@@ -2393,7 +2393,7 @@ textarea::placeholder {
   }
 }
 
-@media (max-width: 1180px) {
+@media (max-width: 1179px) {
   .et-landing-columns {
     grid-template-columns: minmax(0, 1fr);
     gap: var(--space-6);
@@ -2406,7 +2406,7 @@ textarea::placeholder {
   }
 }
 
-@media (max-width: 720px) {
+@media (max-width: 719px) {
   .et-landing {
     align-items: flex-start;
     padding: var(--space-6) var(--space-4);
