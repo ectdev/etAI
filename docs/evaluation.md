@@ -1,159 +1,150 @@
 # What was measured, and what it said
 
 Every retrieval decision in this project was made against a measurement rather than
-against an argument. This file has the measurements, including the ones that
-contradicted me.
+against an argument. This file has the measurements, including the ones that contradicted
+me.
 
 What the measurements are measuring is described in [retrieval.md](retrieval.md).
 
+Every number here was produced on 2026-09-02 against the collection in `corpus/`, with
+`gemini-embedding-2` at 1536 dimensions. Re-run `pnpm eval` after changing the embedding
+model or its settings: the numbers belong to the model as much as to the collection, and a
+new model moves all of them.
+
 ## Measuring retrieval
 
-`pnpm eval` runs 79 questions through search and reports what came back: 40 the
+`pnpm eval` runs 106 questions through search and reports what came back: 67 the
 collection can answer, 5 it mentions without answering, and 34 that have nothing to do
 with it.
 
-The last group is the reason the set is that size. Five questions ship with the
-collection, and five numbers are not a distribution. People do not stay on topic: they
-paste code, say hello, ask about the weather, try to talk the system out of its
-instructions, and ask about things that sound like the subject and are not. Those are
-different kinds of out of scope and they do not behave alike.
+The last group is the reason the set is that size. People do not stay on topic: they paste
+code, say hello, ask about the weather, try to talk the system out of its instructions, and
+ask about things that sound like the subject and are not. Those are different kinds of out
+of scope and they do not behave alike, and a threshold set without them is set on the easy
+half of the problem.
 
-What the current numbers say, with vector similarity alone and no ranking yet:
-
-| Kind of question        | Nearest result, median | Range            |
-| ----------------------- | ---------------------- | ---------------- |
-| Answerable              | 0.2413                 | 0.1600 to 0.3304 |
-| Mentioned, not answered | 0.2782                 | 0.2554 to 0.3157 |
-| Out of scope            | 0.4112                 | 0.3135 to 0.4835 |
-
-Retrieval is built in three steps, and each one is measured against the one before it
-with `pnpm eval --compare`:
+Retrieval is built in three steps, and each one is measured against the one before it with
+`pnpm eval --compare`:
 
 | Step                                   | recall@5 | first place | MRR   |
 | -------------------------------------- | -------- | ----------- | ----- |
-| Vector similarity alone                | 29 of 33 | 27          | 0.848 |
-| Plus keyword search, fused by rank     | 30 of 33 | 28          | 0.879 |
-| Plus what is known about each document | 33 of 33 | 29          | 0.922 |
-
-Those three were measured against 33 answerable questions, which is what the set held at
-the time. It holds 40 now and the current figure is **40 of 40 at MRR 0.923**, with 35 of
-those 40 in first place. This is the one place that number is stated; everywhere else
-points here, because the same figure written in four documents was wrong in three of them.
-The table is
-left at the numbers the decisions were actually made on rather than restated against a
-set that did not exist yet, because rerunning the first two rows today would report what
-the old design scores on new questions, which is a different claim.
+| Vector similarity alone                | 64 of 67 | 58          | 0.904 |
+| Plus keyword search, fused by rank     | 65 of 67 | 59          | 0.919 |
+| Plus what is known about each document | 66 of 67 | 58          | 0.918 |
 
 A change nobody measured against the previous version is a change rather than an
 improvement, and the two look identical when the results are plausible either way.
 
-Two things follow from this, and neither was obvious beforehand.
+Read the rows by which questions move, not by the totals, because the totals hide a trade.
 
-**No single distance separates answerable from unanswerable.** The ranges overlap, and
-the three questions causing the overlap are: running an ad campaign,
-mobile game monetisation, App Store policy. They sound exactly like this collection and
-are not in it. A number cannot tell the difference. So the threshold is set well above
-the furthest real question rather than between the groups, at a point where it turns
-away 25 of the 34 out of scope questions without ever refusing an answerable one.
-Everything else reaches the model, which has the documents in front of it. The
-asymmetry is deliberate: an out of scope question reaching the model costs a fraction of
-a cent and still gets refused correctly, while a real question refused by arithmetic is
-just wrong.
+**Keyword search buys two questions that have an exact word in them.** Vector similarity
+alone missed "What has the platform been asked for and turned down?" and "Can I set my own
+cache key?". The first returns the meeting notes, which are full of things being turned
+down, instead of the overview section that lists them. The second returns the build cache
+document, which explains how keys are derived, instead of the naming conventions page that
+says plainly that you cannot write one. Both questions contain wording that appears
+verbatim in the document that answers them, and that is what the keyword half is for.
 
-**Partial coverage cannot be a threshold at all.** The ironSource questions land at
-0.2554 to 0.3157, inside the answerable range, because the collection does
-discuss ironSource: six briefs name it as a target network. It just has no
-specification for it. That is a judgement made by reading what came back, not by
-comparing a number.
+**Ranking buys a question back that fusing lost.** With both searches fused and no
+metadata pass, "How does a step end up with only the secrets it needs?" comes back as
+three platform sync meeting notes. The notes discuss secrets repeatedly and briefly; the
+policy document answers the question. The per type quota is what stops one template
+written type from taking every slot, and this is the question that shows it working.
+
+**And it costs a fraction of a place.** Fused with no ranking puts 59 questions first;
+with ranking it is 58, and MRR moves from 0.919 to 0.918. The metadata pass moves a
+document into the top five that was not there and pushes another off first place to do it.
+On this collection that trade is worth taking, because a document outside the top five is
+not in the answer at all while a document at rank two still is. It is a trade rather than a
+free improvement, and reporting only the recall column would hide that.
+
+### The one question none of the three retrieves
+
+"What has to be true about artifact size, job duration and machine size before a pipeline
+runs?" expects `release-checklist.md`, which has a section listing exactly those three
+checks. All three strategies return the provider specifications instead: GCP first, then
+the schema, then AWS.
+
+The label is being kept and the miss reported rather than tuned away. A reader asking that
+question is served reasonably well by a provider specification, which carries all three
+numbers for one provider. But the question is about what has to be true before a run
+rather than about the limits themselves, and the checklist is the document that answers it
+in that form. The retrieval is defensible and the expectation is defensible, and that is
+what makes it worth leaving in the set: it is the one question where the collection's
+procedural document loses to the documents holding the raw numbers, and it will notice if
+that changes.
+
+### Distance, and why it cannot be a threshold on its own
+
+| Kind of question        | Nearest result, median | Range            |
+| ----------------------- | ---------------------- | ---------------- |
+| Answerable              | 0.2562                 | 0.1738 to 0.3828 |
+| Mentioned, not answered | 0.2639                 | 0.2413 to 0.3022 |
+| Out of scope            | 0.4227                 | 0.2942 to 1.0000 |
+
+Two things follow, and neither was obvious beforehand.
+
+**No single distance separates answerable from unanswerable.** The answerable range runs
+to 0.3828 and the out of scope range starts at 0.2942, so they overlap across a wide band.
+The questions causing the overlap are the ones about continuous integration that are not
+about this platform: writing a GitHub Actions workflow, the Jenkins agent directive,
+Docker BuildKit cache mounts, Kubernetes Jobs, a self hosted GitLab runner. They are the
+same subject as the collection and are not in it, and no number distinguishes adjacent
+from inside.
+
+So the threshold is set well above the furthest real question rather than between the
+groups. At the configured limit of 0.4 it turns away 24 of the 34 out of scope questions
+and refuses none of the 67 answerable ones. Everything else reaches the model, which has
+the documents in front of it. The asymmetry is deliberate: an out of scope question
+reaching the model costs a fraction of a cent and still gets refused correctly, while a
+real question refused by arithmetic is simply wrong.
+
+**Partial coverage cannot be a threshold at all.** The Azure questions land between 0.2413
+and 0.3022, which is inside the answerable range and closer than the median answerable
+question. That is correct behaviour: six customer briefs name Azure as somewhere the
+customer already runs, so there is real, relevant text to find. There is no specification
+for running on it. Distance cannot express the difference between "this collection
+discusses your subject" and "this collection answers your question", and the judgement is
+made by reading what came back.
 
 ### What this measurement does not tell you
 
-I wrote all 79 questions, which means the distribution is mine and a different set will
-sit somewhere slightly different. That is why the threshold is loose
-rather than placed at the midpoint the numbers suggest: a boundary calibrated on one
-person's questions should not be trusted to a third decimal place on somebody else's.
+I wrote all 106 questions, so the distribution is mine and a different set will sit
+somewhere slightly different. That is the reason the threshold is loose rather than placed
+at the midpoint the numbers suggest: a boundary calibrated on one person's questions should
+not be trusted to a third decimal place on somebody else's.
 
-The set is wider than the questions that ship with the collection, and the
-collection says why. `sample_questions.md` notes that its own evaluation uses those
-questions "plus a private set in the same style", so a set that only contained the
-samples would measure the one thing already known to be tested and nothing else. The
-other 74 exist for the questions I will not see.
+The set is not fixed either. Questions were added for cases a change was about to affect,
+which cuts both ways and is worth stating plainly: the set is a better description of this
+collection than a smaller one would be, and the score it produces is not the score a set
+written by somebody else would produce.
 
-The set is not fixed either. It started at five and grew every time the measurement
-disagreed with something I believed, and some of the questions in it were written to
-represent a case a change was about to affect. That cuts both ways and it is worth
-stating plainly: the set is a better description of this collection than it was, and the
-score it produces is not the score a set written by somebody else would produce. Three of
-my own labels turned out to be wrong and the measurement is what caught them, which is
-the argument for growing it rather than freezing it.
+The five hardest refusals are a real limit rather than a rough edge to be tuned away.
+GitHub Actions, Jenkins, BuildKit, Kubernetes and GitLab runners are adjacent to everything
+this collection is about, and nothing in a distance measurement distinguishes adjacent from
+inside. Reading the retrieved documents does, which is why the decision is left there.
 
-The three overlapping questions are a real limit rather than a rough edge to be tuned
-away. Ad campaigns, mobile game monetisation and App Store policy are adjacent to
-everything this collection is about, and nothing in a distance measurement distinguishes
-adjacent from inside. Reading the retrieved documents does, which is why the decision is
-left there.
+## What has not been measured against this collection
 
-Re-run `pnpm eval` after changing the embedding model or its settings. The numbers
-belong to the model rather than to the collection, and a new model moves all of them.
+Two measurements in this repository have not been run here, and both are blocked on the
+same thing rather than on a decision.
 
-## Which model writes the answers
+**The ranking sweep, `pnpm eval --sweep`.** The constants in `retrieval/rank.ts` carry a
+note saying they were arrived at on a collection of the same shape and have not been
+re-swept against this one. Until that run happens they are inherited values, and the
+comments say so rather than implying a measurement that did not happen here. The sweep now
+embeds each question once for the whole run rather than once per setting, which brings it
+from 1272 embedding calls to 106 and inside what a free key allows in a day.
 
-Both providers are supported and the default is Google, so one key runs everything. That
-is a convenience argument rather than a quality one, so the two were measured.
+**The provider comparison, `pnpm compare:providers`.** It needs an `ANTHROPIC_API_KEY`,
+and every figure it would produce belongs to a run against this corpus that has not
+happened. Rather than carry a table measured somewhere else, there is no table. What can be
+said without measuring is the part that is structural: embeddings must come from Google
+because the Anthropic API has no embeddings endpoint, so Google is the default and one key
+runs the whole system. Answers are generated at temperature 0, and Claude Sonnet 5 does not
+accept that setting, so switching gives up run to run repeatability. Whether it gives up
+anything else here is not known, and this document will not guess.
 
-`pnpm compare:providers` runs the question set through both. Retrieval is identical
-whichever model writes the answer, so `recall@5` cannot separate them and is not
-reported here. What can separate them is judgement: reading the retrieved documents and
-deciding how much of the question they answer.
-
-Only questions that reach a model are worth running. 54 of the 79 do; the other 25 are
-turned away by the distance check before any model is called, so both providers produce
-the identical refusal and counting those would inflate agreement with rows that measure
-nothing.
-
-| Measure                          | Gemini 3.6 Flash | Claude Sonnet 5 |
-| -------------------------------- | ---------------- | --------------- |
-| Coverage judged correctly        | 53 of 54         | 53 of 54        |
-| Cited nothing it was denied      | 54 of 54         | 54 of 54        |
-| Cited something when it answered | 44 of 45         | 43 of 45        |
-| Median generation time           | 13041 ms         | 7778 ms         |
-
-Three things come out of this and only one of them is about picking a model.
-
-**The citation gate does not depend on the model.** Both cited nothing they were not
-given, on every question. That number is produced by comparing paths against a list rather
-than by a model behaving well, so it should not move, and a difference between providers
-would have meant the check was not working.
-
-**The two providers now agree on everything except one question.** Both return
-`not_documented` for whether ironSource allows runtime network requests, where the
-collection names the network and specifies nothing about it. The rule here calls that
-`partial`, because a reader is better served by being told the subject exists and the fact
-does not. That is a difference of reading rather than an error, and the prompt was written
-while looking at one model's output, which is worth knowing when both disagree with it in
-the same direction.
-
-**One disagreement was mine.** Both models returned `partial` for a question I had
-labelled answerable. The document names who runs the delivery review and says nothing
-about what happens to the feedback, so the question asks two things and the collection
-answers one. Two independent models disagreeing with a label in the same direction is
-worth more than the label. It is now `partial`, which is why the answerable set is 40
-rather than 41.
-
-**Gemini is no longer the faster one.** An earlier run had it a second ahead, and the
-numbers above have it five seconds behind. That measurement was taken after the model was
-asked to mark each claim with its document number, and the instruction makes it write
-more; whether that accounts for all of the difference is not something this comparison can
-separate from the provider simply being slower on the day.
-
-Gemini stays the default anyway, and the reason was never speed. Embeddings need a Google
-key, so one key runs the whole system, and a reviewer who wants to try it needs one free
-key rather than two. Judgement is now level at 53 of 54 each, and Gemini is one ahead on
-citing something when it answers. If answer latency mattered more than setup, Claude would
-be the better choice on these numbers.
-
-**Switching gives up reproducibility.** Answers are generated at temperature 0, because
-reading documents and reporting what they say is not a task that benefits from sampling
-widely. Claude Sonnet 5 does not accept the setting: the SDK warns and ignores it. The
-answers stay grounded, since that comes from the prompt and the citation check rather
-than from the temperature, but they stop being repeatable run to run.
+Both commands are in `package.json` and both run against a working key. When they do, their
+output belongs in this file with the date it was produced, the way every other number here
+carries one.

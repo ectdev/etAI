@@ -8,11 +8,11 @@ The numbers behind these choices are in [evaluation.md](evaluation.md).
 
 ## Documents
 
-The repository ships with a sample collection of 142 markdown files under
-`corpus/`. They describe a fictional studio that builds playable ads, and they
-include a few deliberate difficulties: two versions of the same SDK guide where
-one is out of date, a decision in one changelog that a later changelog reverses,
-and 78 delivery reports that all follow the same template.
+The repository ships with a sample collection of 131 markdown files under
+`corpus/`. They describe a fictional company that runs continuous integration
+pipelines, and they include a few deliberate difficulties: two versions of the same
+build agent guide where one is retired, a decision in one release note that a later
+release note reverses, and 61 deployment reports that all follow the same template.
 
 The pipeline reads whatever folder `CORPUS_PATH` points to, so switching to a
 different collection is a one line change.
@@ -55,7 +55,7 @@ somewhere else.
 | ------------------ | --------------------------------------------------------------- |
 | type               | The directory the file sits in                                  |
 | date and precision | A date in the file name, or one on the title line               |
-| version series     | A trailing version in the file name, as in `lumen-build-4.2`    |
+| version series     | A trailing version in the file name, as in `halcyon-runner-5.2` |
 | retired            | A status marker in the title, or a `Status:` line that says so  |
 | followed by        | The next document in the same series, worked out across the set |
 | project            | The list of projects that have a brief of their own             |
@@ -115,18 +115,18 @@ Chunks do not overlap, because cutting on headings and paragraphs already avoids
 landing mid-thought, and repeated text would make two chunks of one document compete
 with each other for a result slot.
 
-For this collection that produces exactly one chunk per document, all 142 of them,
-because the largest file is around 250 tokens and the budget is 800. That is the
+For this collection that produces exactly one chunk per document, all 131 of them,
+because the largest file is 572 tokens and the budget is 800. That is the
 useful outcome and it comes from the same code that would split a longer document,
 which is what the requirement to point ingestion at a real corpus actually needs. A
 whole document also makes a better citation: a reader opens something complete rather
 than a fragment they have to place.
 
-It has a second effect that is specific to this collection. The 78 delivery reports
-are built from one template, and some individual lines appear word for word in fifty
-of them. Cut into sections, those would become near-identical chunks competing with
-each other in every search. Kept whole, each chunk carries the project and the date
-that make it distinct.
+It has a second effect that is specific to this collection. The 61 deployment reports
+are built from one template, and two of their sentences appear word for word in all 61.
+Cut into sections, those would become near-identical chunks competing with each other in
+every search. Kept whole, each chunk carries the customer and the month that make it
+distinct.
 
 ## Two kinds of embedding
 
@@ -145,8 +145,8 @@ particular, and those few tokens are the context a person would have while readi
 Three things stand between a question and a confident wrong answer, and they are
 of three different kinds.
 
-**A distance check, before any model is asked.** 25 of the 34 out of scope questions in
-the measurement set stop here and cost nothing, and none of the 40 answerable ones do.
+**A distance check, before any model is asked.** 24 of the 34 out of scope questions in
+the measurement set stop here and cost nothing, and none of the 67 answerable ones do.
 
 **The instructions the model answers under.** Answer only from the documents provided.
 Cite a path and a quote for every claim. Say plainly when a source is retired. Prefer
@@ -160,10 +160,10 @@ request, this is arithmetic. If every citation turns out to be invented, the ans
 withheld rather than shown with its citations quietly stripped, because confident prose
 with nothing behind it is the failure mode that matters most here.
 
-`pnpm answers` runs nine questions and prints the results to be read. The list is the
-five that ship with the collection plus the four cases it was built to catch: a decision
-reversed by a later release, a question nobody wrote the answer to, a topic mentioned
-but never specified, and a question about something else entirely.
+`pnpm answers` runs nine questions and prints the results to be read. Six cover the kinds
+of document in the collection; the other three are the cases it was built to catch: a
+question nobody wrote the answer to, a topic mentioned but never specified, and a question
+about something else entirely.
 
 ### Saying how much was answered
 
@@ -171,11 +171,11 @@ One field with four values, because four things can happen to a question and eac
 deserves a different reply.
 
 `full` and `out_of_scope` are the easy ends. `partial` is the one in between: a question
-the collection touches without answering. Six client briefs name ironSource as a target
-network and no document specifies anything about it, so the question retrieves
-confidently and cannot be answered. Saying nothing about that, or refusing flatly, both
-throw away something the reader wants: that the subject exists here, and that the
-specific fact does not.
+the collection touches without answering. Six customer briefs name Azure as somewhere the
+customer already runs and no document specifies anything about running on it, so the
+question retrieves confidently and cannot be answered. Saying nothing about that, or
+refusing flatly, both throw away something the reader wants: that the subject exists here,
+and that the specific fact does not.
 
 The two refusals are separated for the same reason. A question about holiday allowance is
 a reasonable thing to ask a company's documents and the honest answer is `not_documented`,
@@ -213,78 +213,65 @@ release reversed an earlier one. That is in the metadata, and it is applied afte
 two searches are fused.
 
 **A retired document is not moved at all.** This started as a penalty, which looked
-obviously right and turned out to be wrong twice. Comparing the two settings directly on
-four SDK questions: without any penalty the current guide ranks first in every case and
-the retired one stays in the results; with a penalty the current guide still ranks first
-and the retired one drops out entirely in two more cases. Retrieval already prefers the
-current guide, because a question about how something works now matches it better.
+obviously right and turned out to be wrong twice on the collection where it was worked
+out. Retrieval already prefers the current guide without help, because a question about
+how something works now matches the current guide better, and a penalty on top of that
+pushed the retired one out of the results entirely.
 
-That mattered because one of the sample questions asks what happened to a call that no
-longer exists, and answering it needs the retired guide present. Retirement is still
-acted on, in the context the model reads, which is where it belongs: the model has to
-know a document is retired in order to say so.
+That matters because one of the questions this collection is built around asks what
+happened to a call that no longer exists, and answering it needs the retired guide
+present. Retirement is still acted on, in the context the model reads, which is where it
+belongs: the model has to know a document is retired in order to say so.
 
-**A document with a newer version gives up one position.** This used to earn its place:
-removing it cost a first-place result, because a release note and the note that replaced
-it are close in wording and the ordering has to come from somewhere.
-
-It no longer does. Re-running the sweep for this delivery, `superseded demotion 0` scores
-exactly what the configured value scores, so on the question set as it stands the demotion
-changes nothing measurable. It is kept because the reasoning still holds and the cost is
-one position, but it is now a rule with an argument rather than a rule with a measurement,
-and saying otherwise would be claiming evidence that no longer exists.
+**A document with a newer version gives up one position.** A release note and the note
+that replaced it are close in wording, and something has to break the tie in favour of the
+later one.
 
 **Demotion is counted in positions rather than as a fraction of the score.** Rank fusion
-produces scores that are nearly flat: first place scores 0.01639 and twelfth scores
-0.01389, so the top twelve spans eighteen percent. Multiplying a score by 0.7 there does
-not nudge a document down, it throws it past twenty others.
+produces scores that are nearly flat: with the constant at 60, first place scores 0.01639
+and twelfth scores 0.01389. Multiplying a score by 0.7 in that range does not nudge a
+document down, it throws it past twenty others.
 
-### Which constants were measured and which were not
+### Which constants were measured, and where
 
-Worth separating, because presenting all of them as measured would be the more
+Worth separating, because presenting all of them as measured here would be the more
 comfortable claim and the less accurate one.
 
-Measured with `pnpm eval --sweep`: the quota, the demotion for a superseded document, the
-demotion for a retired one, and how many candidates each search contributes. Each was run
-across a range.
+Three of the constants in `retrieval/rank.ts` were arrived at with `pnpm eval --sweep` on
+a collection of the same shape as this one, with the same document types and the same two
+templates: the per type limit, the demotion for a retired document, and the demotion for a
+superseded one. They have not been swept against this collection, and the comments next to
+them say so in the same words. They are inherited values with an argument behind them
+rather than values this repository has evidence for, and the difference is worth keeping
+visible until the sweep runs.
 
-Two of them are not the best-scoring value, and that is worth stating plainly rather than
-rounding off. A per type limit of 1 scores MRR 0.933 against the configured 2 at 0.923.
-The limit stays at 2 because a question that legitimately needs two documents of one kind
-is a question this set does not contain, so the score prefers a setting that would answer
-it worse. And the superseded demotion now scores the same at 0 as at its configured value,
-so it is currently a rule with an argument rather than a rule with a measurement.
+What has been measured here is the thing the constants exist to do, which is the more
+important half. `pnpm eval --compare` shows the metadata pass moving one question into the
+top five that fusion alone loses, and the section on that in
+[evaluation.md](evaluation.md#measuring-retrieval) names the question and what it returns
+without the pass.
 
-Choosing the higher number in both cases would be fitting the set rather than the
-collection.
-
-Not measured: the constant inside rank fusion, which is 60. It comes from the paper the
-method is described in and was left alone. Tuning it on 79 questions would be fitting
-noise, and its effect is visible anyway: it is what makes fused scores nearly flat, which
-is the property that broke the first attempt at a demotion.
+Not measured anywhere: the constant inside rank fusion, which is 60. It comes from the
+paper the method is described in and was left alone. Tuning it on one person's question set
+would be fitting noise, and its effect is visible anyway: it is what makes fused scores
+nearly flat, which is the property that broke the first attempt at a demotion.
 
 **A document type written from a template may take only two results before others get a
-turn.** Asking what has to pass before a delivery used to return three delivery reports
-and never the checklist that answers it.
+turn.** Without it, a question about what has to pass before a run comes back as three
+documents built from the same template and not the one that answers it.
 
-The quota applies to three types, and which three is measured rather than assumed. The
-collection has 78 delivery reports and 30 meeting notes filled in from two templates,
-with individual lines appearing word for word in fifty of the reports, and 10 client
-briefs that all repeat the same two sentences. Those are the types where matching the
-template returns the template many times over.
+The quota applies to three types, and which three follows from how the collection is
+built rather than from taste. There are 61 deployment reports and 26 meeting notes filled
+in from two templates, with two sentences appearing word for word in all 61 reports and
+one in all 26 notes, and 12 customer briefs that repeat most of their text. Those are the
+types where matching the template returns the template many times over.
 
-It does not apply to the rest. Thirteen reference documents share a type and
-have nothing in common beyond sitting in the same folder, so capping them would cut off
-the third document a question needed. Capping everything scores the same on the question
-set once that case is represented in it, so the version that can be explained is the one
-kept.
-
-The client briefs were missing from the list at first, and the measurement found them: a
-question about delivery timelines came back with three briefs and not the overview that
-answers it.
+It does not apply to the rest. Fourteen reference documents share a type and have nothing
+in common beyond sitting in the same folder, so capping them would cut off the third
+document a question needed.
 
 This is a quota rather than removing results that resemble each other. The problem is not
 that two results are alike, it is that one kind of document crowds out the rest. A quota
 addresses that directly and stays deterministic, so a measurement can be repeated. Once
 the capped types have had their turn the remaining slots fill normally, so a question that
-is about delivery reports still gets them.
+is about deployment reports still gets them.

@@ -117,7 +117,7 @@ agree.
 
 Documents are chunked on their headings, with a token budget and two fallbacks for
 sections that overrun it. On this collection every document comes out as a single
-chunk, all 142 of them, because the largest file is around 250 tokens against a budget
+chunk, all 131 of them, because the largest file is 572 tokens against a budget
 of 800.
 
 Writing a chunker that then does nothing visible sounds like wasted work, and the
@@ -128,7 +128,7 @@ collection is an outcome of the budget, not an assumption baked into the code.
 
 It also happens to be the better outcome here. A citation points at a document a person
 can open and read, rather than at a fragment they have to place. See [Chunking](retrieval.md#chunking)
-for how the splitting works and what it does to the 78 templated delivery reports.
+for how the splitting works and what it does to the 61 templated deployment reports.
 
 ### The vector database is pgvector, inside PostgreSQL
 
@@ -148,7 +148,7 @@ a document is out of date is often more useful than knowing that it is similar.
 
 ### HNSW with an operator class that matches the query
 
-The vector index is not here for speed today. At 142 rows the planner reads the whole
+The vector index is not here for speed today. At 131 rows the planner reads the whole
 table in about 5 ms and that is the right choice, so the index is not used at this size.
 
 It is here for the size after this one, and that only works if the query is a shape the
