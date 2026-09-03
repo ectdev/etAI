@@ -50,12 +50,21 @@ function start() {
  * observations behind this design, so a fixed sleep would either be slow or flake. This
  * returns as soon as the thing happened.
  *
- * The ceiling is ten seconds rather than the four it started at. Four was ample when this
- * file ran alone and not when it ran inside the full suite, where one case timed out at
- * 4031 ms. The number is a limit on waiting, not a claim about the delay, so a generous
- * one costs nothing when the event arrives and still fails when it never does.
+ * The ceiling is thirty seconds. It started at four, which was ample when this file ran
+ * alone and not when it ran inside the full suite, where one case timed out at 4031 ms.
+ * Ten was not enough either: with six busy cores on the machine, the recursive case timed
+ * out at 10019 ms, reproducibly, about one run in three.
+ *
+ * That is the operating system rather than the watcher. FSEvents makes no promise about
+ * when it delivers, which is the same property the watcher is built around: it ignores
+ * the event names entirely and re-diffs, because a branch switch touching thirty files
+ * arrives as forty-two events naming thirteen of them.
+ *
+ * So the number is a limit on waiting rather than a claim about the delay. A generous one
+ * costs nothing when the event arrives, since this returns the moment the condition holds,
+ * and it still fails when the event never comes at all.
  */
-async function until(condition: () => boolean, timeoutMs = 10_000): Promise<boolean> {
+async function until(condition: () => boolean, timeoutMs = 30_000): Promise<boolean> {
   const deadline = Date.now() + timeoutMs;
 
   while (Date.now() < deadline) {
