@@ -242,7 +242,7 @@ reasoning is under [future work](#future-work).
 
 ## Where the rest of it is
 
-This README is a 526 line map. Three documents under `docs/` carry the reasoning, so
+This README is a 534 line map. Three documents under `docs/` carry the reasoning, so
 somebody who wants to run the project does not have to read past it.
 
 | Document                                     | What is in it                                                                       |
@@ -524,3 +524,11 @@ changes.
 The one thing a deployment needs that local running does not is a health check reporting
 whether the index is present and how many documents carry an embedding. That query is
 already written, behind the dashboard's index health panel.
+
+## Licence
+
+MIT. See [LICENSE](LICENSE).
+
+The sample collection under `corpus/` is written for this project and is covered by the
+same licence. It describes a company that does not exist, and any resemblance to a real
+platform is a consequence of the domain rather than of a source.

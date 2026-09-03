@@ -12,61 +12,109 @@ import type { LinkedCitation } from '@etai/shared';
  * rather than a picture of it: the same coverage badge, the same chip parser, the same
  * source card.
  *
- * The text below is written rather than captured, and that is a debt rather than a
- * choice. It has to be replaced with verbatim output from a real run before this page can
- * claim to show one: ask the running system the question below, paste what comes back, and
- * delete this paragraph. Until then the example shows the shape of an answer and not an
- * answer, and saying so here is cheaper than a reader finding out.
+ * Everything below is verbatim from one request to `/api/ask` on 2026-09-03: the answer
+ * as the model wrote it, the citations as the gate returned them, and all eight sources
+ * retrieval found, in the order and with the numbering it gave them. Nothing is trimmed
+ * to look better, which is why three meeting notes it did not cite are in the list.
  *
  * This question is the one worth showing because it exercises the whole design at once.
- * The answer comes from the current guide, names the retired one, and carries a chip for
- * each, so a reader sees citation and staleness handling in four sentences.
+ * The collection contains a decision and its reversal: runner 5.2 changed cache retention
+ * to count from the write, 5.3 changed it back, and eight later releases sit on top of
+ * both. An answer that reads 5.2 and stops is fluent, cited and wrong. This one reaches
+ * the current rule, names the release that reversed it, and marks 5.2 as replaced.
+ *
+ * It also shows the citation marker doing the thing it exists for. `[2, 4]` in the first
+ * sentence is one claim resting on two documents, and it renders as two chips rather than
+ * one that has to choose.
  *
  * It is static and inert on purpose. Making it interactive would mean a model call on a
  * page that has not signed anybody in yet. The one exception is the disclosure below,
  * which moves nothing but its own height.
  */
 
-const QUESTION = 'How do I start the current drift agent, and what happened to report()?';
+const QUESTION =
+  'Is cache retention counted from when an entry is written or when it was last read?';
 
 const ANSWER =
-  'Call start() from the v3 agent and await it: it returns a handle rather than mutating ' +
-  'a module level singleton, so two agents can exist in one process [1]. Registration is ' +
-  'lazy, so a job that never reports anything never pays for a round trip [1]. As for ' +
-  'report(), it belonged to agent v2, which was retired in March 2026 [2]. It was removed ' +
-  'rather than renamed: the equivalent is emit(), which awaits delivery instead of ' +
-  'returning immediately and losing the last steps of a fast job [1].';
+  'Cache retention is counted from when an entry was last read [2, 4]. Although Halcyon ' +
+  'runner 5.2 temporarily changed retention to be counted from the write [1], that change ' +
+  'was reverted in Halcyon runner 5.3 [4], and the 5.2 changelog document is retired and ' +
+  'replaced by 5.3 [1].';
 
-/** The two documents the answer cited, as the API returned them. */
+/** The three documents the answer cited, with the numbers the API gave them. */
 const CITATIONS: LinkedCitation[] = [
   {
     sourceNumber: 1,
     documentId: 'landing-example-1',
-    documentPath: 'drift-agent-v3.md',
-    title: 'drift agent v3 (current)',
-    quote: '`start()` returns a handle rather than mutating a module level singleton',
+    documentPath: 'changelogs/halcyon-runner-5.2.md',
+    title: 'Halcyon runner 5.2 (2026-02-24)',
+    quote: 'Cache retention is now counted from the write rather than from the last read.',
   },
   {
     sourceNumber: 2,
     documentId: 'landing-example-2',
-    documentPath: 'drift-agent-v2.md',
-    title: 'drift agent v2 (DEPRECATED)',
-    quote: 'Status: deprecated since March 2026.',
+    documentPath: 'build-cache.md',
+    title: 'The build cache, and why it is a separate layer',
+    quote:
+      'Retention is counted from the last read, not from the write, so a cache that is used stays alive.',
+  },
+  {
+    sourceNumber: 4,
+    documentId: 'landing-example-4',
+    documentPath: 'changelogs/halcyon-runner-5.3.md',
+    title: 'Halcyon runner 5.3 (2026-03-10)',
+    quote: 'Cache retention is counted from the last read again, undoing the change made in 5.2.',
   },
 ];
 
+/** Every source retrieval returned, numbered as it numbered them. */
 const SOURCES = [
-  { number: 1, name: 'drift-agent-v3.md', docType: 'reference', status: null },
-  { number: 2, name: 'drift-agent-v2.md', docType: 'reference', status: 'Deprecated' },
+  { number: 1, name: 'changelogs/halcyon-runner-5.2.md', docType: 'changelog', status: 'Replaced' },
+  { number: 2, name: 'build-cache.md', docType: 'reference', status: null },
+  {
+    number: 3,
+    name: 'meeting-notes/2026-04-29-platform-sync.md',
+    docType: 'meeting note',
+    status: null,
+  },
+  { number: 4, name: 'changelogs/halcyon-runner-5.3.md', docType: 'changelog', status: 'Replaced' },
+  {
+    number: 5,
+    name: 'meeting-notes/2026-08-19-platform-sync.md',
+    docType: 'meeting note',
+    status: null,
+  },
+  {
+    number: 6,
+    name: 'deployment-reports/2025-11-saltbox-retail.md',
+    docType: 'deployment report',
+    status: null,
+  },
+  {
+    number: 7,
+    name: 'deployment-reports/2025-11-runeberg-health.md',
+    docType: 'deployment report',
+    status: null,
+  },
+  {
+    number: 8,
+    name: 'meeting-notes/2026-03-18-platform-sync.md',
+    docType: 'meeting note',
+    status: null,
+  },
 ];
 
 /**
  * Counted rather than written out, so the closed row cannot end up disagreeing with the
- * cards it is hiding. The retired count stays visible while the list is closed because it
- * is the hardest thing this system does, and folding it away would be folding away the
- * point of the example.
+ * cards it is hiding. The count stays visible while the list is folded because a source
+ * that is no longer current is the hardest thing this system handles, and folding it away
+ * would be folding away the point of the example.
+ *
+ * "Not current" rather than "retired", because these two are superseded rather than
+ * deprecated and those are different states. A document nobody replaced can be retired,
+ * and a document that was replaced is usually not.
  */
-const RETIRED = SOURCES.filter((source) => source.status !== null);
+const NOT_CURRENT = SOURCES.filter((source) => source.status !== null);
 
 export function LandingExample() {
   const coverage = 'full' as const;
@@ -145,7 +193,7 @@ export function LandingExample() {
             <path d="M9 5l7 7-7 7" />
           </svg>
           <span>{SOURCES.length} references</span>
-          <span className="tag tag-outline">{RETIRED.length} retired</span>
+          <span className="tag tag-outline">{NOT_CURRENT.length} not current</span>
         </button>
 
         {/*
