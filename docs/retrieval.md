@@ -232,29 +232,33 @@ produces scores that are nearly flat: with the constant at 60, first place score
 and twelfth scores 0.01389. Multiplying a score by 0.7 in that range does not nudge a
 document down, it throws it past twenty others.
 
-### Which constants were measured, and where
+### Which constants were measured, and what the sweep said
 
-Worth separating, because presenting all of them as measured here would be the more
-comfortable claim and the less accurate one.
+`pnpm eval --sweep` ran against this collection on 2026-09-03, at twelve settings. The
+full table and the reasoning are in [evaluation.md](evaluation.md#sweeping-the-ranking-constants);
+what matters here is which way each constant came out.
 
-Three of the constants in `retrieval/rank.ts` were arrived at with `pnpm eval --sweep` on
-a collection of the same shape as this one, with the same document types and the same two
-templates: the per type limit, the demotion for a retired document, and the demotion for a
-superseded one. They have not been swept against this collection, and the comments next to
-them say so in the same words. They are inherited values with an argument behind them
-rather than values this repository has evidence for, and the difference is worth keeping
-visible until the sweep runs.
+Two are the best value on their range, and the sweep is why they can be stated as
+measured rather than argued. Not demoting a retired document beats every demotion tried,
+and the three named template types beat both capping everything and capping nothing.
 
-What has been measured here is the thing the constants exist to do, which is the more
-important half. `pnpm eval --compare` shows the metadata pass moving one question into the
-top five that fusion alone loses, and the section on that in
-[evaluation.md](evaluation.md#measuring-retrieval) names the question and what it returns
-without the pass.
+Two are not the best-scoring value and are kept anyway, which is worth stating plainly
+rather than rounding off. A per type limit of one scores 0.920 against the configured
+two at 0.918, on identical recall; it stays at two because the question a limit of one
+would answer worse is one that legitimately needs two documents of a kind, and this set
+contains no such question. And a superseded demotion of zero scores better than the
+configured one on both first place and MRR, because most changelogs in a series are
+superseded by definition and a question naming a release is asking about one of them.
+Changing it would be fitting the ratio of question kinds I happened to write.
+
+One does nothing at this size. Fifteen candidates and sixty score exactly what thirty
+scores, so on 131 documents that number is not the constraint. It would begin to matter
+on a larger collection, and the sweep is how you would find out.
 
 Not measured anywhere: the constant inside rank fusion, which is 60. It comes from the
-paper the method is described in and was left alone. Tuning it on one person's question set
-would be fitting noise, and its effect is visible anyway: it is what makes fused scores
-nearly flat, which is the property that broke the first attempt at a demotion.
+paper the method is described in and was left alone. Tuning it on one person's question
+set would be fitting noise, and its effect is visible anyway: it is what makes fused
+scores nearly flat, which is the property that broke the first attempt at a demotion.
 
 **A document type written from a template may take only two results before others get a
 turn.** Without it, a question about what has to pass before a run comes back as three

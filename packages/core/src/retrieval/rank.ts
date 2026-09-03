@@ -39,8 +39,11 @@ export interface RankOptions {
  * where it belongs, because the model needs to know a document is retired in order to say
  * so.
  *
- * The zero is carried over from a collection of the same shape and has not been re-swept
- * against this one. Run `pnpm eval --sweep` before describing it as measured here.
+ * Swept against this collection on 2026-09-03 and it holds. Zero scores recall 66 of 67
+ * at MRR 0.918 with 58 questions first. A demotion of three drops first place to 56 and
+ * MRR to 0.899; a demotion of ten also costs two on recall. Every step away from zero is
+ * worse, which is unusual enough in a sweep to be worth stating: the argument above is
+ * not merely unrefuted, it is the best value on the range.
  */
 export const DEPRECATED_DEMOTION = 0;
 
@@ -56,8 +59,25 @@ export const DEPRECATED_DEMOTION = 0;
  * while 5.4 through 5.10 all exist and are newer. A heavier demotion would push the
  * correct document down with the outdated one.
  *
- * The one is carried over from a collection of the same shape and has not been re-swept
- * against this one. Run `pnpm eval --sweep` before describing it as measured here.
+ * Swept on 2026-09-03, and the result is the one place in this file where the measurement
+ * and the value disagree. Zero scores better: 59 questions first against 58, MRR 0.924
+ * against 0.918, recall identical at 66 of 67. Three is worse than either.
+ *
+ * The one stays anyway, and the four questions that move say why. Every changelog in the
+ * collection except the newest is superseded, because that is what being in a series
+ * means, so "what did the 5.0 release remove?" and "was counting from the write kept or
+ * reverted?" are both asking about a document the demotion pushes down. Both go from rank
+ * two to rank one without it.
+ *
+ * Against that, "what is the most recent change to how the cache is fetched on Fly?" goes
+ * from one to two, and a question about log masking from three to four. Those are the
+ * demotion doing exactly what it is for: preferring the current document when the question
+ * does not name a version.
+ *
+ * So the sweep is not measuring which value is right. It is measuring how many questions
+ * of each kind I wrote, and I wrote two version-specific ones and one current-state one.
+ * Moving the constant to match that ratio would be fitting the question set rather than
+ * the collection, and the next person's questions would not have the same ratio.
  */
 export const SUPERSEDED_DEMOTION = 1;
 
@@ -75,8 +95,11 @@ const DEFAULT_LIMIT = 8;
  * resemble each other, it is that one kind of document crowds out the others. A quota
  * addresses that directly and is deterministic, so a measurement can be repeated.
  *
- * The two is carried over from a collection of the same shape and has not been re-swept
- * against this one. Run `pnpm eval --sweep` before describing it as measured here.
+ * Swept on 2026-09-03. Limits of one, two, three and four all reach recall 66 of 67 and
+ * 58 first, separated only by MRR: 0.920, 0.918, 0.917, 0.916. A limit of one is therefore
+ * marginally ahead, and it stays at two, because the thing a limit of one would answer
+ * worse is a question that legitimately needs two documents of one type, and no question
+ * in this set is that. The score prefers the setting whose weakness the set cannot see.
  */
 export const DEFAULT_PER_TYPE_LIMIT = 2;
 
@@ -101,6 +124,10 @@ export const DEFAULT_PER_TYPE_LIMIT = 2;
  * Naming the types rather than capping everything is kept because it is the version that
  * can be explained, and because it does not cut off a question that genuinely needs
  * several documents of a kind nobody writes from a template.
+ *
+ * Measured on 2026-09-03, and this is the constant the sweep argues for most clearly.
+ * These three types score recall 66 of 67. Applying the quota to every type scores 63,
+ * and applying it to nothing scores 65. Both directions are worse than naming them.
  */
 export const CROWDED_TYPES = ['deployment_report', 'meeting_note', 'customer'] as const;
 

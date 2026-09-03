@@ -24,7 +24,7 @@ describe('reading a document by path', () => {
     const result = await documentTool({ path: 'runner-specs-aws.md' });
 
     expect(result.found).toBe(true);
-    expect(result.found && result.content).toMatch(/5 MB/);
+    expect(result.found && result.content).toMatch(/5 GB/);
   });
 
   it('treats a traversal attempt as a path that matches nothing', async () => {

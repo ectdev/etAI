@@ -124,27 +124,75 @@ GitHub Actions, Jenkins, BuildKit, Kubernetes and GitLab runners are adjacent to
 this collection is about, and nothing in a distance measurement distinguishes adjacent from
 inside. Reading the retrieved documents does, which is why the decision is left there.
 
-## What has not been measured against this collection
+## Sweeping the ranking constants
 
-Two measurements in this repository have not been run here, and both are blocked on the
-same thing rather than on a decision.
+`pnpm eval --sweep` runs the whole set at twelve settings, each varying one thing from
+what is in the code. Run on 2026-09-03. It costs one embedding call per question for the
+whole run rather than one per question per setting, which is what makes twelve settings
+affordable at all.
 
-**The ranking sweep, `pnpm eval --sweep`.** The constants in `retrieval/rank.ts` carry a
-note saying they were arrived at on a collection of the same shape and have not been
-re-swept against this one. Until that run happens they are inherited values, and the
-comments say so rather than implying a measurement that did not happen here. The sweep now
-embeds each question once for the whole run rather than once per setting, which brings it
-from 1272 embedding calls to 106 and inside what a free key allows in a day.
+| Setting               | recall@5 | first place | MRR   |
+| --------------------- | -------- | ----------- | ----- |
+| as configured         | 66 of 67 | 58          | 0.918 |
+| quota on every type   | 63 of 67 | 58          | 0.913 |
+| quota on nothing      | 65 of 67 | 58          | 0.913 |
+| per type limit 1      | 66 of 67 | 58          | 0.920 |
+| per type limit 3      | 66 of 67 | 58          | 0.917 |
+| per type limit 4      | 66 of 67 | 58          | 0.916 |
+| retired demotion 3    | 66 of 67 | 56          | 0.899 |
+| retired demotion 10   | 64 of 67 | 56          | 0.896 |
+| superseded demotion 0 | 66 of 67 | 59          | 0.924 |
+| superseded demotion 3 | 66 of 67 | 57          | 0.905 |
+| candidates 15         | 66 of 67 | 58          | 0.918 |
+| candidates 60         | 66 of 67 | 58          | 0.918 |
 
-**The provider comparison, `pnpm compare:providers`.** It needs an `ANTHROPIC_API_KEY`,
-and every figure it would produce belongs to a run against this corpus that has not
-happened. Rather than carry a table measured somewhere else, there is no table. What can be
-said without measuring is the part that is structural: embeddings must come from Google
-because the Anthropic API has no embeddings endpoint, so Google is the default and one key
-runs the whole system. Answers are generated at temperature 0, and Claude Sonnet 5 does not
-accept that setting, so switching gives up run to run repeatability. Whether it gives up
-anything else here is not known, and this document will not guess.
+Four things come out of it, and one of them is a disagreement.
 
-Both commands are in `package.json` and both run against a working key. When they do, their
-output belongs in this file with the date it was produced, the way every other number here
-carries one.
+**Which types the quota applies to is the constant with the clearest evidence.** Naming
+three template written types scores 66. Applying the quota to everything scores 63, because
+it caps the reference documents and cuts off the third document a question needed. Applying
+it to nothing scores 65, because the templates crowd the answer out. Both directions are
+worse, which is not something the argument alone could have told you.
+
+**Not demoting a retired document is the best value on the range, not merely a defensible
+one.** Every step away from zero is worse: a demotion of three costs two first places and
+0.019 of MRR, and ten costs two on recall as well. Retrieval already prefers the current
+guide, because a question about how something works now matches it better, and pushing the
+retired one down only removes it from the answer that needed to mention it.
+
+**The candidate width does nothing here.** Fifteen and sixty score identically to the
+configured thirty. On a collection of 131 documents the fusion input is not the constraint,
+and the number is doing no work; it would begin to on a larger one.
+
+**And the sweep disagrees with the superseded demotion.** Zero beats the configured one on
+both first place and MRR. The four questions that move are the whole story:
+
+| Question                                              | demotion 1 | demotion 0 |
+| ----------------------------------------------------- | ---------- | ---------- |
+| What did the 5.0 runner release remove?               | rank 2     | rank 1     |
+| Was counting cache retention from the write reverted? | rank 2     | rank 1     |
+| Most recent change to how the cache is fetched on Fly | rank 1     | rank 2     |
+| Why is log masking not treated as a control?          | rank 3     | rank 4     |
+
+Every changelog in the collection except the newest is superseded, because that is what
+being in a series means. So a question naming a release is a question about a document the
+demotion pushes down, and a question asking what is current now is one the demotion helps.
+The first two rows are the first kind and the last two are the second.
+
+The sweep is therefore not measuring which value is right. It is measuring how many
+questions of each kind I wrote, and I wrote two of one and one of the other. Moving the
+constant to match that ratio would be fitting the question set rather than the collection,
+and it stays at one. This is the second constant in this project that is not the
+best-scoring value, and both are kept for the same reason.
+
+## What still has not been measured
+
+`pnpm compare:providers` needs an `ANTHROPIC_API_KEY`, and there is not one configured
+here, so there is no table comparing the two generation models on this corpus. Rather than
+carry one measured somewhere else, there is none.
+
+What can be said without measuring is structural. Embeddings must come from Google because
+the Anthropic API has no embeddings endpoint, so Google is the default and one key runs the
+whole system. Answers are generated at temperature 0, and Claude Sonnet 5 does not accept
+that setting, so switching gives up run to run repeatability. Whether it gives up anything
+else here is not known, and this document will not guess.

@@ -11,19 +11,19 @@ const doc = (path: string, versionNumber: string | null, temporalDate: string | 
 describe('resolveSupersedence', () => {
   it('links each release to the one that follows it', () => {
     const links = resolveSupersedence([
-      doc('changelogs/halcyon-runner-4.1.md', '4.1', '2026-02-16'),
-      doc('changelogs/halcyon-runner-4.2.md', '4.2', '2026-03-30'),
-      doc('changelogs/halcyon-runner-4.3.md', '4.3', '2026-05-25'),
+      doc('changelogs/halcyon-runner-5.1.md', '5.1', '2026-02-03'),
+      doc('changelogs/halcyon-runner-5.2.md', '5.2', '2026-02-24'),
+      doc('changelogs/halcyon-runner-5.3.md', '5.3', '2026-03-10'),
     ]);
 
     expect(links).toEqual([
       {
-        path: 'changelogs/halcyon-runner-4.1.md',
-        supersededByPath: 'changelogs/halcyon-runner-4.2.md',
+        path: 'changelogs/halcyon-runner-5.1.md',
+        supersededByPath: 'changelogs/halcyon-runner-5.2.md',
       },
       {
-        path: 'changelogs/halcyon-runner-4.2.md',
-        supersededByPath: 'changelogs/halcyon-runner-4.3.md',
+        path: 'changelogs/halcyon-runner-5.2.md',
+        supersededByPath: 'changelogs/halcyon-runner-5.3.md',
       },
     ]);
   });

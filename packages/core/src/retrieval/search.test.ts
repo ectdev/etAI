@@ -45,10 +45,10 @@ describe('searchChunks', () => {
   it('finds an exact term that a paraphrase would lose', async () => {
     // Keyword search earns its place here. Product names and version numbers are the
     // things vector search is worst at, because there is nothing to generalise about.
-    const result = await searchChunks('halcyon-runner 4.2');
+    const result = await searchChunks('halcyon-runner 5.2');
     const paths = result.chunks.map((chunk) => chunk.path);
 
-    expect(paths).toContain('changelogs/halcyon-runner-4.2.md');
+    expect(paths).toContain('changelogs/halcyon-runner-5.2.md');
   });
 
   it('reports how far away the nearest result was', async () => {

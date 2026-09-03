@@ -93,7 +93,7 @@ Embeddings always come from Google, because the Anthropic API has no embeddings
 endpoint. Generation can use either, and the default is Google so a single key runs the
 whole system. Switching to Claude Sonnet 5 is two lines in `.env`
 (`GENERATION_PROVIDER=anthropic`, `GENERATION_MODEL=claude-sonnet-5`), and what it gives
-up is in [docs/evaluation.md](docs/evaluation.md#which-model-writes-the-answers).
+up is in [docs/evaluation.md](docs/evaluation.md#what-still-has-not-been-measured).
 
 ## Prerequisites
 

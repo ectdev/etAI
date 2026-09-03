@@ -138,19 +138,30 @@ Two accounts exist after seeding: `admin@etai.local` / `demo-admin-password` and
 
 | #   | Step                        | Expected                                                        | Defined in                                     |
 | --- | --------------------------- | --------------------------------------------------------------- | ---------------------------------------------- |
-| 8.1 | `pnpm test` with no API key | Passes. 443 tests, about thirty seconds                         | [vitest.config.ts](vitest.config.ts)           |
-| 8.2 | `pnpm test:live`            | Passes with a working key. 56 test blocks                       | [vitest.live.config.ts](vitest.live.config.ts) |
-| 8.3 | `pnpm verify:http`          | 85 checks pass against a running app                            | [verify-http.sh](scripts/verify-http.sh)       |
+| 8.1 | `pnpm test` with no API key | Passes. 446 tests, about thirty seconds                         | [vitest.config.ts](vitest.config.ts)           |
+| 8.2 | `pnpm test:live`            | 59 tests. Needs generation quota, see below                     | [vitest.live.config.ts](vitest.live.config.ts) |
+| 8.3 | `pnpm verify:http`          | 95 checks against a running app. Needs generation quota         | [verify-http.sh](scripts/verify-http.sh)       |
 | 8.4 | `pnpm eval`                 | recall@5 66/67, MRR 0.918, as in [evaluation.md](evaluation.md) | [eval](packages/core/src/eval/)                |
-| 8.5 | `pnpm answers`              | Nine questions printed for reading                              | eval                                           |
-| 8.6 | `pnpm compare:providers`    | Both providers scored. Needs `ANTHROPIC_API_KEY`                | eval                                           |
+| 8.5 | `pnpm eval --sweep`         | Twelve settings, the table in evaluation.md                     | eval                                           |
+| 8.6 | `pnpm answers`              | Nine questions printed for reading                              | eval                                           |
+| 8.7 | `pnpm compare:providers`    | Both providers scored. Needs `ANTHROPIC_API_KEY`                | eval                                           |
 
-Rows 8.1 and 8.4 were run against this collection on 2026-09-02 and the numbers are what
-they printed. Rows 8.2, 8.3 and 8.6 have not been: the first two need a working embedding
-key and a running application, the third needs an Anthropic key, and their counts are read
-off the source rather than off a run. The count in 8.2 is `it` blocks in the files
-`vitest.live.config.ts` lists, which is a floor rather than the reported total, because
-each `it.each` there expands into several.
+Rows 8.1, 8.4 and 8.5 were run against this collection and the numbers are what they
+printed. 8.1 on 2026-09-04, the two measurements on 2026-09-03.
+
+Row 8.2 was run on 2026-09-04 and did not finish. 33 of its 59 tests passed and the rest
+stopped on the Google free tier's cap of 20 generation requests a day, which the suite
+needs about forty of. That run was still worth its cost: two of the failures were real and
+are fixed. `search.test.ts` searched for a release note in a series that stops eight
+versions before the one it named, and the MCP document tool read a file expecting a limit
+that file states in different units. Both were left by renaming one corpus into another,
+and `scripts/corpus-paths.test.ts` now fails on the first kind before anybody spends a
+model call finding it.
+
+Rows 8.3 and 8.7 have not been run here: the first needs generation quota that was already
+spent, the second an Anthropic key that is not configured. An earlier partial run of 8.3
+passed 88 of its 95 checks and found five assertions that still described the previous
+corpus, all since corrected.
 
 ### Which document owns which number
 

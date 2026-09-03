@@ -9,7 +9,7 @@ describe('document type', () => {
     ['deployment-reports/2026-01-alpine-ledger.md', 'deployment_report'],
     ['meeting-notes/2026-06-15-production-sync.md', 'meeting_note'],
     ['customers/quillfeed.md', 'customer'],
-    ['changelogs/halcyon-runner-4.2.md', 'changelog'],
+    ['changelogs/halcyon-runner-5.2.md', 'changelog'],
     ['postmortems/2026-02-19-queue-stall.md', 'postmortem'],
     ['guides/naming-conventions.md', 'guide'],
   ])('reads %s as %s', (path, expected) => {
@@ -39,11 +39,11 @@ describe('dates', () => {
 
   it('reads a date from the title line, which is where the release notes keep theirs', () => {
     const result = derive(
-      'changelogs/halcyon-runner-4.1.md',
-      '# halcyon-runner 4.1 (2026-02-16)\n\nBody.',
+      'changelogs/halcyon-runner-5.1.md',
+      '# Halcyon runner 5.1 (2026-02-03)\n\nBody.',
     );
 
-    expect(result.temporalDate).toBe('2026-02-16');
+    expect(result.temporalDate).toBe('2026-02-03');
     expect(result.temporalPrecision).toBe('day');
     expect(result.temporalSource).toBe('heading');
   });
@@ -80,10 +80,10 @@ describe('dates', () => {
 
 describe('versions', () => {
   it('splits a series from its version number', () => {
-    const result = derive('changelogs/halcyon-runner-4.2.md');
+    const result = derive('changelogs/halcyon-runner-5.2.md');
 
     expect(result.versionSeries).toBe('halcyon-runner');
-    expect(result.versionNumber).toBe('4.2');
+    expect(result.versionNumber).toBe('5.2');
   });
 
   it('does not read a date as a version', () => {
