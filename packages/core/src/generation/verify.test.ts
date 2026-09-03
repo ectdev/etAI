@@ -103,8 +103,8 @@ describe('verifyAnswer', () => {
     const result = verifyAnswer(
       answer({
         coverage: 'partial',
-        answer: 'The briefs name Azure as a target network.',
-        gap: 'No document states its file size limit.',
+        answer: 'The briefs name Azure as somewhere the customer already runs.',
+        gap: 'No document states its artifact size limit.',
         citations: [{ documentPath: 'release-checklist.md', quote: 'real quote' }],
       }),
       RETRIEVED,

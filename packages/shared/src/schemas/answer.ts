@@ -7,7 +7,7 @@ import { z } from 'zod';
  *
  * - `full`: the documents answer it.
  * - `partial`: they discuss the subject without containing the fact asked for. Six client
- *   briefs name Azure as a target network and no document specifies anything about
+ *   briefs name Azure as somewhere a customer already runs and no document specifies
  *   it, so a question about its file size retrieves confidently and cannot be answered.
  *   Treating that as a flat refusal throws away something true.
  * - `not_documented`: a fair question about this studio that nobody wrote down, such as a

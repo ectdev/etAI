@@ -70,14 +70,15 @@ describe('the markers a model writes into an answer', () => {
 
   it('marks what a partial answer does have, at whatever number that document sits at', async () => {
     /**
-     * The number here is not 1. The brief that names Azure is sixth among the
-     * retrieved documents, and the answer cites only that one, so the single citation in
-     * a correct answer is numbered 6.
+     * The number here will not be 1. Nothing in the collection specifies Azure, so the
+     * documents that merely mention it sit below several that do not, and the one
+     * citation a correct answer carries is numbered wherever that document landed.
      *
-     * Worth asserting rather than assuming: a rule requiring citation numbers to run
-     * contiguously from 1 would reject this, and it is the correct answer.
+     * Asserted on resolution rather than on a number, because the number moves with the
+     * ranking. What must hold is that a rule requiring citation numbers to run
+     * contiguously from 1 would reject this answer, and this answer is the correct one.
      */
-    const result = await answerQuestion('What is the Azure file size limit?');
+    const result = await answerQuestion('What is the maximum artifact size on Azure?');
 
     expect(result.coverage).toBe('partial');
     expect(citationMarkers(result.answer).length).toBeGreaterThan(0);

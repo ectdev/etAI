@@ -155,7 +155,7 @@ describe('what must never be treated as a pleasantry', () => {
     for (const question of [
       'How do I start the current drift agent, and what happened to report()?',
       'Why are sound assets built in a separate pass?',
-      'What are Azure file size limits?',
+      'What are the Azure artifact size limits?',
       'Bir surum yayinlanmadan once hangi kontroller gecmeli?',
       'How many vacation days do employees get?',
     ]) {
