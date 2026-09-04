@@ -140,7 +140,7 @@ Two accounts exist after seeding: `admin@etai.local` / `demo-admin-password` and
 | --- | --------------------------- | --------------------------------------------------------------- | ---------------------------------------------- |
 | 8.1 | `pnpm test` with no API key | Passes. 446 tests, about thirty seconds                         | [vitest.config.ts](vitest.config.ts)           |
 | 8.2 | `pnpm test:live`            | 59 tests. Needs generation quota, see below                     | [vitest.live.config.ts](vitest.live.config.ts) |
-| 8.3 | `pnpm verify:http`          | 95 checks against a running app. Needs generation quota         | [verify-http.sh](scripts/verify-http.sh)       |
+| 8.3 | `pnpm verify:http`          | 95 checks against a running app. 92 pass without paid quota     | [verify-http.sh](scripts/verify-http.sh)       |
 | 8.4 | `pnpm eval`                 | recall@5 66/67, MRR 0.918, as in [evaluation.md](evaluation.md) | [eval](packages/core/src/eval/)                |
 | 8.5 | `pnpm eval --sweep`         | Twelve settings, the table in evaluation.md                     | eval                                           |
 | 8.6 | `pnpm answers`              | Nine questions printed for reading                              | eval                                           |
@@ -158,10 +158,13 @@ that file states in different units. Both were left by renaming one corpus into 
 and `scripts/corpus-paths.test.ts` now fails on the first kind before anybody spends a
 model call finding it.
 
-Rows 8.3 and 8.7 have not been run here: the first needs generation quota that was already
-spent, the second an Anthropic key that is not configured. An earlier partial run of 8.3
-passed 88 of its 95 checks and found five assertions that still described the previous
-corpus, all since corrected.
+Row 8.3 was run in full on 2026-09-04: 92 of 95 checks pass. The three that do not are the
+three that need the model to write an answer, and they fail on the same daily cap of 20
+generation requests. The server log for that run carries 46 quota refusals, so the result
+is a statement about the key rather than about the application. An earlier partial run
+found five assertions still describing the previous corpus, all since corrected.
+
+Row 8.7 has not been run: it needs an Anthropic key, and there is not one configured.
 
 ### Which document owns which number
 
