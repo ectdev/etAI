@@ -1,0 +1,1 @@
+ALTER TABLE "ingestion_run" ADD COLUMN "queued" boolean DEFAULT false NOT NULL;

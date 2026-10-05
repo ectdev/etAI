@@ -1,0 +1,1 @@
+ALTER TABLE "chunk" ADD COLUMN "embedded_with" text;
