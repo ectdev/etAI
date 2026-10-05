@@ -1,0 +1,93 @@
+# Every push and pull request, end to end, without a model provider.
+#
+# The embeddings are the hashing kind, so indexing and search need no key, and the default
+# test suite never calls a model. The key below is a placeholder that only satisfies the
+# configuration check; nothing here can spend money. The live tests, which do call a
+# model, are run by hand with `pnpm test:live`.
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    services:
+      postgres:
+        image: pgvector/pgvector:pg17
+        env:
+          POSTGRES_USER: etai
+          POSTGRES_PASSWORD: etai
+          POSTGRES_DB: etai
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U etai -d etai"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      DATABASE_URL: postgresql://etai:etai@localhost:5432/etai
+      BETTER_AUTH_SECRET: ci-only-secret-that-is-at-least-32-characters-long
+      BETTER_AUTH_URL: http://localhost:3000
+      EMBEDDING_PROVIDER: hashing
+      GOOGLE_GENERATIVE_AI_API_KEY: ci-placeholder-no-model-is-called
+
+    steps:
+      # Third-party actions are pinned to a commit, with the release it was in alongside.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      # The pnpm version comes from packageManager in package.json.
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Format
+        run: pnpm format:check
+      - name: Lint
+        run: pnpm lint
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Database
+        run: |
+          pnpm db:migrate
+          pnpm db:seed
+          pnpm ingest --write
+
+      - name: Tests
+        run: pnpm test
+
+      - name: Build
+        run: pnpm build
+
+      - name: Access rules over HTTP
+        run: |
+          pnpm start > server.log 2>&1 &
+          for _ in $(seq 1 60); do
+            curl -s -o /dev/null http://localhost:3000/ && break
+            sleep 1
+          done
+          VERIFY_HTTP_OFFLINE=1 BASE_URL=http://localhost:3000 pnpm verify:http
+
+      - name: Server log
+        if: failure()
+        run: cat server.log || true
