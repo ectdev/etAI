@@ -1,0 +1,245 @@
+# What was measured, and what it said
+
+Every retrieval decision in this project was made against a measurement rather than
+against an argument. This file has the measurements, including the ones that contradicted
+me.
+
+What the measurements are measuring is described in [retrieval.md](retrieval.md).
+
+The numbers here were produced against the collection in `corpus/`, with
+`gemini-embedding-2` at 1536 dimensions, on 2026-09-02 and again on 2026-10-05. Re-run
+`pnpm eval` after changing the embedding model or its settings: the numbers belong to the
+model as much as to the collection.
+
+**Same corpus, same results, on any install.** Until 2026-10-05 they were not. Ties were
+settled by things that differ between databases: equally ranked keyword matches came back
+in the order the rows sat on disk, rank fusion and the ranker broke ties on the chunk id,
+which is a random UUID, and the vector query cut a run of equal distances wherever the
+index walk stopped. In rank fusion ties are routine, so two installs of this collection put
+different documents first for a third of the questions. Every tie is now settled by
+something the corpus itself determines, and `determinism.test.ts` indexes the collection
+twice, in different orders, and requires the same five documents for every question.
+
+The keyless table further down was measured after that fix. The Google tables in this
+section were measured on 2026-10-05 before it, and before one term was renamed in 16
+documents; re-measuring them is waiting on the free tier's daily cap on embedding calls,
+which the day's other runs had used up, and they will be replaced rather than adjusted.
+
+## Measuring retrieval
+
+`pnpm eval` runs 106 questions through search and reports what came back: 67 the
+collection can answer, 5 it mentions without answering, and 34 that have nothing to do
+with it.
+
+The last group is the reason the set is that size. People do not stay on topic: they paste
+code, say hello, ask about the weather, try to talk the system out of its instructions, and
+ask about things that sound like the subject and are not. Those are different kinds of out
+of scope and they do not behave alike, and a threshold set without them is set on the easy
+half of the problem.
+
+Retrieval is built in three steps, and each one is measured against the one before it with
+`pnpm eval --compare`:
+
+| Step                                   | recall@5 | first place | MRR   |
+| -------------------------------------- | -------- | ----------- | ----- |
+| Vector similarity alone                | 64 of 67 | 58          | 0.904 |
+| Plus keyword search, fused by rank     | 65 of 67 | 60          | 0.927 |
+| Plus what is known about each document | 66 of 67 | 59          | 0.925 |
+
+A change nobody measured against the previous version is a change rather than an
+improvement, and the two look identical when the results are plausible either way.
+
+Read the rows by which questions move, not by the totals, because the totals hide a trade.
+
+**Keyword search buys two questions that have an exact word in them.** Vector similarity
+alone missed "What has the platform been asked for and turned down?" and "Can I set my own
+cache key?". The first returns the sync notes, which are full of things being turned
+down, instead of the overview section that lists them. The second returns the build cache
+document, which explains how keys are derived, instead of the naming conventions page that
+says plainly that you cannot write one. Both questions contain wording that appears
+verbatim in the document that answers them, and that is what the keyword half is for.
+
+**Ranking buys a question back that fusing lost.** With both searches fused and no
+metadata pass, "How does a step end up with only the secrets it needs?" comes back as
+three platform sync notes. The notes discuss secrets repeatedly and briefly; the
+policy document answers the question. The per type quota is what stops one template
+written type from taking every slot, and this is the question that shows it working.
+
+**And it costs a fraction of a place.** Fused with no ranking puts 60 questions first;
+with ranking it is 59, and MRR moves from 0.927 to 0.925. The metadata pass moves a
+document into the top five that was not there and pushes another off first place to do it.
+On this collection that trade is worth taking, because a document outside the top five is
+not in the answer at all while a document at rank two still is. It is a trade rather than a
+free improvement, and reporting only the recall column would hide that.
+
+### The one question none of the three retrieves
+
+"What has to be true about artifact size, job duration and machine size before a pipeline
+runs?" expects `policies/release-gate.md`, which has a section listing exactly those three
+checks. All three strategies return the provider specifications instead: GCP first, then
+the schema, then AWS.
+
+The label is being kept and the miss reported rather than tuned away. A reader asking that
+question is served reasonably well by a provider specification, which carries all three
+numbers for one provider. But the question is about what has to be true before a run
+rather than about the limits themselves, and the checklist is the document that answers it
+in that form. The retrieval is defensible and the expectation is defensible, and that is
+what makes it worth leaving in the set: it is the one question where the collection's
+procedural document loses to the documents holding the raw numbers, and it will notice if
+that changes.
+
+### Distance, and why it cannot be a threshold on its own
+
+| Kind of question        | Nearest result, median | Range            |
+| ----------------------- | ---------------------- | ---------------- |
+| Answerable              | 0.2562                 | 0.1738 to 0.3828 |
+| Mentioned, not answered | 0.2639                 | 0.2413 to 0.3022 |
+| Out of scope            | 0.4227                 | 0.2942 to 1.0000 |
+
+Two things follow, and neither was obvious beforehand.
+
+**No single distance separates answerable from unanswerable.** The answerable range runs
+to 0.3828 and the out of scope range starts at 0.2942, so they overlap across a wide band.
+The questions causing the overlap are the ones about continuous integration that are not
+about this platform: writing a GitHub Actions workflow, the Jenkins agent directive,
+Docker BuildKit cache mounts, Kubernetes Jobs, a self hosted GitLab runner. They are the
+same subject as the collection and are not in it, and no number distinguishes adjacent
+from inside.
+
+So the threshold is set well above the furthest real question rather than between the
+groups. At the configured limit of 0.4 it turns away 24 of the 34 out of scope questions
+and refuses none of the 67 answerable ones. Everything else reaches the model, which has
+the documents in front of it. The asymmetry is deliberate: an out of scope question
+reaching the model costs a fraction of a cent and still gets refused correctly, while a
+real question refused by arithmetic is simply wrong.
+
+**Partial coverage cannot be a threshold at all.** The Azure questions land between 0.2413
+and 0.3022, which is inside the answerable range and closer than the median answerable
+question. That is correct behaviour: six account profiles name Azure as somewhere the
+customer already runs, so there is real, relevant text to find. There is no specification
+for running on it. Distance cannot express the difference between "this collection
+discusses your subject" and "this collection answers your question", and the judgement is
+made by reading what came back.
+
+### What this measurement does not tell you
+
+I wrote all 106 questions, so the distribution is mine and a different set will sit
+somewhere slightly different. That is the reason the threshold is loose rather than placed
+at the midpoint the numbers suggest: a boundary calibrated on one person's questions should
+not be trusted to a third decimal place on somebody else's.
+
+The set is not fixed either. Questions were added for cases a change was about to affect,
+which cuts both ways and is worth stating plainly: the set is a better description of this
+collection than a smaller one would be, and the score it produces is not the score a set
+written by somebody else would produce.
+
+The five hardest refusals are a real limit rather than a rough edge to be tuned away.
+GitHub Actions, Jenkins, BuildKit, Kubernetes and GitLab runners are adjacent to everything
+this collection is about, and nothing in a distance measurement distinguishes adjacent from
+inside. Reading the retrieved documents does, which is why the decision is left there.
+
+### Without a key: the hashing embeddings
+
+`EMBEDDING_PROVIDER=hashing` indexes and searches with no key at all, which is how CI runs.
+The same 106 questions, measured on 2026-10-05 after the tie fix, on an index built from
+scratch and again on one rebuilt in place, with the same result:
+
+| Measure                 | Hashing          | `gemini-embedding-2` |
+| ----------------------- | ---------------- | -------------------- |
+| Recall@5                | 64 of 67         | 66 of 67             |
+| First place             | 43 of 67         | 59 of 67             |
+| MRR                     | 0.770            | 0.925                |
+| Answerable, distance    | 0.5784 to 0.9561 | 0.1738 to 0.3828     |
+| Mentioned, not answered | 0.7515 to 0.8852 | 0.2413 to 0.3022     |
+| Out of scope            | 0.7833 to 1.0000 | 0.2942 to 1.0000     |
+
+Retrieval holds up better than the vectors deserve, because the keyword half of the hybrid
+search does most of the work and fusion lets it. The distances are a different story. Every
+question sits far from everything, and the limit of 0.4 measured for Google refused all 67
+answerable questions before a model saw them. Nothing failed loudly: each one simply came
+back as out of scope.
+
+So the limit is per provider. The hashing value follows the same rule as the other, a margin
+above the furthest answerable question, and anything from 0.96 to 0.99 gives the same
+result: none of the 72 answerable or partly covered questions refused, and 5 of the 34 out
+of scope ones turned away for free (an empty question mark, a number, a greeting, a run of
+one letter, a capital city). `keyless.test.ts` re-takes this measurement on every run.
+
+## Sweeping the ranking constants
+
+`pnpm eval --sweep` runs the whole set at twelve settings, each varying one thing from
+what is in the code. Run on 2026-09-03. It costs one embedding call per question for the
+whole run rather than one per question per setting, which is what makes twelve settings
+affordable at all.
+
+This table predates the tie fix described at the top, so its first row reads 58 and 0.918
+where today's configuration reads 59 and 0.925. Every row in it was measured in the same run
+under the same conditions, so the rows still compare with each other, and that comparison
+is what the table is for. Re-running it on 2026-10-05 stopped at the free tier's daily cap
+on embedding calls, so it waits for the next one rather than being estimated.
+
+| Setting               | recall@5 | first place | MRR   |
+| --------------------- | -------- | ----------- | ----- |
+| as configured         | 66 of 67 | 58          | 0.918 |
+| quota on every type   | 63 of 67 | 58          | 0.913 |
+| quota on nothing      | 65 of 67 | 58          | 0.913 |
+| per type limit 1      | 66 of 67 | 58          | 0.920 |
+| per type limit 3      | 66 of 67 | 58          | 0.917 |
+| per type limit 4      | 66 of 67 | 58          | 0.916 |
+| retired demotion 3    | 66 of 67 | 56          | 0.899 |
+| retired demotion 10   | 64 of 67 | 56          | 0.896 |
+| superseded demotion 0 | 66 of 67 | 59          | 0.924 |
+| superseded demotion 3 | 66 of 67 | 57          | 0.905 |
+| candidates 15         | 66 of 67 | 58          | 0.918 |
+| candidates 60         | 66 of 67 | 58          | 0.918 |
+
+Four things come out of it, and one of them is a disagreement.
+
+**Which types the quota applies to is the constant with the clearest evidence.** Naming
+three template written types scores 66. Applying the quota to everything scores 63, because
+it caps the reference documents and cuts off the third document a question needed. Applying
+it to nothing scores 65, because the templates crowd the answer out. Both directions are
+worse, which is not something the argument alone could have told you.
+
+**Not demoting a retired document is the best value on the range, not merely a defensible
+one.** Every step away from zero is worse: a demotion of three costs two first places and
+0.019 of MRR, and ten costs two on recall as well. Retrieval already prefers the current
+guide, because a question about how something works now matches it better, and pushing the
+retired one down only removes it from the answer that needed to mention it.
+
+**The candidate width does nothing here.** Fifteen and sixty score identically to the
+configured thirty. On a collection of 131 documents the fusion input is not the constraint,
+and the number is doing no work; it would begin to on a larger one.
+
+**And the sweep disagrees with the superseded demotion.** Zero beats the configured one on
+both first place and MRR. The four questions that move are the whole story:
+
+| Question                                              | demotion 1 | demotion 0 |
+| ----------------------------------------------------- | ---------- | ---------- |
+| What did the 5.0 runner release remove?               | rank 2     | rank 1     |
+| Was counting cache retention from the write reverted? | rank 2     | rank 1     |
+| Most recent change to how the cache is fetched on Fly | rank 1     | rank 2     |
+| Why is log masking not treated as a control?          | rank 3     | rank 4     |
+
+Every release note in the collection except the newest is superseded, because that is what
+being in a series means. So a question naming a release is a question about a document the
+demotion pushes down, and a question asking what is current now is one the demotion helps.
+The first two rows are the first kind and the last two are the second.
+
+The sweep is therefore not measuring which value is right. It is measuring how many
+questions of each kind I wrote, and I wrote two of one and one of the other. Moving the
+constant to match that ratio would be fitting the question set rather than the collection,
+and it stays at one. This is the second constant in this project that is not the
+best-scoring value, and both are kept for the same reason.
+
+## What still has not been measured
+
+`pnpm compare:providers` needs an `ANTHROPIC_API_KEY`, and there is not one configured
+here, so there is no table comparing the two generation models on this corpus. Rather than
+carry one measured somewhere else, there is none.
+
+What can be said without measuring is structural. Embeddings must come from Google because
+the Anthropic API has no embeddings endpoint, so Google is the default and one key runs the
+whole system. Answers are generated at temperature 0, and Claude Sonnet 5 does not accept
+that setting, so switching gives up run to run repeatability. Whether it gives up anything
+else here is not known, and this document will not guess.
