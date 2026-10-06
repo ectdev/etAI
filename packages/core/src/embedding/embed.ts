@@ -124,12 +124,12 @@ export async function embedDocuments(texts: string[]): Promise<EmbedResult> {
  * output forever. Concurrent requests for the same key share one call rather than racing
  * to make two. Failures are never cached.
  */
-const queryVectors = new LRUCache<string, readonly number[]>({
+const queryVectors = new LRUCache<string, readonly number[], { timeoutMs: number }>({
   max: 500,
   ttl: 60 * 60 * 1000,
-  fetchMethod: async (key) => {
+  fetchMethod: async (key, _stale, { context }) => {
     const text = key.slice(key.indexOf(KEY_SEPARATOR) + 1);
-    return Object.freeze(await embedQueryUncached(text));
+    return Object.freeze(await embedQueryUncached(text, context.timeoutMs));
   },
 });
 
@@ -140,11 +140,23 @@ export function queryCacheKey(signature: string, text: string): string {
   return `${signature}${KEY_SEPARATOR}${text}`;
 }
 
-/** Embeds a question, from the cache when the same question was embedded recently. */
-export async function embedQuery(text: string): Promise<number[]> {
-  const vector = await queryVectors.fetch(queryCacheKey(embeddingSignature(), text));
+/**
+ * Embeds a question, from the cache when the same question was embedded recently.
+ *
+ * The deadline defaults to the one a person waiting on a search can afford. A batch, such
+ * as the evaluation, passes `PROVIDER_TIMEOUT_MS.batchQueryEmbedding` so the SDK has room
+ * to back off when it meets the provider's per-minute limit.
+ */
+export async function embedQuery(
+  text: string,
+  options: { timeoutMs?: number } = {},
+): Promise<number[]> {
+  const timeoutMs = options.timeoutMs ?? PROVIDER_TIMEOUT_MS.queryEmbedding;
+  const vector = await queryVectors.fetch(queryCacheKey(embeddingSignature(), text), {
+    context: { timeoutMs },
+  });
   // fetch resolves undefined only when the fetch was aborted, which nothing here does.
-  if (!vector) return embedQueryUncached(text);
+  if (!vector) return embedQueryUncached(text, timeoutMs);
   return vector as number[];
 }
 
@@ -154,7 +166,10 @@ export function clearQueryCache(): void {
 }
 
 /** Embeds a question. The task type is the only difference, and it is the important one. */
-async function embedQueryUncached(text: string): Promise<number[]> {
+async function embedQueryUncached(
+  text: string,
+  timeoutMs: number = PROVIDER_TIMEOUT_MS.queryEmbedding,
+): Promise<number[]> {
   if (getEnv().EMBEDDING_PROVIDER === 'hashing') return hashEmbedding(text);
   const result = await callUpstream('embedding', () =>
     embed({
@@ -162,7 +177,7 @@ async function embedQueryUncached(text: string): Promise<number[]> {
       value: text,
       providerOptions: providerOptions('RETRIEVAL_QUERY'),
       maxRetries: 4,
-      abortSignal: AbortSignal.timeout(PROVIDER_TIMEOUT_MS.queryEmbedding),
+      abortSignal: AbortSignal.timeout(timeoutMs),
     }),
   );
 

@@ -1,3 +1,4 @@
+import { PROVIDER_TIMEOUT_MS } from '@etai/shared';
 import { embedQuery } from '../embedding/embed.js';
 import { normalizeQuestion } from '../retrieval/question.js';
 import { searchChunks } from '../retrieval/search.js';
@@ -106,7 +107,10 @@ async function embedOnce(questions: string[]): Promise<Map<string, number[]>> {
     const normalized = normalizeQuestion(question);
     if (!normalized.usable) continue;
 
-    vectors.set(question, await embedQuery(normalized.text));
+    vectors.set(
+      question,
+      await embedQuery(normalized.text, { timeoutMs: PROVIDER_TIMEOUT_MS.batchQueryEmbedding }),
+    );
   }
 
   return vectors;

@@ -20,10 +20,9 @@ different documents first for a third of the questions. Every tie is now settled
 something the corpus itself determines, and `determinism.test.ts` indexes the collection
 twice, in different orders, and requires the same five documents for every question.
 
-The keyless table further down was measured after that fix. The Google tables in this
-section were measured on 2026-10-05 before it, and before one term was renamed in 16
-documents; re-measuring them is waiting on the free tier's daily cap on embedding calls,
-which the day's other runs had used up, and they will be replaced rather than adjusted.
+Every table here was measured after that fix, on 2026-10-05 and 2026-10-06. Against the
+run before it, recall, first place and MRR came out the same; a few distances moved in the
+fourth decimal, and two conclusions of the sweep changed, which is noted where they are.
 
 ## Measuring retrieval
 
@@ -92,7 +91,7 @@ that changes.
 
 | Kind of question        | Nearest result, median | Range            |
 | ----------------------- | ---------------------- | ---------------- |
-| Answerable              | 0.2562                 | 0.1738 to 0.3828 |
+| Answerable              | 0.2557                 | 0.1726 to 0.3828 |
 | Mentioned, not answered | 0.2639                 | 0.2413 to 0.3022 |
 | Out of scope            | 0.4227                 | 0.2942 to 1.0000 |
 
@@ -149,7 +148,7 @@ scratch and again on one rebuilt in place, with the same result:
 | Recall@5                | 64 of 67         | 66 of 67             |
 | First place             | 43 of 67         | 59 of 67             |
 | MRR                     | 0.770            | 0.925                |
-| Answerable, distance    | 0.5784 to 0.9561 | 0.1738 to 0.3828     |
+| Answerable, distance    | 0.5784 to 0.9561 | 0.1726 to 0.3828     |
 | Mentioned, not answered | 0.7515 to 0.8852 | 0.2413 to 0.3022     |
 | Out of scope            | 0.7833 to 1.0000 | 0.2942 to 1.0000     |
 
@@ -168,48 +167,48 @@ one letter, a capital city). `keyless.test.ts` re-takes this measurement on ever
 ## Sweeping the ranking constants
 
 `pnpm eval --sweep` runs the whole set at twelve settings, each varying one thing from
-what is in the code. Run on 2026-09-03. It costs one embedding call per question for the
-whole run rather than one per question per setting, which is what makes twelve settings
-affordable at all.
-
-This table predates the tie fix described at the top, so its first row reads 58 and 0.918
-where today's configuration reads 59 and 0.925. Every row in it was measured in the same run
-under the same conditions, so the rows still compare with each other, and that comparison
-is what the table is for. Re-running it on 2026-10-05 stopped at the free tier's daily cap
-on embedding calls, so it waits for the next one rather than being estimated.
+what is in the code. Run on 2026-10-06, after the tie fix. It costs one embedding call per
+question for the whole run rather than one per question per setting, which is what makes
+twelve settings affordable at all.
 
 | Setting               | recall@5 | first place | MRR   |
 | --------------------- | -------- | ----------- | ----- |
-| as configured         | 66 of 67 | 58          | 0.918 |
-| quota on every type   | 63 of 67 | 58          | 0.913 |
-| quota on nothing      | 65 of 67 | 58          | 0.913 |
-| per type limit 1      | 66 of 67 | 58          | 0.920 |
-| per type limit 3      | 66 of 67 | 58          | 0.917 |
-| per type limit 4      | 66 of 67 | 58          | 0.916 |
-| retired demotion 3    | 66 of 67 | 56          | 0.899 |
-| retired demotion 10   | 64 of 67 | 56          | 0.896 |
-| superseded demotion 0 | 66 of 67 | 59          | 0.924 |
+| as configured         | 66 of 67 | 59          | 0.925 |
+| quota on every type   | 64 of 67 | 59          | 0.923 |
+| quota on nothing      | 65 of 67 | 59          | 0.920 |
+| per type limit 1      | 66 of 67 | 59          | 0.928 |
+| per type limit 3      | 66 of 67 | 59          | 0.924 |
+| per type limit 4      | 66 of 67 | 59          | 0.923 |
+| retired demotion 3    | 66 of 67 | 57          | 0.907 |
+| retired demotion 10   | 64 of 67 | 57          | 0.903 |
+| superseded demotion 0 | 66 of 67 | 60          | 0.932 |
 | superseded demotion 3 | 66 of 67 | 57          | 0.905 |
-| candidates 15         | 66 of 67 | 58          | 0.918 |
-| candidates 60         | 66 of 67 | 58          | 0.918 |
+| candidates 15         | 66 of 67 | 60          | 0.933 |
+| candidates 60         | 66 of 67 | 59          | 0.925 |
 
-Four things come out of it, and one of them is a disagreement.
+Four things come out of it, and two of them are disagreements.
 
 **Which types the quota applies to is the constant with the clearest evidence.** Naming
-three template written types scores 66. Applying the quota to everything scores 63, because
+three template written types scores 66. Applying the quota to everything scores 64, because
 it caps the reference documents and cuts off the third document a question needed. Applying
 it to nothing scores 65, because the templates crowd the answer out. Both directions are
 worse, which is not something the argument alone could have told you.
 
 **Not demoting a retired document is the best value on the range, not merely a defensible
 one.** Every step away from zero is worse: a demotion of three costs two first places and
-0.019 of MRR, and ten costs two on recall as well. Retrieval already prefers the current
+0.018 of MRR, and ten costs two on recall as well. Retrieval already prefers the current
 guide, because a question about how something works now matches it better, and pushing the
 retired one down only removes it from the answer that needed to mention it.
 
-**The candidate width does nothing here.** Fifteen and sixty score identically to the
-configured thirty. On a collection of 131 documents the fusion input is not the constraint,
-and the number is doing no work; it would begin to on a larger one.
+**The candidate width is nearly idle here, and fifteen edges thirty.** Sixty scores exactly
+what thirty does. Fifteen scores one first place better, and the one question that moves is
+"What did the 5.0 runner release remove?", from second to first: with fewer candidates per
+search, fewer of the later release notes are in the running against the one it names. That
+is the same trade as the superseded demotion below, and it is kept at thirty for the same
+reason, plus one of its own: a narrow window is the setting that fails first as a
+collection grows, and the cost of being wrong there is a document that never reaches
+ranking at all. The sweep in the first measurement found no difference here, which is a
+reminder that one question either way is within the noise of 67.
 
 **And the sweep disagrees with the superseded demotion.** Zero beats the configured one on
 both first place and MRR. The four questions that move are the whole story:

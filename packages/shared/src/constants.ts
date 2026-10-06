@@ -26,6 +26,13 @@ export const VECTOR_DIMENSIONS = 1536;
  */
 export const PROVIDER_TIMEOUT_MS = {
   queryEmbedding: 10_000,
+  /**
+   * A question embedded by a batch, such as the evaluation's hundred questions in a row.
+   * Those meet the provider's per-minute limit, and the SDK backs off and retries; ten
+   * seconds cut that short and failed a sweep that would have finished. Nobody is waiting
+   * on a page for these.
+   */
+  batchQueryEmbedding: 120_000,
   documentEmbeddings: 120_000,
   generation: 45_000,
 } as const;

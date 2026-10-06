@@ -12,12 +12,23 @@ import { UpstreamServiceError, VECTOR_DIMENSIONS } from '@etai/shared';
 let calls = 0;
 let failNext = 0;
 let lastSignal: AbortSignal | undefined;
+let delayMs = 0;
 
 vi.mock('ai', async (original) => ({
   ...(await original<typeof import('ai')>()),
   embed: vi.fn(async ({ value, abortSignal }: { value: string; abortSignal?: AbortSignal }) => {
     calls += 1;
     lastSignal = abortSignal;
+    if (delayMs > 0) {
+      // A slow provider that still honours the deadline it was given.
+      await new Promise((resolve, reject) => {
+        const timer = setTimeout(resolve, delayMs);
+        abortSignal?.addEventListener('abort', () => {
+          clearTimeout(timer);
+          reject(abortSignal.reason);
+        });
+      });
+    }
     if (failNext > 0) {
       failNext -= 1;
       throw Object.assign(new Error('503 high demand'), { statusCode: 503 });
@@ -33,6 +44,7 @@ process.env.EMBEDDING_PROVIDER = 'google';
 const { clearQueryCache, embedQuery, queryCacheKey } = await import('./embed.js');
 
 afterEach(() => {
+  delayMs = 0;
   calls = 0;
   failNext = 0;
   clearQueryCache();
@@ -98,5 +110,23 @@ describe('the deadline on a question embedding', () => {
 
     expect(lastSignal).toBeInstanceOf(AbortSignal);
     expect(lastSignal?.aborted).toBe(false);
+  });
+});
+
+describe('the deadline a caller chooses', () => {
+  it('gives up on a slow provider once a short deadline passes', async () => {
+    delayMs = 300;
+    const started = performance.now();
+
+    await expect(embedQuery('a question nobody can wait for', { timeoutMs: 50 })).rejects.toThrow();
+    expect(performance.now() - started).toBeLessThan(250);
+  });
+
+  it('waits it out when a batch allows longer', async () => {
+    delayMs = 100;
+
+    const vector = await embedQuery('a question in a batch', { timeoutMs: 1_000 });
+
+    expect(vector).toHaveLength(VECTOR_DIMENSIONS);
   });
 });

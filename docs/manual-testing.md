@@ -147,8 +147,8 @@ Two accounts exist after seeding: `admin@etai.local` / `demo-admin-password` and
 | 8.7 | `pnpm compare:providers`    | Both providers scored. Needs `ANTHROPIC_API_KEY`                | eval                                              |
 
 Rows 8.1, 8.3, 8.4 and 8.5 were run against this collection and the numbers are what they
-printed: 8.1, 8.3 and 8.4 on 2026-10-05, and 8.5 on 2026-09-03, before keyword ties were
-broken by path; see the note at the top of [evaluation.md](evaluation.md). Row 8.3 offline is `VERIFY_HTTP_OFFLINE=1`, which is how
+printed: 8.1 and 8.3 on 2026-10-05, 8.4 and 8.5 on 2026-10-06, after the tie fix described
+at the top of [evaluation.md](evaluation.md). Row 8.3 offline is `VERIFY_HTTP_OFFLINE=1`, which is how
 CI runs it: the 13 checks that need a model or embeddings that understand meaning are
 reported as skipped with the reason.
 

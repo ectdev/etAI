@@ -1,5 +1,7 @@
+import { PROVIDER_TIMEOUT_MS } from '@etai/shared';
 import { getPool } from '@etai/db';
 import { embedQuery, toVectorLiteral } from '../embedding/embed.js';
+import { normalizeQuestion } from '../retrieval/question.js';
 import { searchChunks } from '../retrieval/search.js';
 import { evalQueries, type EvalQuery, type QueryExpectation } from './queries.js';
 
@@ -39,7 +41,9 @@ export type Retriever = (question: string) => Promise<RetrievalOutcome>;
 /** The baseline: vector similarity alone, which is where this started. */
 export const vectorOnlyRetriever: Retriever = async (question) => {
   const pool = getPool();
-  const embedding = await embedQuery(question);
+  const embedding = await embedQuery(question, {
+    timeoutMs: PROVIDER_TIMEOUT_MS.batchQueryEmbedding,
+  });
 
   const { rows } = await pool.query<{ path: string; distance: string }>(
     `SELECT d.path, (c.embedding <=> $1::vector) AS distance
@@ -59,7 +63,11 @@ export const vectorOnlyRetriever: Retriever = async (question) => {
 
 /** Vector and keyword search fused by rank, with no metadata pass after it. */
 export const fusedOnlyRetriever: Retriever = async (question) => {
-  const result = await searchChunks(question, { limit: TOP_K, skipRanking: true });
+  const result = await searchChunks(question, {
+    limit: TOP_K,
+    skipRanking: true,
+    ...(await batchEmbedding(question)),
+  });
 
   return {
     paths: [...new Set(result.chunks.map((chunk) => chunk.path))],
@@ -69,7 +77,10 @@ export const fusedOnlyRetriever: Retriever = async (question) => {
 
 /** The full pipeline: both searches, fused, then ranked on what is known about each document. */
 export const hybridRetriever: Retriever = async (question) => {
-  const result = await searchChunks(question, { limit: TOP_K });
+  const result = await searchChunks(question, {
+    limit: TOP_K,
+    ...(await batchEmbedding(question)),
+  });
 
   return {
     // Several chunks can come from one document, and recall is about documents.
@@ -77,6 +88,25 @@ export const hybridRetriever: Retriever = async (question) => {
     nearestDistance: result.nearestDistance,
   };
 };
+
+/**
+ * The question's vector under the batch deadline, for the retrievers that go through
+ * `searchChunks`.
+ *
+ * An evaluation embeds a hundred questions in a row and meets the provider's per-minute
+ * limit, which the interactive deadline does not leave room to wait out. The text is the
+ * normalised one `searchChunks` would embed itself, so the result is the same as an
+ * interactive search's. An unusable question is left to `searchChunks` to refuse.
+ */
+async function batchEmbedding(question: string): Promise<{ embedding?: number[] }> {
+  const normalized = normalizeQuestion(question);
+  if (!normalized.usable) return {};
+  return {
+    embedding: await embedQuery(normalized.text, {
+      timeoutMs: PROVIDER_TIMEOUT_MS.batchQueryEmbedding,
+    }),
+  };
+}
 
 export async function measureQueries(
   retrieve: Retriever,

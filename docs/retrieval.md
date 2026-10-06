@@ -234,7 +234,7 @@ document down, it throws it past twenty others.
 
 ### Which constants were measured, and what the sweep said
 
-`pnpm eval --sweep` ran against this collection on 2026-09-03, at twelve settings. The
+`pnpm eval --sweep` ran against this collection on 2026-10-06, at twelve settings. The
 full table and the reasoning are in [evaluation.md](evaluation.md#sweeping-the-ranking-constants);
 what matters here is which way each constant came out.
 
@@ -243,17 +243,18 @@ measured rather than argued. Not demoting a retired document beats every demotio
 and the three named template types beat both capping everything and capping nothing.
 
 Two are not the best-scoring value and are kept anyway, which is worth stating plainly
-rather than rounding off. A per type limit of one scores 0.920 against the configured
-two at 0.918 in the sweep of 2026-09-03, on identical recall; it stays at two because the question a limit of one
+rather than rounding off. A per type limit of one scores 0.928 against the configured
+two at 0.925, on identical recall; it stays at two because the question a limit of one
 would answer worse is one that legitimately needs two documents of a kind, and this set
 contains no such question. And a superseded demotion of zero scores better than the
 configured one on both first place and MRR, because most release notes in a series are
 superseded by definition and a question naming a release is asking about one of them.
 Changing it would be fitting the ratio of question kinds I happened to write.
 
-One does nothing at this size. Fifteen candidates and sixty score exactly what thirty
-scores, so on 131 documents that number is not the constraint. It would begin to matter
-on a larger collection, and the sweep is how you would find out.
+The candidate width is nearly idle at this size. Sixty scores exactly what thirty does,
+and fifteen gains one first place on a question naming an old release, the same trade
+the superseded demotion makes. It stays at thirty, because a narrow window is the first
+thing to fail as a collection grows, and the sweep is how you would see that happen.
 
 Not measured anywhere: the constant inside rank fusion, which is 60. It comes from the
 paper the method is described in and was left alone. Tuning it on one person's question
